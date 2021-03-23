@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "332677969950",
+    "firebase_url": "https://obvio-20210.firebaseio.com",
+    "project_id": "obvio-20210",
+    "storage_bucket": "obvio-20210.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332677969950:android:7ba74ec9fc56c3e763160f",
+        "android_client_info": {
+          "package_name": "com.obvious.obvio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332677969950-d4lrosrlpfl47v5cnd51es7s9n28q49q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZVXbkEoncCsUMbCTLbSLANEhw5IVK2nU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332677969950-d4lrosrlpfl47v5cnd51es7s9n28q49q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

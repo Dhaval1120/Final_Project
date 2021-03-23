@@ -1,0 +1,245 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+import 'package:obvio/Loading/Loading.dart';
+import 'package:obvio/Design/background.dart';
+
+
+class Requests extends StatefulWidget {
+  @override
+  _RequestsState createState() => _RequestsState();
+}
+
+class _RequestsState extends State<Requests> {
+
+  var currentId , currentName;
+  var userProfilePic;
+
+  void setId () async{
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+
+    setState(() {
+      currentId = user.uid;
+      print(currentId);
+
+      Firestore.instance.collection('Ravan').document(currentId).get().then((value) {
+        setState(() {
+          currentName = value['name'];
+        });
+      });
+    });
+
+  }
+
+  var requestedName;
+
+  Future<void> setUser(DocumentSnapshot snapshot , String requestedId) async{
+    Firestore.instance.collection('Ravan').document(snapshot['docId']).get().then((value)  {
+
+      setState(() {
+        requestedName = value['name'];
+        userProfilePic = value['image'];
+      });
+    });
+
+  }
+  var requestedId;
+
+    Widget buildRequestList(BuildContext context , DocumentSnapshot snapshot)
+  {
+    var id = snapshot.documentID;
+    requestedId = snapshot["docId"];
+
+    //print(id);
+    //print(requestedId);
+    //setUser(snapshot , requestedId);
+
+
+    return  Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    /*SizedBox(width: 5,),
+                    CircleAvatar(
+                      backgroundColor: Colors.red,
+                      radius: 25,
+                      child: ClipOval(
+                        child: SizedBox(
+                          height: 50,
+                          width: 50,
+                          child: Image(
+
+                              image: CachedNetworkImageProvider(
+                                  userProfilePic),
+                              //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                              fit: BoxFit.contain
+
+                          ),
+                        ),
+                      ),
+                    ),*/
+                    SizedBox(width: 10,),
+                    Text(snapshot.data["name"],style: TextStyle(
+                        fontSize: 18
+                        // fontFamily: 'Sriracha'
+                        ,
+                        color: Colors.deepPurple,
+                        fontWeight:FontWeight.bold
+                    )
+                    ),
+                    SizedBox(width :2 ),
+                    Text("sent you a request." ,style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        //fontFamily: 'Sriracha',
+                        color: Colors.black
+                    )
+                    ),
+                  ],
+                ),
+                SizedBox(height: 5,),
+               Align(
+                 alignment: Alignment.topLeft,
+                 child:Row(
+                   children: <Widget>[
+                     //SizedBox(width: 50),
+                     RaisedButton(
+                       onPressed : () {
+                         Firestore.instance.collection('Ravan').document(requestedId).collection('Following').document(currentId).setData({
+                           'docId' : currentId,
+                           'name' : currentName,
+                         }).then((value) {
+
+                           Firestore.instance.collection('Ravan').document(currentId).
+                           collection('Requests').document(snapshot.documentID).delete();
+
+                           Firestore.instance.collection('Ravan').document(requestedId).
+                           collection('Requested').document(currentId).delete();
+
+
+                           Firestore.instance.collection('Ravan').document(requestedId).
+                           collection('Requested').document(currentId).delete();
+
+                           Firestore.instance.collection('Ravan').document(currentId).collection('Followers').document(requestedId).setData({
+                             'docId' : requestedId,
+                             'name' : snapshot.data["name"],
+                           });
+                         }
+                         );
+                         },
+                       shape: RoundedRectangleBorder(
+
+                         borderRadius: BorderRadius.circular(6)
+                       ),
+                       elevation: 6,
+                       highlightElevation: 8,
+                       highlightColor: Colors.purple,
+                       color: Colors.purple,
+                       focusColor: Colors.blue,
+                       child:  Text('Accept', style: TextStyle(
+                         color: Colors.white,
+                         fontSize: 15,
+                       ),),
+
+                     ),
+                     SizedBox(width: 5,),
+
+                     RaisedButton(
+
+                       color: Colors.blue,
+                       elevation: 5,
+                       onPressed: (){
+                         Firestore.instance.collection('Ravan').document(currentId).
+                         collection('Requests').document(snapshot.documentID).delete();
+
+                       },
+                       shape: RoundedRectangleBorder(
+                           borderRadius: BorderRadius.circular(6)
+                       ),
+                       child:  Text('Reject', style: TextStyle(
+                         fontSize: 15 ,
+                         color: Colors.white
+                       ),),
+
+                     ),
+                   ],
+                 )
+               )
+              ],
+            ),
+          )
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setId();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+
+      return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 3.0,
+          brightness: Brightness.dark,
+          titleSpacing: 2.0,
+          title: Text("Requests",
+            style : TextStyle(
+              fontFamily: 'Pacifico',
+              fontSize: 20.0,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Color(0xff09203f),
+
+        ),
+
+        body: Stack(
+          children: <Widget>[
+            Container(
+              child: Background(),
+            ),
+            StreamBuilder(
+                stream: Firestore.instance.collection('Ravan').document(currentId).collection('Requests').snapshots(),
+                builder: (context , snapshot)
+                {
+                  if(!snapshot.hasData) return Loading();
+                  else if(snapshot.data.documents.length < 1){
+                    return Center(
+                        child: Text("No Records Found" ,style: TextStyle(color: Colors.white,fontSize: 22 ,),
+                        )
+                    );
+                  }
+
+                  return ListView.builder(
+                    itemBuilder: (context , index) => buildRequestList(context ,snapshot.data.documents[index]),
+                    itemCount: snapshot.data.documents.length,
+                  );
+                }
+            ),
+          ],
+        )
+      ),
+    );
+  }
+}
