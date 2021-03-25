@@ -60,7 +60,13 @@ flutter:
     - assets/shirley11.jpg
     - assets/shirley.jpg
     - assets/events.jpg
-
+    - assets/comment_icon.jpg
+    - assets/send_icon.png
+    - assets/gallery_icon_1.jfif
+    - assets/message_icon.png
+    - assets/photos_icon.png
+    - assets/registered_event_icon.png
+    - assets/event_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

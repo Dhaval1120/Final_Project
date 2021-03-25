@@ -90,9 +90,7 @@ class _RequestsState extends State<Requests> {
                     ),*/
                     SizedBox(width: 10,),
                     Text(snapshot.data["name"],style: TextStyle(
-                        fontSize: 18
-                        // fontFamily: 'Sriracha'
-                        ,
+                        fontSize: 18,
                         color: Colors.deepPurple,
                         fontWeight:FontWeight.bold
                     )
@@ -138,8 +136,7 @@ class _RequestsState extends State<Requests> {
                          );
                          },
                        shape: RoundedRectangleBorder(
-
-                         borderRadius: BorderRadius.circular(6)
+                           borderRadius: BorderRadius.circular(6)
                        ),
                        elevation: 6,
                        highlightElevation: 8,
@@ -199,43 +196,56 @@ class _RequestsState extends State<Requests> {
 
       return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 3.0,
-          brightness: Brightness.dark,
-          titleSpacing: 2.0,
-          title: Text("Requests",
-            style : TextStyle(
-              fontFamily: 'Pacifico',
-              fontSize: 20.0,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: Color(0xff09203f),
-
-        ),
-
-        body: Stack(
+        body: Column(
           children: <Widget>[
-            Container(
-              child: Background(),
+            ClipRRect(
+                child: Material(
+                  elevation: 20,
+                  child: Container(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              colors: [Colors.deepOrangeAccent , Colors.orange]
+                          )
+                      ),
+                      height: 55,
+                      width: MediaQuery.of(context).size.width,
+                      child: ListTile(
+                          leading: InkWell(
+                              onTap: (){
+                                Navigator.pop(context);
+                              },
+                              child: Icon(Icons.arrow_back , color: Colors.white,)),
+                          title: Text(" Requests ", style:  TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            //fontFamily: "Lobster"
+                          ),),
+                      )
+                    //color: Colors.redAccent
+                  ),
+                ),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
             ),
-            StreamBuilder(
-                stream: Firestore.instance.collection('Ravan').document(currentId).collection('Requests').snapshots(),
-                builder: (context , snapshot)
-                {
-                  if(!snapshot.hasData) return Loading();
-                  else if(snapshot.data.documents.length < 1){
-                    return Center(
-                        child: Text("No Records Found" ,style: TextStyle(color: Colors.white,fontSize: 22 ,),
-                        )
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemBuilder: (context , index) => buildRequestList(context ,snapshot.data.documents[index]),
-                    itemCount: snapshot.data.documents.length,
-                  );
-                }
+            Expanded(
+              child: Container(
+                child: StreamBuilder(
+                    stream: Firestore.instance.collection('Ravan').document(currentId).collection('Requests').snapshots(),
+                    builder: (context , snapshot)
+                    {
+                      if(!snapshot.hasData) return Container();
+                      else if(snapshot.data.documents.length < 1){
+                        return Center(
+                            child: Text("No Records Found" ,style: TextStyle(color: Colors.black,fontSize: 18 ,),
+                            )
+                        );
+                      }
+                      return ListView.builder(
+                        itemBuilder: (context , index) => buildRequestList(context ,snapshot.data.documents[index]),
+                        itemCount: snapshot.data.documents.length,
+                      );
+                    }
+                ),
+              ),
             ),
           ],
         )

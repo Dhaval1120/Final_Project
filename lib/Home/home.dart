@@ -4,11 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:obvio/Home/MyProfile.dart';
 import 'package:obvio/Home/NewPosts.dart';
+import 'package:obvio/Home/SearchHere.dart';
 import 'package:obvio/Home/SharedPre.dart';
 import 'package:obvio/Home/UplaodImage.dart';
 import 'package:obvio/Home/UserEvents.dart';
 import 'package:obvio/Services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'Notifications.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -39,69 +42,97 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     super.initState();
     setUserData();
 //    SharedPre();
-    controller = TabController(vsync: this, length: 4);
+    controller = TabController(vsync: this, length: 5);
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-        appBar: AppBar(
-          elevation: 3.0,
-          brightness: Brightness.dark,
-          titleSpacing: 2.0,
-          title: Text("Ecstasy",
-            style: TextStyle(
-              fontFamily: 'Pacifico',
-              fontSize: 20.0,
+    return DefaultTabController(
+      length: 5,
+      child: Scaffold(
+          body: Column(
+          children: [
+            Expanded(
+              child: TabBarView(
+                  controller: controller,
+                  children: <Widget>[
+                    NewPosts(),
+                    UserEvents(),
+                    SearchHere(),
+                    Notifications(),
+                    MyProfilePage(),
+                  ],
+                ),
             ),
-          ),
-          actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: (){
-                  Navigator.pushNamed(context, '/msgbox');
-                },
-                child: Icon(
-                  Icons.chat,
-                  size: 23,
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xffff512f),Color(0xffdd2476)],
+                    )
+                ),
+                child: TabBar(
+                  controller: controller,
+                  indicator:  BoxDecoration(
+                      borderRadius: BorderRadius.circular(20), // Creates border
+                      color: Colors.black.withOpacity(0.4)),
+                  indicatorColor: Colors.orangeAccent,
+                  tabs: [
+                    Container(
+                        child:IconButton(
+                          highlightColor: Colors.deepOrangeAccent,
+                          splashColor: Colors.deepPurple,
+                          icon : Icon(Icons.home,color:Colors.white,size:30, ),
+                          onPressed: () => UserEvents(),
+                          // onPressed: () => Navigator.pushNamed(context, '/userEvent'),
+                        )
+                    ),
+                    Container(
+                        child:IconButton(
+                          highlightColor: Colors.deepOrangeAccent,
+                          splashColor: Colors.deepPurple,
+                          icon : Icon(Icons.event_available,color:Colors.white,size:30, ),
+                          onPressed: () => UserEvents(),
+                          // onPressed: () => Navigator.pushNamed(context, '/userEvent'),
+                        )
+                    ),
+                    Container(
+                        child:IconButton(
+                          highlightColor: Colors.deepOrangeAccent,
+                          splashColor: Colors.deepPurple,
+                          icon : Icon(Icons.search,color:Colors.white,size:30, ),
+                          onPressed: () => SearchHere(),
+                          //onPressed: () => Navigator.pushNamed(context, '/searchHere'),
+                        )
+                    ),
+                    Container(
+                        child:IconButton(
+                          splashColor: Colors.deepPurple,
+                          highlightColor: Colors.deepOrangeAccent,
+                          icon : Icon(Icons.notifications,color:Colors.white,size:30, ),
+                          onPressed: () => Notifications(),
+                          //onPressed: () => Navigator.pushNamed(context, '/notifications'),
+                        )
+                    ),
+                    Container(
+                        child:IconButton(
+                          highlightColor: Colors.deepOrangeAccent,
+                          splashColor: Colors.deepPurple,
+                          icon : Icon(Icons.person_outline,color:Colors.white,size:30, ),
+                          onPressed: () => MyProfilePage(),
+                        //  onPressed: () => Navigator.pushNamed(context, '/myProfile'),
+                        )
+                    ),
+                  ],
                 ),
               ),
             )
           ],
-          centerTitle: true,
-          backgroundColor: Color(0xff09203f),
-
-        ),
-
-          /*new TabBar(
-              labelColor: Colors.black,
-              controller: controller,
-              tabs: <Widget>[
-                Tab(child: Container(color: Colors.lightBlue,
-                    child: Icon(Icons.home, color: Colors.black,))),
-                Tab(child: Container(color: Colors.purple,
-                    child: Icon(Icons.event, color: Colors.black,)),),
-                Tab(child: Container(color: Colors.green,
-                    child: Icon(Icons.add, color: Colors.black,)),),
-                Tab(child: Container(color: Colors.deepOrange,
-                    child: Icon(Icons.person_outline, color: Colors.black))),
-              ]
-          ),*/
-
-        body: NewPosts(),
-      /*TabBarView(
-          controller: controller,
-          children: <Widget>[
-
-            NewPosts(),
-            UserEvents(),
-            UploadMyImage(),
-            MyProfilePage(),
-          ],
-        ) */ //NewsFeed()
+        ) //NewsFeed()
+      ),
     );
   }
 }

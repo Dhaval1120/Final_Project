@@ -138,50 +138,63 @@ class _FollowingState extends State<Following> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 3.0,
-          brightness: Brightness.dark,
-          titleSpacing: 2.0,
-          title: Text("Following",
-            style : TextStyle(
-              //     fontFamily: 'Pacifico',
-              fontSize: 20.0,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: Color(0xff09203f),
-
-        ),
-
         body: Container(
           decoration: BoxDecoration(
-            /*radient: LinearGradient(
-              colors: [
-                Color(0xffff512f),
-                Color(0xffdd2476)
-              ], //Color(0xff009fff) ,Color(0xffec2f4b)],
-
-              // begin : Alignment.topLeft,
-              //   end : Alignment.bottomRight
-            ),*/
           ),
-          child: StreamBuilder(
-              stream: Firestore.instance.collection('Ravan').document(data['id']).collection('Following').snapshots(),
-              builder: (context , snapshot)
-              {
+          child: Column(
+            children: [
+              ClipRRect(
+                  child: Material(
+                    elevation: 20,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [Colors.deepOrangeAccent , Colors.orange]
+                            )
+                        ),
+                        height: 55,
+                        width: MediaQuery.of(context).size.width,
+                        child: ListTile(
+                          leading: InkWell(
+                            onTap: (){
+                              Navigator.pop(context);
+                            },
+                            child: Icon(Icons.arrow_back),
+                          ),
+                          title: Text(" Following ", style:  TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontFamily: "Lobster"
+                          ),),
+                        )
+                      //color: Colors.redAccent
+                    ),
+                  ),
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
+              ),
+              Expanded(
+                child: Container(
+                  child: StreamBuilder(
+                      stream: Firestore.instance.collection('Ravan').document(data['id']).collection('Following').snapshots(),
+                      builder: (context , snapshot)
+                      {
 
-                if(!snapshot.hasData) return Loading();
-                else if(snapshot.data.documents.length < 1){
-                  return Center(
-                      child: Text("No Users Found" ,style: TextStyle(color: Colors.black,fontSize: 22 ),
-                      )
-                  );
-                }
-                return ListView.builder(
-                  itemBuilder: (context , index) => buildUser(context ,snapshot.data.documents[index] ,index ,snapshot.data.documents.length),
-                  itemCount: snapshot.data.documents.length,
-                );
-              }
+                        if(!snapshot.hasData) return Loading();
+                        else if(snapshot.data.documents.length < 1){
+                          return Center(
+                              child: Text("No Users Found" ,style: TextStyle(color: Colors.black,fontSize: 22 ),
+                              )
+                          );
+                        }
+                        return ListView.builder(
+                          itemBuilder: (context , index) => buildUser(context ,snapshot.data.documents[index] ,index ,snapshot.data.documents.length),
+                          itemCount: snapshot.data.documents.length,
+                        );
+                      }
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
