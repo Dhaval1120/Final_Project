@@ -35,6 +35,7 @@ class _SignInState extends State<SignIn> {
             style : TextStyle(
               fontFamily: 'Pacifico',
               fontSize: 20.0,
+              color: Colors.white
             )
 
         ),
@@ -75,6 +76,9 @@ class _SignInState extends State<SignIn> {
                                     borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
                                 ),
                               labelText : "E-mail or Phone",
+                              labelStyle: TextStyle(
+                                  color: Colors.black
+                              ),
                                 filled: true,
                                 focusColor: Colors.purple,
                                 hoverColor: Colors.red,
@@ -102,6 +106,9 @@ class _SignInState extends State<SignIn> {
                                 ),
 
                                 labelText : "Password",
+                              labelStyle: TextStyle(
+                                color: Colors.black
+                              ),
                               filled: true,
                               focusColor: Colors.purple
                             ),
