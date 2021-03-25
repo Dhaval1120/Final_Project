@@ -51,8 +51,7 @@ class _NotificationsState extends State<Notifications> {
             children: <Widget>[
               SizedBox(width: 5,),
               CircleAvatar(
-
-                backgroundColor: Colors.white,
+                  backgroundColor: Colors.white,
                   radius: 20,
                   child: FutureBuilder(
                       future: getProfile(),
@@ -119,51 +118,79 @@ class _NotificationsState extends State<Notifications> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 3.0,
-          brightness: Brightness.dark,
-          titleSpacing: 2.0,
-          title: Text("Notifications",
-            style : TextStyle(
-             // fontFamily: 'Pacifico',
-              fontSize: 20.0,
+        // appBar: AppBar(
+        //   elevation: 3.0,
+        //   brightness: Brightness.dark,
+        //   titleSpacing: 2.0,
+        //   title: Text("Notifications",
+        //     style : TextStyle(
+        //      // fontFamily: 'Pacifico',
+        //       fontSize: 20.0,
+        //     ),
+        //   ),
+        //   centerTitle: true,
+        //   backgroundColor: Color(0xff09203f),
+        //
+        //   actions: <Widget>[
+        //     Padding(
+        //       padding: const EdgeInsets.symmetric(horizontal: 8),
+        //       child: InkWell(child: Icon(Icons.person_add , size: 28,),hoverColor: Colors.blue,highlightColor: Colors.purple,
+        //           onTap: () => Navigator.pushNamed(context, '/requests')),
+        //     )
+        //   ],
+        // ),
+
+        body: Column(
+          children: [
+            ClipRRect(
+                child: Material(
+                  elevation: 20,
+                  child: Container(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              colors: [Colors.deepOrangeAccent , Colors.orange]
+                          )
+                      ),
+                      height: 55,
+                      width: MediaQuery.of(context).size.width,
+                      child: ListTile(
+                        title: Text(" Notifications ", style:  TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          //fontFamily: "Lobster"
+                        ),),
+                        trailing: InkWell(child: CircleAvatar(
+                             backgroundColor: Colors.white,
+                            child: Icon(Icons.person_add , size: 28,)),hoverColor: Colors.blue,highlightColor: Colors.red,
+                         onTap: () => Navigator.pushNamed(context, '/requests'))
+                      )
+                    //color: Colors.redAccent
+                  ),
+                ),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
             ),
-          ),
-          centerTitle: true,
-          backgroundColor: Color(0xff09203f),
+            Expanded(
+              child: Container(
+                child: StreamBuilder(
+                    stream : Firestore.instance.collection("Ravan").document(uid).
+                    collection('Notifications').orderBy('timestamp' ,descending: true) .snapshots(),
+                    builder: (context,snapshot)
+                    {
+                      if(!snapshot.hasData) return Container();
+                      else if(snapshot.data.documents.length < 1){
+                        return Center(
+                            child: Text("No Records" ,style: TextStyle(color: Colors.black,fontSize: 20),
+                            )
+                        );
+                      }
+                      return ListView.builder(
+                        itemBuilder: (context , index) => buildNotifications(context ,snapshot.data.documents[index]),
+                        itemCount: snapshot.data.documents.length,
+                      );
+                    }
 
-          actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: InkWell(child: Icon(Icons.person_add , size: 28,),hoverColor: Colors.blue,highlightColor: Colors.purple,
-                  onTap: () => Navigator.pushNamed(context, '/requests')),
-            )
-          ],
-        ),
-
-        body: Stack(
-          children: <Widget>[
-           /* Container(
-              child: Background(),
-            ),*/
-            StreamBuilder(
-                stream : Firestore.instance.collection("Ravan").document(uid).
-                collection('Notifications').orderBy('timestamp' ,descending: true) .snapshots(),
-                builder: (context,snapshot)
-                {
-                  if(!snapshot.hasData) return Loading();
-                  else if(snapshot.data.documents.length < 1){
-                    return Center(
-                        child: Text("No Records" ,style: TextStyle(color: Colors.black,fontSize: 20),
-                        )
-                    );
-                  }
-                  return ListView.builder(
-                    itemBuilder: (context , index) => buildNotifications(context ,snapshot.data.documents[index]),
-                    itemCount: snapshot.data.documents.length,
-                  );
-                }
-
+                ),
+              ),
             ),
           ],
         )

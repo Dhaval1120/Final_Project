@@ -20,6 +20,7 @@ class _ImagePickState extends State<ImagePick> {
   final picker = ImagePicker();
   String url;
   var uid;
+  bool flagForCircle = false;
   //static StorageReference ref = FirebaseStorage.instance.ref().child('shirley1');
 
  // var url = ref.getDownloadURL();
@@ -27,6 +28,9 @@ class _ImagePickState extends State<ImagePick> {
   Future uploadProfilePicture() async{
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
+    setState(() {
+      flagForCircle = true;
+    });
     StorageReference ref = FirebaseStorage.instance.ref().child('${user.email}/${user.email}_profilepic');
     StorageUploadTask uploadTask = ref.putFile((_image));
 
@@ -39,7 +43,9 @@ class _ImagePickState extends State<ImagePick> {
     });
 
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+
     setState(() {
+      flagForCircle = false;
       Navigator.pop(context);
       print("Sucesfully uploaded");
     });
@@ -102,7 +108,7 @@ class _ImagePickState extends State<ImagePick> {
         backgroundColor: Color(0xff09203f),
       ),
 
-      body: Stack(
+      body: !flagForCircle ?  Stack(
 
         children: <Widget>[
           Center(
@@ -110,25 +116,22 @@ class _ImagePickState extends State<ImagePick> {
                 ? Text('No image selected.')
                 : Image.file(_image),
           ),
-          Center(
-            child: _image == null
-                ? Text('No image selected.')
-                : Image.file(_image),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Align(
-                alignment: Alignment.bottomLeft,
-                child: RaisedButton(child: Text("Add",
-                    style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
-                    color: Colors.red,
-                    onPressed: uploadProfilePicture)
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: RaisedButton(child: Text("Add",
+                      style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
+                      color: Colors.red,
+                      onPressed: uploadProfilePicture)
+              ),
             ),
           )
 
         ],
 
-      ),
+      ) : Center(child: CircularProgressIndicator()),
 
 
       floatingActionButton: FloatingActionButton(

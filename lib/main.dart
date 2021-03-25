@@ -32,7 +32,10 @@ class MyApp extends StatelessWidget {
     return StreamProvider<User>.value(
       value : AuthService().user,
       child: MaterialApp(
-
+        theme: ThemeData(
+          primaryColor : Colors.white,
+        ),
+        debugShowCheckedModeBanner: false,
         home: Wrapper(),
         routes : {
           //'/signUp' : (context) => Register(),

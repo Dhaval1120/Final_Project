@@ -36,6 +36,7 @@ class _RegisterState extends State<Register> {
             style : TextStyle(
               fontFamily: 'Pacifico',
               fontSize: 20.0,
+              color: Colors.white
             ),
           ),
           centerTitle: true,
@@ -43,7 +44,6 @@ class _RegisterState extends State<Register> {
         ),
 
         body: Stack(
-
           children: <Widget>[
             Container(
               width: MediaQuery.of(context).size.width,
@@ -76,7 +76,9 @@ class _RegisterState extends State<Register> {
 
                             border : OutlineInputBorder(),
                             labelText : "Name",
-
+                            labelStyle: TextStyle(
+                                color: Colors.black
+                            ),
                             enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.white,width: 2)
                             ),
@@ -105,7 +107,9 @@ class _RegisterState extends State<Register> {
 
                             border : OutlineInputBorder(),
                             labelText : " UserName",
-
+                            labelStyle: TextStyle(
+                                color: Colors.black
+                            ),
                             enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.white,width: 2)
                             ),
@@ -133,7 +137,9 @@ class _RegisterState extends State<Register> {
 
                               border: OutlineInputBorder(),
                             labelText : "E-mail",
-
+                              labelStyle: TextStyle(
+                                  color: Colors.black
+                              ),
                               enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.white,width: 2)
                               ),
@@ -162,7 +168,9 @@ class _RegisterState extends State<Register> {
 
                             border: OutlineInputBorder(),
                             labelText : "Password",
-
+                            labelStyle: TextStyle(
+                                color: Colors.black
+                            ),
                             enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.white,width: 2)
                             ),

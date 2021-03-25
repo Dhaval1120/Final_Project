@@ -13,6 +13,8 @@ import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'addComment.dart';
+
 class MyProfilePage extends StatefulWidget {
   @override
   _MyProfilePageState createState() => _MyProfilePageState();
@@ -25,36 +27,49 @@ class _MyProfilePageState extends State<MyProfilePage>  {
       following = "";
   final picker = ImagePicker();
   String url;
-
+  List registeredEvents = List();
+  List registeredEventsDocIds = List();
+  getRegisteredEvents() async{
+    Firestore.instance.collection("Ravan").document(uid).collection("RegisteredEvents").orderBy("timeStamp" , descending: true).getDocuments().then((value) {
+       //registeredEvents.add(value);
+       for(int i = 0; i < value.documents.length ; i++)
+         {
+           registeredEventsDocIds.add(value.documents[i]['eventId']);
+           print(" Added Value is ${value.documents[i].documentID}");
+           Firestore.instance.collection("EventDetails").document(value.documents[i]['eventId']).get().then((value) {
+              registeredEvents.add(value);
+              setState(() {
+              });
+           });
+         }
+    });
+  }
   void setUserData() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
       uid = user.uid;
       print(uid);
-
       getMyEvents();
-
+      getRegisteredEvents();
       Firestore.instance.collection('Ravan').document(uid).collection(
           "Followers").getDocuments().then((value) {
-        setState(() {
-          followers = value.documents.length.toString();
-        });
+            setState(() {
+              followers = value.documents.length.toString();
+            });
       });
-
       Firestore.instance.collection('Ravan').document(uid).collection(
           'Following').getDocuments().then((value) {
-        setState(() {
-          following = value.documents.length.toString();
-        });
+           setState(() {
+             following = value.documents.length.toString();
+           });
       });
     });
   }
   List myEvents = List();
   List eventsDocIds = List();
   getMyEvents()async{
-
     int i = 0;
-    Firestore.instance.collection("Ravan").document(uid).collection("Events").getDocuments().then((value){
+    Firestore.instance.collection("Ravan").document(uid).collection("Events").orderBy("timeStamp" , descending: true).getDocuments().then((value){
       value.documents.forEach((element) {
         setState(() {
           myEvents.add(element);
@@ -82,10 +97,9 @@ class _MyProfilePageState extends State<MyProfilePage>  {
   void initState() {
     // TODO: implement initState
     super.initState();
-
     setUserData();
     scrollController = new ScrollController();
-    scrollController.addListener(() => setState(() {}));
+   // scrollController.addListener(() => setState(() {}));
   }
 
   var name;
@@ -106,120 +120,95 @@ class _MyProfilePageState extends State<MyProfilePage>  {
       pinned: false,
      // floating: true,
       flexibleSpace: FlexibleSpaceBar(
-          centerTitle: true,
-
-          /*title: Text("Profile",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-              )),*/
           background:StreamBuilder(
             stream: Firestore.instance.collection('Ravan')
               .document(uid)
               .snapshots(),
             builder: (context ,snapshot){
-
               return SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(1),
-                  child: snapshot.data != null ? Column(
-                    children: <Widget>[
-                      ConstrainedBox(
-
-                        constraints: BoxConstraints(
-                          maxHeight: 400,
-                        ),
-
-                        //width: MediaQuery.of(context).size.width,
-                        /* */
+                child: snapshot.data != null ? Column(
+                  children: <Widget>[
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                       // maxHeight: 400,
+                      ),
+                      child: Expanded(
                         child: Container(
-
-
-                          decoration: BoxDecoration(
-
-                              color: Color(0xff09203f),
-
-                              gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xffff512f),
-                                    Color(0xffdd2476)
-                                  ]
-                              )
-                          ),
+                          //height: double.infinity,
+                          color: Colors.white,
                           child: SingleChildScrollView(
                             child: Column(
                               children: <Widget>[
                                 SizedBox(height: 10),
                                 CircleAvatar(
-
                                   backgroundColor: Colors.white,
                                   radius: 100,
                                   child: ClipOval(
                                     child: SizedBox(
                                       height: 200,
                                       width: 200,
-                                      child: InkWell(
-                                        onLongPress: () =>
-                                            showDialog(context: context,
-                                                barrierDismissible: true,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    content: RaisedButton(
-                                                      focusColor: Colors
-                                                          .redAccent,
-                                                      color: Colors.redAccent,
-                                                      child: Text(
-                                                        "Upload Profile Picture",
-                                                        style: TextStyle(
-                                                          fontSize: 17,
-                                                          color: Colors.white,
+                                      child: Container(
+                                        clipBehavior: Clip.antiAlias,
+                                        decoration: BoxDecoration(),
+                                        child: InkWell(
+                                          onLongPress: () =>
+                                              showDialog(context: context,
+                                                  barrierDismissible: true,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      content: RaisedButton(
+                                                        focusColor: Colors
+                                                            .redAccent,
+                                                        color: Colors.redAccent,
+                                                        child: Text(
+                                                          "Upload Profile Picture",
+                                                          style: TextStyle(
+                                                            fontSize: 17,
+                                                            color: Colors.white,
 
-                                                        ),),
-                                                      onPressed: () =>
-                                                          Navigator
-                                                              .pushReplacementNamed(
-                                                              context,
-                                                              '/imagePick'),
-                                                    ),
-                                                  );
-                                                }
-                                            ),
-                                        child: snapshot.data != null ? Image(
-                                            image: CachedNetworkImageProvider(
-                                                snapshot.data["image"]),
-                                            //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                            fit: BoxFit.contain
-
-                                        ):Container(),
+                                                          ),),
+                                                        onPressed: () =>
+                                                            Navigator
+                                                                .pushReplacementNamed(
+                                                                context,
+                                                                '/imagePick'),
+                                                      ),
+                                                    );
+                                                  }
+                                              ),
+                                          child: snapshot.data != null ? Image(
+                                              image: CachedNetworkImageProvider(
+                                                  snapshot.data["image"]),
+                                              //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                                              fit: BoxFit.cover
+                                          ):Container(),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 2,),
+                                SizedBox(height: 5,),
                                 snapshot.data != null ?
-                                Center(child: Container(color: Colors.white,
+                                Center(child: Container(color: Colors.black12,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(snapshot.data['bio'],
-                                        style: TextStyle(fontSize: 16),),
+                                      child:snapshot.data['bio'] != null ? Text(snapshot.data['bio'],
+                                        style: TextStyle(fontSize: 16),) : SizedBox(height: 0,width: 0,)
                                     )),) : SizedBox(height: 0,width: 0,),
-                                SizedBox(height: 5),
+                                SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Center(
                                       child: Text(snapshot.data['name']
                                         , style: TextStyle(
-                                            fontSize: 23,
-                                            fontFamily: "Pacifico",
-                                            color: Colors.white
+                                            fontSize: 18,
+                                          //  fontFamily: "Pacifico",
+                                            color: Colors.black,
                                         ),),
                                     ),
-
-
                                   ],
                                 ),
-
                                 SizedBox(height: 2),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment
@@ -228,7 +217,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                     Column(
                                       children: <Widget>[
                                         Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(4.0),
                                           child: RaisedButton(
                                             color: Colors.blueAccent,
                                             child: Text(
@@ -240,7 +229,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                             ),),
                                             onPressed: () =>
                                             {
-                                              Navigator.pushReplacementNamed(
+                                              Navigator.pushNamed(
                                                   context, '/followers',
                                                   arguments: {
                                                     'id': uid,
@@ -251,7 +240,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                         Text(followers, style: TextStyle(
                                             fontSize: 20,
                                             // fontFamily: 'Pacifico',
-                                            color: Colors.white
+                                            color: Colors.red
                                         ),),
                                         SizedBox(height: 3,)
                                       ],
@@ -259,7 +248,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                     Column(
                                       children: <Widget>[
                                         Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(4.0),
                                           child: RaisedButton(
                                             color: Colors.blueAccent,
                                             child: Text(
@@ -283,7 +272,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                         Text(following, style: TextStyle(
                                             fontSize: 20,
                                             // fontFamily: 'Pacifico',
-                                            color: Colors.white
+                                            color: Colors.red
                                         ),),
                                       ],
                                     ),
@@ -298,7 +287,6 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-
 
                                   elevation: 10,
                                   color: Color(0xff6495ed),
@@ -317,7 +305,6 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                     Navigator.pushNamed(
                                         context, '/editProfile'),
                                   },
-
                                 ),
                                 SizedBox(height: 3),
                               ],
@@ -325,16 +312,16 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                           ),
                         ),
                       ),
-                    ],
-                  ) : Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xff48c6ef), Color(0xff6f86d6)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
                     ),
-                  )
+                  ],
+                ) : Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xff48c6ef), Color(0xff6f86d6)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                  ),
                 ),
               );
             },
@@ -344,212 +331,208 @@ class _MyProfilePageState extends State<MyProfilePage>  {
     );
 
     return Scaffold(
-        endDrawer: StreamBuilder(
-            stream: Firestore.instance.collection('Ravan')
-                .document(uid)
-                .snapshots(),
-            builder: (context, snapshot) {
-              return Drawer(
-                  child: ListView(
-
-                    //padding : EdgeInsets.only(left : 3.0 , right : 3.0),
-
-                    children: <Widget>[
-                      DrawerHeader(
-                        child: Container(
-                          decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xff48c6ef), Color(0xff6f86d6)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              )
-                          ),
-
-                          child: Center(
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(height: 5.0,),
-                                InkWell(
-                                  highlightColor: Colors.orangeAccent,
-                                  splashColor: Colors.cyanAccent,
-                                  radius: 5.0,
-
-                                  /* onTap: () {
-                                  Navigator.pushNamed(context, '/imagePick');
-                                  //ImagePick();
-                                },*/
-
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    radius: 50,
-                                    child: ClipOval(
-
-                                      child: SizedBox(
-                                        height: 100,
-                                        width: 100,
-                                        child: Image(
-
-                                            image: CachedNetworkImageProvider(
-                                                snapshot.data["image"]),
-                                            //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                            fit: BoxFit.contain
-
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 1),
-                                Text(snapshot.data["name"],
-                                    style: TextStyle(
-                                        fontSize: 15.0,
-//                                        fontFamily: 'Sriracha',
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 3.0,
-                                        color: Colors.white
-                                    )
-                                )
-                              ],
-                            ),
-
-                          ),
-                        ),
-                      ),
-
-                      Divider(
-                        color: Colors.blueAccent,
-                      ),
-                      Container(
-                        color: Color(0xff50A6C2),
-                        child: InkWell(
-                          highlightColor: Colors.orangeAccent,
-                          splashColor: Colors.cyanAccent,
-                          radius: 5.0,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: ListTile(
-                              leading: Icon(
-                                Icons.event_available,
-                                color: Colors.deepPurple,
-                              ),
-                              title: Text('MyEvents',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-  ///                                fontFamily: 'Sriracha',
-                                  color: Colors.white,
-                                ),)
-
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 3,),
-                      Container(
-                        color: Color(0xff50A6C2),
-                        child: InkWell(
-                          highlightColor: Colors.orangeAccent,
-                          splashColor: Colors.cyanAccent,
-                          radius: 5.0,
-                          onTap: () {
-                            Navigator.pushNamed(context, '/myImages');
-                          },
-                          child: ListTile(
-                              leading: Icon(
-                                Icons.image,
-                                color: Colors.deepPurple,
-                              ),
-                              title: Text('Images',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-     //                             fontFamily: 'Sriracha',
-                                  color: Colors.white,
-                                ),)
-
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 3),
-
-                      Container(
-                        color: Color(0xff50A6C2),
-                        child: InkWell(
-                          highlightColor: Colors.orangeAccent,
-                          splashColor: Colors.cyanAccent,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-
-                          child: ListTile(
-                              leading: Icon(
-                                Icons.person_outline,
-                                color: Colors.deepPurple,
-                              ),
-                              title: Text('Friends',
-                                style: TextStyle(
-       //                           fontFamily: 'Sriracha',
-                                  fontSize: 16.0,
-                                  color: Colors.white,
-                                ),)
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 3),
-
-                      Container(
-                        color: Color(0xff50A6C2),
-                        child: InkWell(
-                          highlightColor: Colors.orangeAccent,
-                          splashColor: Colors.cyanAccent,
-                          onTap: () async {
-                           // Navigator.pop(context);
-                            auth.signOut().then((value) {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                              //Navigator.pushReplacement(context, 'sig')
-                            });
-                          },
-
-                          child: ListTile(
-                              leading: Icon(
-                                Icons.arrow_forward,
-                                color: Colors.deepPurple,
-                              ),
-                              title: Text('LogOut',
-                                style: TextStyle(
-                                  fontFamily: 'Sriracha',
-                                  fontSize: 16.0,
-                                  color: Colors.white,
-                                ),)
-                          ),
-                        ),
-                      ),
-                      // ignore: missing_return
-                    ],
-                  )
-
-              );
-            }
-        ),
-
-
-
-         appBar: AppBar(
-            elevation: 3.0,
-            brightness: Brightness.dark,
-            titleSpacing: 2.0,
-            title: Text("Profile",
-            style : TextStyle(
-            fontFamily: 'Pacifico',
-            fontSize: 20.0,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Color(0xff09203f),
-
-      ),
+//         endDrawer: StreamBuilder(
+//             stream: Firestore.instance.collection('Ravan')
+//                 .document(uid)
+//                 .snapshots(),
+//             builder: (context, snapshot) {
+//               return Drawer(
+//                   child: ListView(
+//
+//                     //padding : EdgeInsets.only(left : 3.0 , right : 3.0),
+//
+//                     children: <Widget>[
+//                       DrawerHeader(
+//                         child: Container(
+//                           decoration: BoxDecoration(
+//                               gradient: LinearGradient(
+//                                 colors: [Color(0xff48c6ef), Color(0xff6f86d6)],
+//                                 begin: Alignment.topLeft,
+//                                 end: Alignment.bottomRight,
+//                               )
+//                           ),
+//
+//                           child: Center(
+//                             child: Column(
+//                               children: <Widget>[
+//                                 SizedBox(height: 5.0,),
+//                                 InkWell(
+//                                   highlightColor: Colors.orangeAccent,
+//                                   splashColor: Colors.cyanAccent,
+//                                   radius: 5.0,
+//
+//                                   /* onTap: () {
+//                                   Navigator.pushNamed(context, '/imagePick');
+//                                   //ImagePick();
+//                                 },*/
+//
+//                                   child: CircleAvatar(
+//                                     backgroundColor: Colors.white,
+//                                     radius: 50,
+//                                     child: ClipOval(
+//
+//                                       child: SizedBox(
+//                                         height: 100,
+//                                         width: 100,
+//                                         child: Image(
+//
+//                                             image: CachedNetworkImageProvider(
+//                                                 snapshot.data["image"]),
+//                                             //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+//                                             fit: BoxFit.contain
+//
+//                                         ),
+//                                       ),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 SizedBox(height: 1),
+//                                 Text(snapshot.data["name"],
+//                                     style: TextStyle(
+//                                         fontSize: 15.0,
+// //                                        fontFamily: 'Sriracha',
+//                                         fontWeight: FontWeight.bold,
+//                                         letterSpacing: 3.0,
+//                                         color: Colors.white
+//                                     )
+//                                 )
+//                               ],
+//                             ),
+//
+//                           ),
+//                         ),
+//                       ),
+//
+//                       Divider(
+//                         color: Colors.blueAccent,
+//                       ),
+//                       Container(
+//                         color: Color(0xff50A6C2),
+//                         child: InkWell(
+//                           highlightColor: Colors.orangeAccent,
+//                           splashColor: Colors.cyanAccent,
+//                           radius: 5.0,
+//                           onTap: () {
+//                             Navigator.of(context).pop();
+//                           },
+//                           child: ListTile(
+//                               leading: Icon(
+//                                 Icons.event_available,
+//                                 color: Colors.deepPurple,
+//                               ),
+//                               title: Text('MyEvents',
+//                                 style: TextStyle(
+//                                   fontSize: 16.0,
+//   ///                                fontFamily: 'Sriracha',
+//                                   color: Colors.white,
+//                                 ),)
+//
+//                           ),
+//                         ),
+//                       ),
+//
+//                       SizedBox(height: 3,),
+//                       Container(
+//                         color: Color(0xff50A6C2),
+//                         child: InkWell(
+//                           highlightColor: Colors.orangeAccent,
+//                           splashColor: Colors.cyanAccent,
+//                           radius: 5.0,
+//                           onTap: () {
+//                             Navigator.pushNamed(context, '/myImages');
+//                           },
+//                           child: ListTile(
+//                               leading: Icon(
+//                                 Icons.image,
+//                                 color: Colors.deepPurple,
+//                               ),
+//                               title: Text('Images',
+//                                 style: TextStyle(
+//                                   fontSize: 16.0,
+//      //                             fontFamily: 'Sriracha',
+//                                   color: Colors.white,
+//                                 ),)
+//
+//                           ),
+//                         ),
+//                       ),
+//
+//                       SizedBox(height: 3),
+//
+//                       Container(
+//                         color: Color(0xff50A6C2),
+//                         child: InkWell(
+//                           highlightColor: Colors.orangeAccent,
+//                           splashColor: Colors.cyanAccent,
+//                           onTap: () {
+//                             Navigator.of(context).pop();
+//                           },
+//
+//                           child: ListTile(
+//                               leading: Icon(
+//                                 Icons.person_outline,
+//                                 color: Colors.deepPurple,
+//                               ),
+//                               title: Text('Friends',
+//                                 style: TextStyle(
+//        //                           fontFamily: 'Sriracha',
+//                                   fontSize: 16.0,
+//                                   color: Colors.white,
+//                                 ),)
+//                           ),
+//                         ),
+//                       ),
+//
+//                       SizedBox(height: 3),
+//
+//                       Container(
+//                         color: Color(0xff50A6C2),
+//                         child: InkWell(
+//                           highlightColor: Colors.orangeAccent,
+//                           splashColor: Colors.cyanAccent,
+//                           onTap: () async {
+//                            // Navigator.pop(context);
+//                             auth.signOut().then((value) {
+//                               Navigator.pop(context);
+//                               Navigator.pop(context);
+//                               //Navigator.pushReplacement(context, 'sig')
+//                             });
+//                           },
+//
+//                           child: ListTile(
+//                               leading: Icon(
+//                                 Icons.arrow_forward,
+//                                 color: Colors.deepPurple,
+//                               ),
+//                               title: Text('LogOut',
+//                                 style: TextStyle(
+//                                   fontFamily: 'Sriracha',
+//                                   fontSize: 16.0,
+//                                   color: Colors.white,
+//                                 ),)
+//                           ),
+//                         ),
+//                       ),
+//                       // ignore: missing_return
+//                     ],
+//                   )
+//
+//               );
+//             }
+//         ),
+//       //   appBar: AppBar(
+      //       elevation: 3.0,
+      //       brightness: Brightness.dark,
+      //       titleSpacing: 2.0,
+      //       title: Text("Profile",
+      //       style : TextStyle(
+      //       fontFamily: 'Pacifico',
+      //       fontSize: 20.0,
+      //     ),
+      //   ),
+      //   centerTitle: true,
+      //   backgroundColor: Color(0xff09203f),
+      // ),
 
         body: StreamBuilder(
             stream: Firestore.instance.collection('Ravan')
@@ -557,33 +540,70 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return Loading();
+                return Container();
               }
               name = snapshot.data["name"];
               print(name);
               profilepic = snapshot.data["image"];
               return SafeArea(
                 child: Scaffold(
-
                   body: new DefaultTabController(
-                    length: 2,
+                    length: 3,
                     child: NestedScrollView(
                       controller: scrollController,
                       headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                         return <Widget>[
+                          SliverToBoxAdapter(
+                            child:   ClipRRect(
+                                child: Material(
+                                  elevation: 20,
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                              colors: [Colors.deepOrangeAccent , Colors.orange]
+                                          )
+                                      ),
+                                      height: 55,
+                                      width: MediaQuery.of(context).size.width,
+                                      child: ListTile(
+                                          title: Text(" Profile ", style:  TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            //fontFamily: "Lobster"
+                                          ),),
+                                        trailing: InkWell(
+                                          child: Container(
+                                                child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text("Log Out" ,style: TextStyle(color: Colors.white),),
+                                          ),
+                                          color: Colors.black12,),
+                                          onTap: (){
+                                            auth.signOut().then((value) {
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    //color: Colors.redAccent
+                                  ),
+                                ),
+                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
+                            ),
+                          ),
+                          SliverToBoxAdapter(
+                            child: SizedBox(height: 5,),
+                          ),
                           flexibleSpaceWidget,
                           SliverPersistentHeader(
                             delegate: _SliverAppBarDelegate(
                               TabBar(
-                                labelColor: Colors.black87,
+                                labelColor: Colors.redAccent,
+                                indicatorColor: Colors.deepPurple,
                                 unselectedLabelColor: Colors.black26,
                                 tabs: [
-                                  Tab(
-                                    icon: Icon(Icons.photo_album),
-                                    text: "Photos",
-                                  ),
-                                  Tab(icon: Icon(Icons.event), text: "Events"),
-                            //      Tab(icon: Icon(Icons.monetization_on), text: "Earning"),
+                                  Tab(child: Image.asset('assets/photos_icon.png',height: 40 ,width: 40,), ),
+                                  Tab(child: Image.asset('assets/event_icon.png',height: 40 ,width: 40),),
+                                  Tab(child: Image.asset('assets/registered_event_icon.png',height: 40 ,width: 40),),
                                 ],
                               ),
                             ),
@@ -593,13 +613,14 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                       },
                       body: new TabBarView(
                         children: <Widget>[
+                          // Images
                           new StreamBuilder(
-                      stream: Firestore.instance.collection('Ravan').document(uid).collection('MyImages').snapshots(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) return Loading();
-                          else if(snapshot.data.documents.length < 1){
-                            return Center(
-                              child: Text("No Images to Show" , style: TextStyle(
+                          stream: Firestore.instance.collection('Ravan').document(uid).collection('MyImages').snapshots(),
+                           builder: (context, snapshot) {
+                           if (!snapshot.hasData) return Container();
+                            else if(snapshot.data.documents.length < 1){
+                             return Center(
+                               child: Text("No Images to Show" , style: TextStyle(
                                   color: Colors.blue,
                                   fontSize: 22,
                                   fontFamily: 'Pacifico'
@@ -614,45 +635,70 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                               //              itemExtent: 80.0,
                             );
 
-                        }
-                    ),
-                         Container(decoration: BoxDecoration(
-                           gradient: LinearGradient(
-                             begin: Alignment.topLeft,
-                             end: Alignment.centerRight,
-                             stops: [0.1 , 0.5],
-                             colors: [Colors.pinkAccent ,Colors.deepOrangeAccent]
-                           )
-                         ),
+                          }
+                        ),
+                         // Events
+                         myEvents.length != 0 ?  Container(decoration: BoxDecoration(),
                            child: ListView.builder(
                                itemCount: myEvents.length,
                                itemBuilder: (BuildContext context, int index) {
-                             return myEvents.length != 0 ? InkWell(
-                               onTap: (){
-                                 Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                                   return RegisteredUsers(docId: eventsDocIds[index]);
-                                 }));
-                               },
-                               child: Padding(
-                                 padding: const EdgeInsets.all(8.0),
-                                 child: Container(
-                                   decoration: BoxDecoration(
-                                       color: Color(0xfff0fff0),
-                                     borderRadius: BorderRadius.circular(5)
+                                 return myEvents.length != 0 ? InkWell(
+                                   onTap: (){
+                                     Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                                       return RegisteredUsers(docId: eventsDocIds[index]);
+                                     }));
+                                   },
+                                   child: Padding(
+                                     padding: const EdgeInsets.all(8.0),
+                                     child: Container(
+                                         decoration: BoxDecoration(
+                                             color: Color(0xfff0fff0),
+                                             border: Border.all(color: Colors.black),
+                                             borderRadius: BorderRadius.circular(5)
+                                         ),
+                                         height: 50,
+                                         child: ListTile(
+                                           //  tileColor: ,
+                                           leading: Icon(Icons.event_note ,color: Colors.teal,),
+                                           title: Text(myEvents[index]['event_name'] , style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                             overflow: TextOverflow.ellipsis,),
+                                         )
+                                     ),
                                    ),
-                                   height: 50,
-                                   child: ListTile(
-                                     leading: Icon(Icons.event_note ,color: Colors.teal,),
-                                     title: Text(myEvents[index]['event_name'] , style: TextStyle(color: Colors.orange ,  fontFamily: 'Sriracha'),
-                                     overflow: TextOverflow.ellipsis,),
-                                   )
-                                 ),
-                               ),
-                             ) : Center(child: Text(" No Registered Users " , style: TextStyle(color: Colors.white , fontFamily: 'Sriracha' ),),);
-                           }
+                                 ) : Container(
+                                 );//Center(child: Text(" No Registered Users " , style: TextStyle(color: Colors.white , fontFamily: 'Sriracha' ),),);
+                               }
                            ),
-                         )// Center(child: new Text("Empty")),
-                          //new Text("Earning"),
+                         ) : Center(child: Container(child: Text(" No Events "),),),// Center(child: new Text("Empty")),
+                          // Registered Events
+                          Center(child: registeredEvents.length != 0 ? ListView.builder(
+                            itemBuilder: (BuildContext context , int index){
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  // padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                      color: Color(0xfff0fff0),
+                                      border: Border.all(color: Colors.black),
+                                      borderRadius: BorderRadius.circular(5)
+                                  ),
+                                  height: 50,
+                                  child: ListTile(
+                                    leading: Icon(Icons.event_available , color: Colors.lightGreen,),
+                                    onTap: (){
+                                      Navigator.pushNamed(context, '/eventDescription', arguments: {
+                                        'event_id' : registeredEventsDocIds[index],
+                                        'isRegistered' : true
+                                      }
+                                      );
+                                    },
+                                    title: Text(registeredEvents[index]['event_name'].toString(), overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },itemCount: registeredEvents.length,) : Center(child: Container(child : Text(" No Events "))))
                         ],
                       ),
                     ),
@@ -666,195 +712,200 @@ class _MyProfilePageState extends State<MyProfilePage>  {
 
 
     Widget _buildMyImages(BuildContext context, DocumentSnapshot snapshot) {
-
-    var increment ,decrement;
-
+      TransformationController controller = TransformationController();
+      var id = snapshot.documentID;
+      var increment , decrement;
+      bool isLiked = false;
+      int likes = 0;
+      var icon;
       Future<bool> checkLiked()
       async {
-        return await Firestore.instance.collection('UserUploadedImages').document(snapshot.documentID).collection('Liked').document(uid).get()
-            .then((value) {
-          if(!value.exists)
-          {
-            return false;
-          }
-          else
+        var docs = await Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).collection("Likes").getDocuments();
+        for(int i = 0 ; i < docs.documents.length ; i++)
+        {
+          if(docs.documents.elementAt(i)['userId'] == uid)
           {
             return true;
           }
-        });
+        }
+        return false;
       }
 
+      Future<String> getProfile()
+      async {
+        return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) => value.data['image']);
+      }
+
+      Future<int> getLikes() async{
+        DocumentSnapshot documentSnapshot = await Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).get();
+        return documentSnapshot.data['likes'];
+      }
       void increaseLikes()
       async {
-
-        increment = snapshot.data["likes"] + 1;
-
-        //sendNotification(id , snapshot);
-
-        Firestore.instance.collection('UserUploadedImages').document(snapshot.documentID).
-        updateData({'likes' : increment} );
-
-        Firestore.instance.collection('UserUploadedImages').document(snapshot.documentID).collection('Liked').
-        document(uid).setData({
-          'id' : uid,
+        print(" document is ${snapshot.documentID}");
+        Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).collection("Likes").document(uid).setData({
+          "userId": uid
         });
-
+        Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).get().then((likesData) {
+          print(" Likes is ${likesData['likes']}");
+          int x = likesData['likes'] + 1;
+          setState(() {
+            likes = x;
+            print(" Total Likes $x");
+          });
+          Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).updateData({
+            "likes" : x
+          });
+        });
+        setState(() {
+          isLiked = true;
+        });
       }
-
       void decreaseLikes()
       async {
-
-        decrement = snapshot.data['likes'] - 1;
-
-        await Firestore.instance.collection('UserUploadedImages').document(snapshot.documentID).collection('Liked')
-            .document(uid).delete();
-
-        Firestore.instance.collection('UserUploadedImages').document(snapshot.documentID).
-        updateData({'likes' : decrement} );
-
+        print(" decresing ");
+        Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).collection("Likes").document(uid).delete();
+        Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).get().then((likesData) {
+          int x = likesData['likes']  - 1;
+          setState(() {
+            likes = x;
+            print(" Total Likes $x");
+          });
+          Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).updateData({
+            "likes" : x
+          });
+        });
+        setState(() {
+          isLiked = false;
+        });
       }
-
-      return Stack(
+      //docId = snapshot['docId'];
+      name = snapshot.data["name"];
+   return Stack(
       children: <Widget>[
         ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: 400,
+            maxHeight: 500,
           ),
           child: Padding(
-            padding: EdgeInsets.only(top: 3, bottom: 3),
+            padding: EdgeInsets.only(top: 8, bottom: 8),
             child: Material(
-
               color: Colors.white,
-
               shadowColor: Colors.orangeAccent,
               child: Center(
                 child: Padding(
                   padding: EdgeInsets.all(1),
                   child: InkWell(
-                    onTap: () {
-                    },
                     splashColor: Colors.cyanAccent,
-                    highlightColor: Colors.teal,
-
+                    highlightColor: Colors.pink,
                     child: Column(
                       children: <Widget>[
 
                         Container(
-
                           width: MediaQuery
                               .of(context)
                               .size
                               .width,
-                          //height : .0,
                           child: Row(
                             children: <Widget>[
-
-                              Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.red,
-                                  radius: 18,
-                                  child: ClipOval(
-                                    child: SizedBox(
-                                      height: 36,
-                                      width: 36,
-                                      child: Image(
-
-                                          image: CachedNetworkImageProvider(
-                                              profilepic),
-                                          //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                          fit: BoxFit.contain
-
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 3,),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Center(
-                                    child: Text(snapshot['name']
-                                      ,style : TextStyle(
-                                        fontSize: 17,
-                          //              fontFamily: "Pacifico",
-                                        //  color: Colors.white
-                                      ),),
+
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal : 6.0 ,vertical : 5),
+                                    child: CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        radius: 20,
+                                        child:
+                                        FutureBuilder(
+                                            future: getProfile(),
+                                            builder:(context ,AsyncSnapshot<String> snapshot) {
+                                              if(snapshot.hasData)
+                                              {
+                                                return ClipOval(
+                                                  child: SizedBox(
+                                                    height: 40,
+                                                    width: 40,
+                                                    child: Image(
+                                                        image: CachedNetworkImageProvider(snapshot.data),
+                                                        //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                                                        fit: BoxFit.contain
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              else
+                                              {
+                                                return CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  radius: 20,
+                                                );
+                                              }
+                                            }
+                                        )
+                                    ),
+                                  ),
+                                  Column(
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: InkWell(
+                                          onTap: (){},
+                                          child: Text(snapshot.data['name'],style : TextStyle(
+                                            fontSize: 18,
+                                            //        fontWeight: FontWeight.bold,
+                                            // fontFamily: "Pacifico",
+                                            //  color: Colors.white
+                                          ),),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ],
                           ),
-
                         ),
+
                         Expanded(
                           child: Container(
-
-                            child: CachedNetworkImage(
-                              imageUrl: snapshot.data["image"],
-                              imageBuilder: (context , imageProvider) => Container(
-                                decoration: BoxDecoration(
-                                    image : DecorationImage(
-                                      image : imageProvider,
-                                      fit : BoxFit.contain,
-                                    )
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width,
+                            //    height: 300.0,
+                            child: Container(
+                              decoration: BoxDecoration(),
+                              child: InteractiveViewer(
+                                transformationController: controller,
+                                onInteractionEnd: (ScaleEndDetails endDetails){
+                                  controller.value = Matrix4.identity();
+                                },
+                                child: CachedNetworkImage(
+                                  imageUrl: snapshot["image"],
+                                  imageBuilder: (context , imageProvider) => Container(
+                                    decoration: BoxDecoration(
+                                        image : DecorationImage(
+                                          image : imageProvider,
+                                          fit : BoxFit.cover,
+                                        )
+                                    ),
+                                  ),
+                                  placeholder: (context , url) => Center(child: SpinKitCubeGrid(color: Colors.indigo,size: 60,)),
                                 ),
                               ),
-                              placeholder: (context , url) => Center(child: SpinKitDualRing(color: Colors.deepPurple,size: 60,)),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 3),
-
-                        Container(
-                            decoration: BoxDecoration(
-                              /*border: Border.all(
-                                        color : Colors.deepPurpleAccent,
-                                        width: 3
-
-                                      )*/
-                            ),
-                          /*  child : Row(
-                              children: <Widget>[
-                                IconButton(
-                                  icon: Icon(Icons.thumb_up,
-                                    size: 30,
-                                    color: Colors.redAccent,
-                                  ),
-
-                                  onPressed:(){
-
-                                  },
-
-                                ),
-
-                                IconButton(
-                                  onPressed: null,
-                                  icon: Icon(Icons.add_comment,
-                                      color: Colors.blue,
-                                      size : 30),
-                                ),
-                              ],
-                            )*/
                         ),
                         SizedBox(height: 1),
-
-                        /*Container(
-                          decoration: BoxDecoration(
-                            /*border: Border.all(
-                                        color : Colors.deepPurpleAccent,
-                                        width: 3
-
-                                      )*/
-                          ),
+                        Container(
+                          decoration: BoxDecoration(),
                           child : Row(
                             children: <Widget>[
-
                               FutureBuilder(
                                   future: checkLiked(),
                                   builder:(context ,AsyncSnapshot<bool> snapshot) {
-
                                     if(snapshot.hasData)
                                     {
                                       if(snapshot.data == false)
@@ -879,64 +930,34 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                     else
                                     {
                                       return IconButton(
+                                        onPressed: (){
+                                          increaseLikes();
+                                        },
                                         icon: Icon(Icons.favorite_border,size: 25,),
                                       );
                                     }
                                   }
                               ),
-                              IconButton(
-                                onPressed: (){
-
-                                  /*showModalBottomSheet(
-
-//                                      backgroundColor: Colors.blue,
-                                        enableDrag: true,
-                                        context: context,
-                                        builder:(context)=> Container(
-                                          height: MediaQuery.of(context).size.height/2,
-                                          width: MediaQuery.of(context).size.width,
-                                          child: Align(
-                                            alignment: Alignment.bottomCenter,
-                                            child: TextField(
-                                              autofocus: true,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                focusColor: Colors.purple,
-                                                hoverColor: Colors.red,
-                                                hintText: "Comment",
-                                                fillColor: Colors.white,
-
-                                                border : OutlineInputBorder(),
-
-
-                                                enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(6),
-                                                    borderSide: BorderSide(color: Colors.blueGrey,width: 2)
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
-                                                ),
-                                              ),
-                                              onChanged : (val) {
-                                                //msg = val;
-                                              },
-
-                                              onSubmitted: (String str){
-                                                //myController.clear();
-                                              },
-
-
-                                            ),
-                                          ),
-                                        )
-
-                                    );*/
+                              InkWell(
+                                onTap: (){
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: (BuildContext context)
+                                      {
+                                        return AddComment(commentId: snapshot.documentID , imageUserId: snapshot['docId'],);
+                                      }
+                                  ));
                                 },
-                                icon: Icon(Icons.add_comment,
-                                    color: Colors.deepPurple,
-                                    size : 30),
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  child: Image(
+                                    image: AssetImage('assets/comment_icon.jpg'),
+                                  ),
+                                ),
                               ),
+                              FutureBuilder(future : getLikes() ,builder: (BuildContext context , AsyncSnapshot snapshot ){
+                                return Text(" Likes ${snapshot.data}");
+                              })
                               /*
                                 IconButton(
                                   onPressed: null,
@@ -948,31 +969,8 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                             ],
                           ),
                         ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal : 8.0 ,vertical: 1),
-                              child: Text("Hearts"
-                                ,style : TextStyle(
-                                    fontSize: 20,
-                                    //              fontWeight: FontWeight.bold,
-                                    //     fontFamily: "Piedra",
-                                    color: Colors.indigo
-                                ),),
-                            ),
-                            SizedBox(width:2),
-                            Text(snapshot.data["likes"].toString(),
-                              style : TextStyle(
-                                  fontSize: 20,
-                                  //fontWeight: FontWeight.bold,
-                                  //fontFamily: "Piedra",
-                                  color: Colors.indigo
-                              ),),
-                          ],
-                        ),*/
-
+                        SizedBox(height: 3,),
+                        //Text(totalLikes.toString())
                       ],
                     ),
                   ),
@@ -1012,27 +1010,3 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

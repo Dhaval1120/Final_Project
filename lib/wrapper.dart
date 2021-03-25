@@ -5,14 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:obvio/Model/user.dart';
 class Wrapper extends StatelessWidget {
 
-
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
     print(user);
-
-
-     //return ImagePick();
     if(user == null)
       {
         return Authenticate();

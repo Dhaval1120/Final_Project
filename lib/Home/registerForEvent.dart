@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 class EventRegistration extends StatefulWidget {
@@ -17,7 +18,20 @@ class _EventRegistrationState extends State<EventRegistration> {
   String name = '';
   String username = '';
   String error = '';
+  String userId = '';
 
+  getUserId()async{
+    FirebaseUser firebaseUser = await FirebaseAuth.instance.currentUser();
+    setState(() {
+      userId = firebaseUser.uid;
+    });
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUserId();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,8 +115,9 @@ class _EventRegistrationState extends State<EventRegistration> {
                    SizedBox(height : 10),
 
                    TextFormField(
-                     validator: (val) => val.length < 6 ? 'Enter a contact No' : null,
+                     validator: (val) => val.length < 10 ? 'Enter a valid contact No' : null,
                      autofocus: true,
+                     keyboardType: TextInputType.number,
                      decoration: InputDecoration(
                        filled: true,
                        focusColor: Colors.purple,
@@ -154,7 +169,12 @@ class _EventRegistrationState extends State<EventRegistration> {
                              Firestore.instance.collection('EventDetails').document(widget.eventId).collection("Registered").add({
                                'name' : name,
                                'email' : email,
-                               'contact' : contact
+                               'contact' : contact,
+                               'uid' : userId
+                             });
+                             Firestore.instance.collection('Ravan').document(userId).collection('RegisteredEvents').add({
+                               'eventId' : widget.eventId,
+                               'timeStamp' : DateTime.now().toUtc().toString()
                              });
                              Navigator.pop(context);
                            }
@@ -200,11 +220,10 @@ class _EventRegistrationState extends State<EventRegistration> {
                  ],
                ),
                // ),
-
              ),
            ),
-
-         ),),
+         ),
+         ),
         ),
       ),
     );
