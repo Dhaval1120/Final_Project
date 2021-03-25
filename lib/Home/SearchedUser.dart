@@ -395,7 +395,7 @@ class _SearchedUserState extends State<SearchedUser>  {
                                       ),
                                     ),
                                   ) : Container(
-                                  );//Center(child: Text(" No Registered Users " , style: TextStyle(color: Colors.white , fontFamily: 'Sriracha' ),),);
+                                  );//Center(child: Text(" No Registered Users " , style: TextStyle(colokr: Colors.white , fontFamily: 'Sriracha' ),),);
                                 }
                             ),
                           ) : Center(child: Container(child: Text(" No Events "),),),// Center(child: new Text("Empty")),
