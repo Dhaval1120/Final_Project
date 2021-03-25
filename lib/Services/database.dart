@@ -35,7 +35,9 @@ class DatabaseService {
   }
 
   Future addEventToUserFirebase(String event_name, String host_name,
-      String location, String startdate,String enddate , String about,String time , int id ,String currentId ,String currentName)
+      String location, String startdate,String enddate , String about,String time , int id ,String currentId ,String currentName,
+      String department , String level
+      )
   async{
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user.uid);
@@ -50,6 +52,8 @@ class DatabaseService {
          'currentName' : currentName,
          'time': time,
          'Id' : id,
+         'department' : department,
+         'level' : level,
          'timeStamp' : DateTime.now().toUtc().toString()
        }).then((value) {
          events.document(value.documentID).setData({
@@ -61,6 +65,8 @@ class DatabaseService {
            'about' : about,
            'time': time,
            'id' : id,
+           'department' : department,
+           'level' : level,
            'currentName' : currentName,
            'currentId' : currentId,
            'timeStamp' : DateTime.now().toUtc().toString()

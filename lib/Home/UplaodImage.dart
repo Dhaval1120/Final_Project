@@ -31,7 +31,6 @@ class _UploadMyImageState extends State<UploadMyImage> {
         barrierDismissible: true,
           builder: (context){
            return AlertDialog(
-
              content: Text(" Succesfully Uploaded"),
              actions: <Widget>[
                FlatButton(
@@ -40,7 +39,7 @@ class _UploadMyImageState extends State<UploadMyImage> {
                )
              ],
            );
-          }
+            }
           );
         }
 
@@ -61,22 +60,6 @@ class _UploadMyImageState extends State<UploadMyImage> {
 
     image_id = '${user.email}_${this.i}' ;
 
-    Firestore.instance.collection("Ravan").document(userId).collection("Followers").getDocuments().then((value){
-        value.documents.forEach((element) {
-           Firestore.instance.collection("Ravan").document(element['docId']).collection('NewsFeed').add(
-             {
-               'image': url,
-               'likes': 0,
-               'profilepic' : profilepic,
-               'name': name,
-               'id' : image_id,
-               'docId' : userId,
-               'time' : DateTime.now().toUtc().toString(),
-               'timestamp' : DateTime.now().millisecondsSinceEpoch,
-             }
-           );
-        });
-    });
 
     Firestore.instance.collection("Ravan").document(uid).collection("MyImages").add({
       'image' : url,
@@ -87,6 +70,24 @@ class _UploadMyImageState extends State<UploadMyImage> {
       'time' : DateTime.now().toUtc().toString(),
       'docId' : userId,
       'timestamp' : DateTime.now().millisecondsSinceEpoch,
+    }).then((doc) {
+      Firestore.instance.collection("Ravan").document(userId).collection("Followers").getDocuments().then((value){
+        value.documents.forEach((element) {
+          Firestore.instance.collection("Ravan").document(element['docId']).collection('NewsFeed').document(doc.documentID).setData(
+              {
+                'image': url,
+                'likes': 0,
+                'profilepic' : profilepic,
+                'name': name,
+                'id' : image_id,
+                'docId' : userId,
+                'time' : DateTime.now().toUtc().toString(),
+                'timestamp' : DateTime.now().millisecondsSinceEpoch,
+              }
+          );
+        });
+      });
+
     });
 
 
@@ -101,7 +102,6 @@ class _UploadMyImageState extends State<UploadMyImage> {
 
   Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
     setState(() {
       _image = File(pickedFile.path);
     });
@@ -164,12 +164,13 @@ class _UploadMyImageState extends State<UploadMyImage> {
           Center(
             child: _image == null
                 ? Text('No image selected.')
-                : Image.file(_image),
-          ),
-          Center(
-            child: _image == null
-                ? Text('No image selected.')
-                : Image.file(_image),
+                : AspectRatio(
+                 aspectRatio: 4/5,
+                child: Container(
+                    decoration: BoxDecoration(
+                      border : Border.all(color: Colors.black)
+                    ),
+                    child: Image.file(_image , fit: BoxFit.cover,))),
           ),
           Padding(
             padding: const EdgeInsets.all(15.0),
@@ -184,7 +185,6 @@ class _UploadMyImageState extends State<UploadMyImage> {
         ],
       ),
 
-
       floatingActionButton: FloatingActionButton(
         onPressed: getImage,
         tooltip: 'Pick Image',
@@ -194,5 +194,4 @@ class _UploadMyImageState extends State<UploadMyImage> {
       ),
     );
   }
-
 }

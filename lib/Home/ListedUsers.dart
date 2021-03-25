@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:obvio/Home/SearchedUser.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:obvio/Services/auth.dart';
@@ -31,9 +32,7 @@ class _ListedUsersState extends State<ListedUsers> {
 
    Future<String> getProfile()
    async {
-
      return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) => value.data['image']);
-
    }
 
    var id = snapshot.documentID;
@@ -51,10 +50,10 @@ class _ListedUsersState extends State<ListedUsers> {
              }
            else
              {
-               Navigator.pushNamed(context, '/searchedUser' , arguments: {
-                 'id' : id,
-                 'name' : name,
-               });
+               Navigator.push(context, MaterialPageRoute(builder: (BuildContext context)
+               {
+                 return SearchedUser(searchedId: id, name: name,);
+               }));
              }
 
          },
@@ -123,59 +122,65 @@ class _ListedUsersState extends State<ListedUsers> {
 
   Widget build(BuildContext context) {
     Map data = ModalRoute.of(context).settings.arguments;
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-
     return SafeArea(
       child: Scaffold(
-          appBar: AppBar(
-            elevation: 3.0,
-            brightness: Brightness.dark,
-            titleSpacing: 2.0,
-            title: Text(data["name"],
-              style : TextStyle(
-          //      fontFamily: 'Pacifico',
-                fontSize: 20.0,
+          body : Column(
+            children: [
+              ClipRRect(
+                  child: Material(
+                    elevation: 20,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [Colors.deepOrangeAccent , Colors.orange]
+                            )
+                        ),
+                        height: 55,
+                        width: MediaQuery.of(context).size.width,
+                        child: ListTile(
+                          leading: InkWell(
+                              onTap: (){
+                                Navigator.pop(context);
+                              },
+                              child: Icon(Icons.arrow_back , color: Colors.white,)),
+
+                          title: Text(data['name'], style:  TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            //fontFamily: "Lobster"
+                          ),),
+                        )
+                      //color: Colors.redAccent
+                    ),
+                  ),
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
               ),
-            ),
-            centerTitle: true,
-            backgroundColor: Color(0xff09203f),
+              Expanded(
+                child: Container(
+                  child: StreamBuilder(
+                    stream: Firestore.instance.collection('Ravan').where('name', isLessThanOrEqualTo: data['name']).snapshots(),
+                    builder: (context , snapshot)
+                    {
+                      if(!snapshot.hasData) return Container();
+                      else if(snapshot.data.documents.length < 1){
+                        return Center(
+                                child: Text("No Users Found" ,style: TextStyle(color: Colors.white,fontSize: 22 ),
+                                )
+                        );
+                      }
 
-          ),
-          body : Container(
-            /*decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xffff512f),
-                  Color(0xffdd2476)
-                ], //Color(0xff009fff) ,Color(0xffec2f4b)],
-
-                // begin : Alignment.topLeft,
-                //   end : Alignment.bottomRight
+                      return ListView.builder(
+                          itemBuilder: (context , index) => buildUser(context ,snapshot.data.documents[index]),
+                              itemCount: snapshot.data.documents.length,
+                      );
+                    }
+                  ),
+                ),
               ),
-            ),*/
-
-            child: StreamBuilder(
-              stream: Firestore.instance.collection('Ravan').where('name', isLessThanOrEqualTo: data['name']).snapshots(),
-              builder: (context , snapshot)
-              {
-
-                if(!snapshot.hasData) return Loading();
-                else if(snapshot.data.documents.length < 1){
-                  return Center(
-                          child: Text("No Users Found" ,style: TextStyle(color: Colors.white,fontSize: 22 ),
-                          )
-                  );
-                }
-
-                return ListView.builder(
-                    itemBuilder: (context , index) => buildUser(context ,snapshot.data.documents[index]),
-                        itemCount: snapshot.data.documents.length,
-                );
-              }
-            ),
+            ],
           ),
       ),
     );

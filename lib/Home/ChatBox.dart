@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
 class ChatBox extends StatefulWidget {
   @override
   _ChatBoxState createState() => _ChatBoxState();
@@ -14,16 +15,14 @@ class ChatBox extends StatefulWidget {
 
 class _ChatBoxState extends State<ChatBox> {
   final formKey = GlobalKey<FormState>();
-
+  bool isUploading = false;
   var currentId,currentName,friendId ,msgId, friendPic ,currentPic;
   String msg;
-
 
   TextEditingController myController;
 
   Widget _buildMsg(BuildContext context , DocumentSnapshot snapshot)
   {
-
     if(snapshot['sent'] == true)
       {
         if(snapshot['type'] == 'image')
@@ -32,32 +31,36 @@ class _ChatBoxState extends State<ChatBox> {
               padding: const EdgeInsets.symmetric(horizontal: 8 , vertical: 5),
               child: Align(
                 alignment: Alignment.topRight,
-                child: Container(
-                  decoration: BoxDecoration(
-                   // border: Border.all(width: 5)
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 350
                   ),
-                  alignment: Alignment.topRight,
-                  height: 375,
-                  width: MediaQuery.of(context).size.width - 120,
-                  child: CachedNetworkImage(
-                    imageUrl: snapshot["msg"],
-                    imageBuilder: (context , imageProvider) => Container(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
                       decoration: BoxDecoration(
-                          image : DecorationImage(
-                            image : imageProvider,
-                            fit : BoxFit.fitHeight,
-                          )
+                      ),
+                      alignment: Alignment.topRight,
+                      width: MediaQuery.of(context).size.width - 120,
+                      child: CachedNetworkImage(
+                        imageUrl: snapshot["msg"],
+                        imageBuilder: (context , imageProvider) => Container(
+                          decoration: BoxDecoration(
+                              image : DecorationImage(
+                                image : imageProvider,
+                                fit : BoxFit.cover,
+                              )
+                          ),
+                        ),
+                        placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
                       ),
                     ),
-                    placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
                   ),
                 ),
               ),
             );
             //print(snapshot['msg']);
           }
-
-
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Align(
@@ -94,15 +97,16 @@ class _ChatBoxState extends State<ChatBox> {
                       ],
                     ),
                   );
-                },
+                  },
 
 
                 child: Container(
-
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color : Color(0xff66cdaa)
-
+                      gradient: LinearGradient(
+                        colors: [Colors.deepOrangeAccent , Colors.orange]
+                      )
+                      //color : Color(0xff66cdaa)
                     ),
                     child: Padding(
 
@@ -122,38 +126,40 @@ class _ChatBoxState extends State<ChatBox> {
       }
     else
       {
-       // scrollController.jumpTo(scrollController.position.maxScrollExtent);
-
         if(snapshot['type'] == 'image')
         {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8 ,vertical: 5),
             child: Align(
               alignment: Alignment.topLeft,
-              child: Container(
-                alignment: Alignment.topRight,
-                height: 375,
-                width: MediaQuery.of(context).size.width - 120,
-                child: CachedNetworkImage(
-                  imageUrl: snapshot["msg"],
-                  imageBuilder: (context , imageProvider) => Container(
-                    decoration: BoxDecoration(
-                      //borderRadius: BorderRadius.circular(10),
-                        image : DecorationImage(
-                          image : imageProvider,
-                          fit : BoxFit.contain,
-                        )
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 350),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    alignment: Alignment.topRight,
+                   // height: 375,
+                    width: MediaQuery.of(context).size.width - 120,
+                    child: CachedNetworkImage(
+                      imageUrl: snapshot["msg"],
+                      imageBuilder: (context , imageProvider) => Container(
+                        decoration: BoxDecoration(
+                          //borderRadius: BorderRadius.circular(10),
+                            image : DecorationImage(
+                              image : imageProvider,
+                              fit : BoxFit.cover,
+                            )
+                        ),
+                      ),
+                      placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
                     ),
                   ),
-                  placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
                 ),
               ),
             ),
           );
           //print(snapshot['msg']);
         }
-
-
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Align(
@@ -197,9 +203,12 @@ class _ChatBoxState extends State<ChatBox> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    //color : Color(0xffee82ee),
-
-                    color: Color(0xffcd5c5c)
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.redAccent , Colors.orange]
+                    )
+                    //color: Color(0xffcd5c5c)
                   ),
 
                   child: Padding(
@@ -225,6 +234,9 @@ class _ChatBoxState extends State<ChatBox> {
 //    var userId = user.uid;
     i = randomNumber.nextInt(100000);
 
+    setState(() {
+      isUploading = true;
+    });
     StorageReference ref = FirebaseStorage.instance.ref().child(
         '${currentId}/${currentId}_${this.i}');
     StorageUploadTask uploadTask = ref.putFile((_image));
@@ -264,6 +276,9 @@ class _ChatBoxState extends State<ChatBox> {
       'received' : true,
       'sent' : false ,
       'timestamp' : DateTime.now().millisecondsSinceEpoch
+    });
+    setState(() {
+      isUploading = false;
     });
 
   }
@@ -333,12 +348,8 @@ class _ChatBoxState extends State<ChatBox> {
 
     Future<String> getProfile()
     async {
-
       return await Firestore.instance.collection('Ravan').document(data['friendId']).get().then((value) => value.data['image']);
-
-
     }
-
     getName();
 //    print(friendId);
 
@@ -346,158 +357,157 @@ class _ChatBoxState extends State<ChatBox> {
        {
          msgId = currentId.hashCode - friendId.hashCode;
       //   print(msgId);
-
        }
      else
        {
          msgId = friendId.hashCode - currentId.hashCode ;
         // print(msgId);
-
        }
      return SafeArea(
        child: Scaffold(
-         appBar: AppBar(
-           elevation: 3.0,
-           brightness: Brightness.light,
-
-           titleSpacing: 2.0,
-           title: Center(
-             child: Row(
-
-               mainAxisAlignment: MainAxisAlignment.center,
-               children: <Widget>[
-
-                 CircleAvatar(
-                     backgroundColor: Colors.white,
-                     radius: 20,
-                     child:
-                     FutureBuilder(
-                         future: getProfile(),
-                         builder:(context ,AsyncSnapshot<String> snapshot) {
-
-                           if(snapshot.hasData)
-                           {
-                             return ClipOval(
-                               child: SizedBox(
-                                 height: 40,
-                                 width: 40,
-                                 child: Image(
-
-                                     image: CachedNetworkImageProvider(snapshot.data),
-                                     //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                     fit: BoxFit.contain
-
-                                 ),
+         body: !isUploading ?  Container(
+           child: Column(
+             children: <Widget>[
+               Container(
+                 color: Colors.black.withOpacity(0.8),
+                 child: ClipRRect(
+                   borderRadius: BorderRadius.only(bottomRight: Radius.circular(30) , bottomLeft: Radius.circular(30)),
+                   child: Padding(
+                     padding: const EdgeInsets.fromLTRB(5, 3 , 5 ,5),
+                     child: Container(
+                       decoration: BoxDecoration(
+                           gradient: LinearGradient(
+                               colors: [Colors.lightBlue, Colors.deepPurple]
+                             //colors: [Colors.deepOrangeAccent , Colors.orange]
+                           )
+                       ),
+                       height: 50,
+                       child: Center(
+                         child: Row(
+                           mainAxisAlignment: MainAxisAlignment.center,
+                           children: <Widget>[
+                             CircleAvatar(
+                                 backgroundColor: Colors.white,
+                                 radius: 20,
+                                 child:
+                                 FutureBuilder(
+                                     future: getProfile(),
+                                     builder:(context ,AsyncSnapshot<String> snapshot) {
+                                       if(snapshot.hasData)
+                                       {
+                                         return ClipOval(
+                                           child: SizedBox(
+                                             height: 40,
+                                             width: 40,
+                                             child: Image(
+                                                 image: CachedNetworkImageProvider(snapshot.data),
+                                                 //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                                                 fit: BoxFit.contain
+                                             ),
+                                           ),
+                                         );
+                                       }
+                                       else
+                                       {
+                                         return CircleAvatar(
+                                           backgroundColor: Colors.white,
+                                           radius: 20,
+                                         );
+                                       }
+                                     }
+                                 )
+                             ),
+                             SizedBox(width: 8,),
+                             Text(friendName,
+                               style : TextStyle(
+                                 // fontFamily: 'Pacifico',
+                                   fontSize: 20.0,
+                                   color: Colors.white
                                ),
-                             );
-                           }
-                           else
-                           {
-                             return CircleAvatar(
-                               backgroundColor: Colors.white,
-                               radius: 20,
-                             );
-                           }
-                         }
-                     )
-                 ),
-                 SizedBox(width: 8,),
-                 Expanded(
-                   child: Text(friendName,
-                     style : TextStyle(
-                       // fontFamily: 'Pacifico',
-                       fontSize: 20.0,
+                             ),
+                           ],
+                         ),
+                       ),
                      ),
                    ),
                  ),
-               ],
-             ),
-           ),
+               ),
+               Expanded(
+                 child: Container(
+                   color: Colors.black.withOpacity(0.8),
+                   //color: Color(0xffffe4b5),
+                   child: StreamBuilder(
+                       stream: Firestore.instance.collection('Ravan').document(currentId.toString()).
+                       collection(msgId.toString()).orderBy('timestamp'.toString() , descending : false).snapshots(),
+                       builder: (context, snapshot) {
+                         return //Center(child: Text("Hello"));
+                           snapshot!=null ?  ListView.builder(
+                             //  reverse: true,
+                             itemBuilder: (context, index) =>
+                                 _buildMsg(
+                                     context, snapshot.data.documents[index]),
+                             controller: scrollController,
+                             itemCount: snapshot.data.documents.length,
+                             //              itemExtent: 80.0,
+                           ) : Container();
+                       }
+                   ),
 
-           //centerTitle: true,
-           backgroundColor: Color(0xff09203f),
+                   height: MediaQuery.of(context).size.height,
+                 ),
+               ),
+               Align(
+                 alignment: Alignment.bottomCenter,
+                 child: Padding(
+                   padding: const EdgeInsets.all(8.0),
+                   child: Container(
+                     child: Row(
+                       children: <Widget>[
+                         InkWell(
+                           onTap: (){
+                             getImage();
+                           },
+                           child: Container(
+                             height: 50,
+                             child: Image(image: AssetImage('assets/gallery_icon_1.jfif'),),
+                           ),
+                         ),
+                         Expanded(
+                           child: TextField(
+                             controller: myController,
+                             autofocus: true,
+                             keyboardType: TextInputType.multiline,
+                             maxLines: null,
+                             decoration: InputDecoration(
+                               filled: true,
+                               focusColor: Colors.purple,
+                               hoverColor: Colors.red,
+                               hintText: "Type Message",
+                               fillColor: Colors.white,
 
-         ),
-
-         body: Container(
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: Container(
-                  color: Color(0xffffe4b5),
-                  child: StreamBuilder(
-                      stream: Firestore.instance.collection('Ravan').document(currentId.toString()).
-                      collection(msgId.toString()).orderBy('timestamp'.toString() , descending : false).snapshots(),
-                      builder: (context, snapshot) {
-                        return //Center(child: Text("Hello"));
-                          ListView.builder(
-                          //  reverse: true,
-                            itemBuilder: (context, index) =>
-                                _buildMsg(
-                                    context, snapshot.data.documents[index]),
-                                    controller: scrollController,
-                                    itemCount: snapshot.data.documents.length,
-                            //              itemExtent: 80.0,
-                          );
-
-                      }
-                  ),
-
-                  height: MediaQuery.of(context).size.height,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    child: Row(
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(Icons.photo) ,
-                          color: Colors.indigo,
-                          iconSize: 40,
-                          onPressed: (){
-                            getImage();
-                          },
-                        ),
-                        Expanded(
-                          child: TextField(
-
-                            controller: myController,
-                            autofocus: true,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            decoration: InputDecoration(
-                              filled: true,
-                              focusColor: Colors.purple,
-                              hoverColor: Colors.red,
-                              hintText: "Type Message",
-                              fillColor: Colors.white,
-
-                              border : OutlineInputBorder(),
+                               border : OutlineInputBorder(),
 
 
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                  borderSide: BorderSide(color: Colors.blueGrey,width: 2)
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
-                              ),
-                            ),
-                            onChanged : (val) {
-                              msg = val;
+                               enabledBorder: OutlineInputBorder(
+                                   borderRadius: BorderRadius.circular(6),
+                                   borderSide: BorderSide(color: Colors.blueGrey,width: 2)
+                               ),
+                               focusedBorder: OutlineInputBorder(
+                                   borderRadius: BorderRadius.circular(10),
+                                   borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
+                               ),
+                             ),
+                             onChanged : (val) {
+                               msg = val;
                              },
 
-                            onSubmitted: (String str){
-                              myController.clear();
-                            },
+                             onSubmitted: (String str){
+                               myController.clear();
+                             },
 
-                          ),
-                        ),
-                        SizedBox(width: 4,),
+                           ),
+                         ),
+                         SizedBox(width: 4,),
                          InkWell(
                            onTap: (){
                              myController.clear();
@@ -535,26 +545,24 @@ class _ChatBoxState extends State<ChatBox> {
                              });
                            },
                            child: CircleAvatar(
-                            // backgroundColor: Color(0xff00ffff),
-                             backgroundColor:  Color(0xff6495ed),
-                             radius: 30,
-                              child: Icon(
-
-                                Icons.send,
-                               color: Colors.white,
-                               // size: 25,
-                              ),
-                            ),
+                             // backgroundColor: Color(0xff00ffff),
+                               backgroundColor:  Color(0xff6495ed),
+                               radius: 25,
+                               child:  Image(
+                                 height: 40,
+                                 width: 40,
+                                 image: AssetImage("assets/send_icon.png"),
+                               )
+                           ),
                          ),
-
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+                       ],
+                     ),
+                   ),
+                 ),
+               ),
+             ],
+           ),
+         ) : Center(child: CircularProgressIndicator(),)
        ),
      );
   }

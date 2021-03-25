@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:obvio/Design/background.dart';
 import 'package:obvio/Home/registerForEvent.dart';
-
+import 'package:intl/intl.dart';
 class EventDesc extends StatefulWidget {
   @override
   _EventDescState createState() => _EventDescState();
@@ -12,7 +13,7 @@ class EventDesc extends StatefulWidget {
 class _EventDescState extends State<EventDesc> {
 
   String title;
-  String about,event_name,host_name,location,startdate,enddate,time;
+  String about,event_name,host_name,location,startdate,enddate,time , department , level;
   String eventId;
   Future<void> getEventData(Map data)
   {
@@ -26,6 +27,8 @@ class _EventDescState extends State<EventDesc> {
             location = value['location'];
             startdate = value['startdate'];
             enddate = value['enddate'];
+            department = value['department'];
+            level = value['level'];
             time = value['time'];
           });
         });
@@ -220,7 +223,7 @@ class _EventDescState extends State<EventDesc> {
                                     style : TextStyle(
                                       //                              fontWeight: FontWeight.bold,
                                       //    fontFamily: 'Lobster',
-                                        fontSize: 25.0,
+                                        fontSize: 20.0,
                                         color : Colors.blueAccent
                                     )
                                 ) : Container()
@@ -232,9 +235,89 @@ class _EventDescState extends State<EventDesc> {
                         ),
                       ),
                     ),
-
-                    SizedBox (height : 10),
-
+                    SizedBox(height: 10,),
+                    department != null ?  Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5 , vertical: 2),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    width: 1
+                                )
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Text('Department : ',
+                                      style  : TextStyle(
+                                        //                            fontWeight: FontWeight.bold,
+                                        //fontFamily: 'Lobster',
+                                        fontSize: 22.0,
+                                        color : Colors.black,
+                                      )
+                                  ),
+                                  SizedBox(width : 3),
+                                  Expanded(
+                                      child:  department != null ? Text(department,
+                                          style : TextStyle(
+                                            //                              fontWeight: FontWeight.bold,
+                                            //    fontFamily: 'Lobster',
+                                              fontSize: 20.0,
+                                              color : Colors.blueAccent
+                                          )
+                                      ) : Container()
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10,)
+                      ],
+                    ): Container(),
+                    level != null ?  Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5 , vertical: 2),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    width: 1
+                                )
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Text('Level : ',
+                                      style  : TextStyle(
+                                        //                            fontWeight: FontWeight.bold,
+                                        //fontFamily: 'Lobster',
+                                        fontSize: 22.0,
+                                        color : Colors.black,
+                                      )
+                                  ),
+                                  SizedBox(width : 3),
+                                  Expanded(
+                                      child:  level != null ? Text(level,
+                                          style : TextStyle(
+                                            //                              fontWeight: FontWeight.bold,
+                                            //    fontFamily: 'Lobster',
+                                              fontSize: 20.0,
+                                              color : Colors.blueAccent
+                                          )
+                                      ) : Container()
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10,)
+                      ],
+                    ) : Container(),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
@@ -243,7 +326,6 @@ class _EventDescState extends State<EventDesc> {
                                 width: 1
                             )
                         ),
-
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
@@ -300,7 +382,7 @@ class _EventDescState extends State<EventDesc> {
                               SizedBox(width: 5.0,),
 
                               Expanded(
-                                child: startdate != null  ? Text(startdate,
+                                child: startdate != null  ? Text(startdate.split(' ').first,
                                     style : TextStyle(
                                       //    fontFamily: 'Lobster',
                                         fontSize: 20.0,
@@ -342,7 +424,7 @@ class _EventDescState extends State<EventDesc> {
                               SizedBox(width: 5.0,),
 
                               Expanded(
-                                child: enddate != null ? Text(enddate,
+                                child: enddate != null ? Text(enddate.split(" ").first,
                                     style : TextStyle(
                                       //    fontFamily: 'Lobster',
                                         fontSize: 20.0,
@@ -407,7 +489,7 @@ class _EventDescState extends State<EventDesc> {
                       )*/
 
                     SizedBox(height : 10 ),
-                    Padding(
+                    !data['isRegistered'] ?  Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Align(
                         alignment : Alignment.bottomCenter,
@@ -433,7 +515,7 @@ class _EventDescState extends State<EventDesc> {
                           },
                         ),
                       ),
-                    ),
+                    ) : Container()
                   ],
                 ),
               ),

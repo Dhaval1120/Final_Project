@@ -11,24 +11,19 @@ class MsgBox extends StatefulWidget {
 
 class _MsgBoxState extends State<MsgBox> {
 
-  var currentUser , currentProfile ,currentId;
+  var currentUser ='' , currentProfile ='' ,currentId = '';
 
   void setName()
   async{
 
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-
     Firestore.instance.collection('Ravan').document(user.uid).get().then((value) {
-
      setState(() {
-
        currentUser = value["name"];
        currentId = user.uid;
        currentProfile = value["image"];
-
      });//print(currentProfile),
     });
-
   }
 /*
   Future getPosts() async{
@@ -41,7 +36,6 @@ class _MsgBoxState extends State<MsgBox> {
 
   Widget buildChats(BuildContext context , DocumentSnapshot snapshot)
   {
-
 
     Future<String> getProfile()
     async {
@@ -101,9 +95,9 @@ class _MsgBoxState extends State<MsgBox> {
                               width: 40,
                               child: Image(
 
-                                  image: CachedNetworkImageProvider(snapshot.data),
+                                  image: CachedNetworkImageProvider(snapshot.data ,),
                                   //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                  fit: BoxFit.contain
+                                  fit: BoxFit.cover
 
                               ),
                             ),
@@ -177,40 +171,73 @@ class _MsgBoxState extends State<MsgBox> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 3.0,
-          brightness: Brightness.dark,
-          titleSpacing: 2.0,
-
-          title: Text("Chats",
-            style : TextStyle(
-              // fontFamily: 'Pacifico',
-              fontSize: 20.0,
+        // appBar: AppBar(
+        //   elevation: 3.0,
+        //   brightness: Brightness.dark,
+        //   titleSpacing: 2.0,
+        //
+        //   title: Text("Chats",
+        //     style : TextStyle(
+        //       // fontFamily: 'Pacifico',
+        //       fontSize: 20.0,
+        //     ),
+        //   ),
+        //   centerTitle: true,
+        //   backgroundColor: Color(0xff09203f),
+        //
+        // ),
+        body: Column(
+          children: [
+            ClipRRect(
+                child: Material(
+                  elevation: 20,
+                  child: Container(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              colors: [Colors.deepOrangeAccent , Colors.orange]
+                          )
+                      ),
+                      height: 55,
+                      width: MediaQuery.of(context).size.width,
+                      child: ListTile(
+                        title: Text(" Messages ", style:  TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontFamily: "Lobster"
+                        ),),
+                      )
+                    //color: Colors.redAccent
+                  ),
+                ),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
             ),
-          ),
-          centerTitle: true,
-          backgroundColor: Color(0xff09203f),
+            Expanded(
+              child: Container(
+               child : currentId != "" ? StreamBuilder(
+                 stream: Firestore.instance.collection('Ravan').document(currentId).collection('MsgBox').
+                 orderBy('timestamp' ,descending: true ).snapshots(),
+                 builder: (context , snapshot){
+                   if(snapshot.connectionState == ConnectionState.active)
+                     {
+                       if(snapshot.data.documents.length < 1)
+                       {
+                         return Center(child: Text("NO Chats" , style: TextStyle(fontSize: 20),));
+                       }
+                       else
+                       {
+                         return ListView.builder(
+                           itemBuilder: (context ,index) => buildChats(context , snapshot.data.documents[index]),
+                           itemCount: snapshot.data.documents.length,
 
-        ),
-        body: Container(
-         child : StreamBuilder(
-           stream: Firestore.instance.collection('Ravan').document(currentId).collection('MsgBox').
-           orderBy('timestamp' ,descending: true ).snapshots(),
-           builder: (context , snapshot){
-             if(snapshot.data.documents.length < 1)
-               {
-                 return Center(child: Text("NO Chats" , style: TextStyle(fontSize: 20),));
-               }
-             else
-               {
-                 return ListView.builder(
-                     itemBuilder: (context ,index) => buildChats(context , snapshot.data.documents[index]),
-                         itemCount: snapshot.data.documents.length,
-
-                 );
-               }
-           }
-         )
+                         );
+                       }
+                     }
+                    return Container();
+                 }
+               ) : Container()
+              ),
+            ),
+          ],
         ),
       )
     );

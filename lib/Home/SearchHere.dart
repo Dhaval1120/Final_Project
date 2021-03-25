@@ -22,89 +22,86 @@ class _SearchHereState extends State<SearchHere> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 3.0,
-          brightness: Brightness.dark,
-          titleSpacing: 2.0,
-          title: Text("Search",
-            style : TextStyle(
-              fontFamily: 'Pacifico',
-              fontSize: 20.0,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: Color(0xff09203f),
-
-        ),
-
-        body : Stack(
+        body : Column(
           children: <Widget>[
-            Container(
-              child : Background(),
-            ),
-
-            Column(
-              children: <Widget>[
-                Form(
-                  key : formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      decoration: InputDecoration(
-
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white,width: 2)
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
-                        ),
-                        labelText : "Search",
-                        filled: true,
-                        focusColor: Colors.purple,
-                        hoverColor: Colors.red,
-                        fillColor: Colors.white,
+            ClipRRect(
+                child: Material(
+                  elevation: 20,
+                  child: Container(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              colors: [Colors.deepOrangeAccent , Colors.orange]
+                          )
                       ),
-
-                      onChanged: (val){
-                        setState(() {
-                          search_text = val;
-
-                          print(search_text.toLowerCase());
-                        });
-                      },
-
-
-                    ),
+                      height: 55,
+                      width: MediaQuery.of(context).size.width,
+                      child: ListTile(
+                          title: Text(" Search ", style:  TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            //fontFamily: "Lobster"
+                          ),),
+                      )
+                    //color: Colors.redAccent
                   ),
                 ),
-                SizedBox(height:15),
-
-                RaisedButton(
-                  color : Color(0xff000080),
-                  hoverColor: Colors.blueAccent,
-                  elevation: 10.0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
+            ),
+            Form(
+              key : formKey,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(style: TextStyle(color: Colors.white),
+                  cursorColor: Colors.deepPurple,
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white,width: 2)
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
+                    ),
+                    labelText : "Search",
+                    labelStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    focusColor: Colors.purple,
+                    hoverColor: Colors.red,
+                    fillColor: Colors.redAccent,
                   ),
-                  splashColor: Colors.purple,
-                  child: Text("Search",
-                      style : TextStyle(
-                          fontFamily: 'Pacifico',
-                          color : Colors.white,
-                          fontSize: 20
-                      )
-
-                  ),
-                  onPressed: (){
-                    Navigator.pushNamed(context, '/listedUsers' , arguments: {
-                      'name' : search_text,
+                  onChanged: (val){
+                    setState(() {
+                      search_text = val;
+                      print(search_text.toLowerCase());
                     });
-                    print(search_text);
                   },
                 ),
-               ],
+              ),
             ),
-          ],
+            SizedBox(height:15),
+
+            RaisedButton(
+              color : Color(0xff000080),
+              hoverColor: Colors.blueAccent,
+              elevation: 10.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)
+              ),
+              splashColor: Colors.purple,
+              child: Text("Search",
+                  style : TextStyle(
+                      fontFamily: 'Pacifico',
+                      color : Colors.white,
+                      fontSize: 20
+                  )
+
+              ),
+              onPressed: (){
+                Navigator.pushNamed(context, '/listedUsers' , arguments: {
+                  'name' : search_text,
+                });
+                print(search_text);
+              },
+            ),
+           ],
         ),
       ),
     );
