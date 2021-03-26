@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
+import 'package:obvio/Notification/notifications.dart';
+import 'package:obvio/Utils/common_image_display_widget.dart';
 class ChatBox extends StatefulWidget {
   @override
   _ChatBoxState createState() => _ChatBoxState();
@@ -18,9 +19,7 @@ class _ChatBoxState extends State<ChatBox> {
   bool isUploading = false;
   var currentId,currentName,friendId ,msgId, friendPic ,currentPic;
   String msg;
-
   TextEditingController myController;
-
   Widget _buildMsg(BuildContext context , DocumentSnapshot snapshot)
   {
     if(snapshot['sent'] == true)
@@ -37,22 +36,29 @@ class _ChatBoxState extends State<ChatBox> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                      ),
-                      alignment: Alignment.topRight,
-                      width: MediaQuery.of(context).size.width - 120,
-                      child: CachedNetworkImage(
-                        imageUrl: snapshot["msg"],
-                        imageBuilder: (context , imageProvider) => Container(
-                          decoration: BoxDecoration(
-                              image : DecorationImage(
-                                image : imageProvider,
-                                fit : BoxFit.cover,
-                              )
-                          ),
+                    child: InkWell(
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                          return ImageDisplay(imgUrl: snapshot["msg"],);
+                        }));
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
                         ),
-                        placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
+                        alignment: Alignment.topRight,
+                        width: MediaQuery.of(context).size.width - 120,
+                        child: CachedNetworkImage(
+                          imageUrl: snapshot["msg"],
+                          imageBuilder: (context , imageProvider) => Container(
+                            decoration: BoxDecoration(
+                                image : DecorationImage(
+                                  image : imageProvider,
+                                  fit : BoxFit.cover,
+                                )
+                            ),
+                          ),
+                          placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
+                        ),
                       ),
                     ),
                   ),
@@ -136,22 +142,29 @@ class _ChatBoxState extends State<ChatBox> {
                 constraints: BoxConstraints(maxHeight: 350),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Container(
-                    alignment: Alignment.topRight,
-                   // height: 375,
-                    width: MediaQuery.of(context).size.width - 120,
-                    child: CachedNetworkImage(
-                      imageUrl: snapshot["msg"],
-                      imageBuilder: (context , imageProvider) => Container(
-                        decoration: BoxDecoration(
-                          //borderRadius: BorderRadius.circular(10),
-                            image : DecorationImage(
-                              image : imageProvider,
-                              fit : BoxFit.cover,
-                            )
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                        return ImageDisplay(imgUrl: snapshot["msg"],);
+                      }));
+                    },
+                    child: Container(
+                      alignment: Alignment.topRight,
+                     // height: 375,
+                      width: MediaQuery.of(context).size.width - 120,
+                      child: CachedNetworkImage(
+                        imageUrl: snapshot["msg"],
+                        imageBuilder: (context , imageProvider) => Container(
+                          decoration: BoxDecoration(
+                            //borderRadius: BorderRadius.circular(10),
+                              image : DecorationImage(
+                                image : imageProvider,
+                                fit : BoxFit.cover,
+                              )
+                          ),
                         ),
+                        placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
                       ),
-                      placeholder: (context , url) => Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)),
                     ),
                   ),
                 ),
@@ -299,11 +312,17 @@ class _ChatBoxState extends State<ChatBox> {
 
   ScrollController scrollController;
 
+  setScrollPostion()async{
+    Future.delayed(Duration(seconds: 2)).then((value) {
+      scrollController.animateTo(scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 2000), curve: Curves.easeOutQuint);
+    });
+  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     scrollController = new ScrollController();
+    setScrollPostion();
     myController = new TextEditingController();
   }
 
@@ -314,24 +333,22 @@ class _ChatBoxState extends State<ChatBox> {
     super.dispose();
   }
 
-  String friendName = "";
+  String friendName = ""; String token = '';
   void getName(){
     Firestore.instance.collection('Ravan').document(friendId).get().then((value) {
       setState(() {
-
         friendName = value['name'];
         friendPic = value['image'];
+        token = value['token'];
        // print(friendName);
       });
       });
-
     Firestore.instance.collection('Ravan').document(currentId).get().then((value){
     setState(() {
       currentName = value['name'];
       currentPic = value ['image'];
       // Pic = value['image'],
      // print(friendName);
-
     });
     });
 
@@ -344,8 +361,6 @@ class _ChatBoxState extends State<ChatBox> {
     currentId = data['currentId'];
     //print(currentId);
     friendId = data['friendId'];
-
-
     Future<String> getProfile()
     async {
       return await Firestore.instance.collection('Ravan').document(data['friendId']).get().then((value) => value.data['image']);
@@ -402,7 +417,7 @@ class _ChatBoxState extends State<ChatBox> {
                                              child: Image(
                                                  image: CachedNetworkImageProvider(snapshot.data),
                                                  //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                                 fit: BoxFit.contain
+                                                 fit: BoxFit.cover
                                              ),
                                            ),
                                          );
@@ -425,6 +440,11 @@ class _ChatBoxState extends State<ChatBox> {
                                    color: Colors.white
                                ),
                              ),
+                             // InkWell(
+                             //     onTap: (){
+                             //       scrollController.animateTo(scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 2000), curve: Curves.easeOutQuint);
+                             //     },
+                                // child: Icon(Icons.arrow_downward ,size: 20, color: Colors.white,))
                            ],
                          ),
                        ),
@@ -440,19 +460,16 @@ class _ChatBoxState extends State<ChatBox> {
                        stream: Firestore.instance.collection('Ravan').document(currentId.toString()).
                        collection(msgId.toString()).orderBy('timestamp'.toString() , descending : false).snapshots(),
                        builder: (context, snapshot) {
-                         return //Center(child: Text("Hello"));
-                           snapshot!=null ?  ListView.builder(
-                             //  reverse: true,
-                             itemBuilder: (context, index) =>
-                                 _buildMsg(
-                                     context, snapshot.data.documents[index]),
-                             controller: scrollController,
-                             itemCount: snapshot.data.documents.length,
-                             //              itemExtent: 80.0,
-                           ) : Container();
+                             return ListView.builder(
+                               itemBuilder: (context, index) =>
+                                   _buildMsg(
+                                       context, snapshot.data.documents[index]),
+                               controller: scrollController,
+                               itemCount: snapshot.data.documents.length,
+                               //              itemExtent: 80.0,
+                             );
                        }
                    ),
-
                    height: MediaQuery.of(context).size.height,
                  ),
                ),
@@ -511,7 +528,8 @@ class _ChatBoxState extends State<ChatBox> {
                          InkWell(
                            onTap: (){
                              myController.clear();
-                             scrollController.jumpTo(scrollController.position.maxScrollExtent);
+                             scrollController.animateTo(scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 20), curve: Curves.easeOutQuint);
+                             sendAndRetrieveMessage(token, msg , currentName);
                              print(msg);
                              Firestore.instance.collection('Ravan').document(currentId).collection(msgId.toString()).add({
                                'msg' : msg,
@@ -519,7 +537,6 @@ class _ChatBoxState extends State<ChatBox> {
                                'received' : false,
                                'timestamp' : DateTime.now().millisecondsSinceEpoch
                              });
-
 
                              Firestore.instance.collection('Ravan').document(currentId).collection('MsgBox').document(friendId).setData({
                                'Id' : friendId,
@@ -562,7 +579,14 @@ class _ChatBoxState extends State<ChatBox> {
                ),
              ],
            ),
-         ) : Center(child: CircularProgressIndicator(),)
+         ) : Container(
+           color: Colors.black,
+           child: Center(
+             child: CircularProgressIndicator(
+               backgroundColor: Colors.orange,
+             ),
+           ),
+         ),
        ),
      );
   }

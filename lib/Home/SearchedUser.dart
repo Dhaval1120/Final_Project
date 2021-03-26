@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:obvio/Home/ChatBox.dart';
 import 'package:obvio/Home/registeredUsers.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:obvio/Notification/notifications.dart';
 import 'package:obvio/Services/auth.dart';
 import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -19,7 +21,7 @@ class SearchedUser extends StatefulWidget {
   String searchedId , name;
 
   SearchedUser({this.searchedId , this.name}){
-    print("Searched Id is $searchedId");
+    print("Searched Id is $searchedId $name");
   }
 
   @override
@@ -28,20 +30,74 @@ class SearchedUser extends StatefulWidget {
 
 class _SearchedUserState extends State<SearchedUser>  {
 
-  String uid = '';
+  String uid = '' , token ='' , currentName;
   var followers = "",
       following = "";
+  String str1 = '' , str2 = 'Requested';
+  bool isfollowing , requested;
   final picker = ImagePicker();
   String url;
   List registeredEvents = List();
   List registeredEventsDocIds = List();
 
+  Future<void> checkFollowing()
+  async{
+    print("check Following ");
+    Firestore.instance.collection('Ravan').document(uid).collection('Following').document(widget.searchedId).get().then((value) {
+      if(!value.exists)
+      {
+        setState(() {
+          isfollowing = false;
+        });
+        Firestore.instance.collection('Ravan').document(uid).collection('Requested').document(widget.searchedId).get().then((value){
+          if(!value.exists)
+          {
+            setState(() {
+              requested = false;
+              str1 = "Be My Friend";
+              print("Str1 is $str1");
+            });
+          }
+          else{
+            setState(() {
+              requested = true;
+              str1 = str2;
+              print("Str1 is $str1");
+            });
+          }
+        }).catchError((e){
+          print("Requested Error is $e");
+        });
+      }
+      else
+      {
+        setState(() {
+          str1 = "Following";
+          isfollowing = true;
+          print("Str1 is $str1");
+        });
+      }
+    }).catchError((e){
+      print("Error is $e");
+    });
+  }
   void setUserData() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
       uid = user.uid;
       print(uid);
       getMyEvents();
+      Firestore.instance.collection('Ravan').document(uid).get().then((value) {
+        setState(() {
+          currentName = value['name'];
+        });
+      });
+      Firestore.instance.collection('Ravan').document(widget.searchedId).get().then((value) {
+        setState(() {
+          token = value['token'];
+          print("token is $token");
+        });
+      });
       //getRegisteredEvents();
       Firestore.instance.collection('Ravan').document(widget.searchedId).collection(
           "Followers").getDocuments().then((value) {
@@ -57,10 +113,12 @@ class _SearchedUserState extends State<SearchedUser>  {
           print("Following $following");
         });
       });
+      checkFollowing();
     });
   }
   List myEvents = List();
   List eventsDocIds = List();
+
   getMyEvents()async{
     Firestore.instance.collection("Ravan").document(widget.searchedId).collection("Events").orderBy("timeStamp" , descending: true).getDocuments().then((value){
       value.documents.forEach((element) {
@@ -247,10 +305,87 @@ class _SearchedUserState extends State<SearchedUser>  {
                                           // fontFamily: 'Pacifico',
                                           color: Colors.red
                                       ),),
+                                      SizedBox(height: 3,),
                                     ],
                                   ),
+
                                 ],
                               ),
+                              SizedBox(height: 3,),
+                              RaisedButton(onPressed: (){
+                                if(str1 == "Following")
+                                {
+                                  showDialog(context: context,
+                                      barrierDismissible: true,
+                                      builder: (context){
+                                        return AlertDialog(
+                                          content: InkWell(
+                                            onTap: (){
+                                              setState(() {
+
+                                                print(uid);
+                                                print("Searched ID");
+                                                print(widget.searchedId);
+                                                isfollowing = false;
+                                                str1 = "Be My Friend";
+
+                                                Firestore.instance.collection('Ravan').document(uid).collection('Following').
+                                                document(widget.searchedId).delete().then((value){
+                                                  print(widget.searchedId);
+                                                  print("deleted");
+                                                });
+
+                                                Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Followers').
+                                                document(uid).delete().then((value) {
+                                                  Navigator.pop(context);
+                                                });
+                                              });
+
+                                            },
+
+                                            child: Text(
+                                              "Unfollow" ,
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          ),
+
+                                        );
+                                      }
+                                  );
+                                }
+                                else if(str1 == "Be My Friend")
+                                {
+                                  setState(() {
+                                    str1 = str2;
+                                  });
+                                  Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Requests').
+                                  document(uid).setData({
+                                    'docId' : uid,
+                                    'name' : currentName,
+                                  });
+                                  print("sending Notification ");
+                                  sendAndRetrieveMessage(token, " ", "$currentName sent you a friend request.");
+                                  Firestore.instance.collection('Ravan').document(uid).collection('Requested').
+                                  document(widget.searchedId).setData({
+                                    'id' : widget.searchedId,
+                                  });
+
+                                }
+                                else if(str1 == "Requested")
+                                {
+                                  setState(() {
+                                    str1 = "Be My Friend";
+                                  });
+                                  Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Requests').
+                                  document(uid).delete();
+                                  Firestore.instance.collection('Ravan').document(uid).collection('Requested').
+                                  document(widget.searchedId).delete();
+                                }
+                              },
+                                child: Text(str1),
+                                color: Colors.orange,)
                             ],
                           ),
                         ),
@@ -306,13 +441,23 @@ class _SearchedUserState extends State<SearchedUser>  {
                                       height: 55,
                                       width: MediaQuery.of(context).size.width,
                                       child: ListTile(
-                                        title: Center(
-                                          child: Text(widget.name, style:  TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            //fontFamily: "Lobster"
+                                        title: Text(widget.name, style:  TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          //fontFamily: "Lobster"
+                                        ),),
+                                        trailing:  RaisedButton(onPressed: (){
+                                          Navigator.pushNamed(context, '/chatbox' , arguments:
+                                          {
+                                            'uid' : uid,
+                                            'friendId' : widget.searchedId,
+                                          }
+                                          );
+                                        },
+                                          child: Text("Message" , style: TextStyle(
+                                            color: Colors.white
                                           ),),
-                                        ),
+                                          color: Colors.indigo,),
                                       )
                                     //color: Colors.redAccent
                                   ),
@@ -351,7 +496,6 @@ class _SearchedUserState extends State<SearchedUser>  {
                                 else if(snapshot.data.documents.length < 1){
                                   return Center(
                                     child: Text("No Images to Show" , style: TextStyle(
-
                                         fontSize: 18,
                                     ),),
                                   );
@@ -727,27 +871,27 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 // class _SearchedUserState extends State<SearchedUser> {
 //
 //   var currentName;
-//   var currentId , following ="" , followers = "";
+//   var uid , following ="" , followers = "";
 //
 //   Future<void> sendFriend(String docId , String name1) async {
 //    print("SendFriend");
 //
 //    print(docId);
 //    print('senreq');
-//    print(currentId);
+//    print(uid);
 //
-//     Firestore.instance.collection('Ravan').document(currentId).get().then((value) => {
+//     Firestore.instance.collection('Ravan').document(uid).get().then((value) => {
 //         currentName = value['name'],
 //         print(currentName),
 //     });
 //
 //     Firestore.instance.collection("Ravan").document(docId).collection('Requests').add({
 //       'name' :  currentName,
-//       'docId' : currentId,
+//       'docId' : uid,
 //
 //     });
 //
-//    Firestore.instance.collection("Ravan").document(currentId).collection('Requested').document(docId).setData({
+//    Firestore.instance.collection("Ravan").document(uid).collection('Requested').document(docId).setData({
 //      'docId': docId,
 //    });
 //    }
@@ -763,13 +907,13 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //   async {
 //     FirebaseUser user = await FirebaseAuth.instance.currentUser();
 //     setState(() {
-//       currentId = user.uid;
-//       print(currentId);
+//       uid = user.uid;
+//       print(uid);
 //
 //
 //     });
 //
-//     Firestore.instance.collection('Ravan').document(currentId).get().then((value)
+//     Firestore.instance.collection('Ravan').document(uid).get().then((value)
 //     {
 //       setState(() {
 //         currentName = value['name'];
@@ -795,7 +939,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //      });
 //    });
 //
-//    Firestore.instance.collection('Ravan').document(currentId).collection('Following').document(id).get().then((value) {
+//    Firestore.instance.collection('Ravan').document(uid).collection('Following').document(id).get().then((value) {
 //      if(!value.exists)
 //        {
 //          setState(() {
@@ -806,7 +950,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //          });
 //          //str1 = "Be My Friend";
 //          //checkRequested(id);
-//          Firestore.instance.collection('Ravan').document(currentId).collection('Requested').document(id).get().then((value){
+//          Firestore.instance.collection('Ravan').document(uid).collection('Requested').document(id).get().then((value){
 //
 //            if(!value.exists)
 //
@@ -841,7 +985,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //   {
 //     super.initState();
 //     setUserData();
-//     //checkRequested(currentId);
+//     //checkRequested(uid);
 //      }
 //   @override
 //   Widget build(BuildContext context) {
@@ -851,7 +995,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //
 //     Map data = ModalRoute.of(context).settings.arguments;
 //
-//     checkFollowing(data['id']);
+//     checkFollowing(widget.searchedId);
 //
 //     return Scaffold(
 //
@@ -873,16 +1017,16 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //       body : StreamBuilder(
 //
 //
-//           stream: Firestore.instance.collection('Ravan').document(data['id']).snapshots(),
+//           stream: Firestore.instance.collection('Ravan').document(widget.searchedId).snapshots(),
 //           builder: (context,snapshot){
 //
 //
-//             print(data['id']);
+//             print(widget.searchedId);
 //             if(!snapshot.hasData){
 //               return Loading();
 //             }
 //
-//             //checkRequested(data['id']);
+//             //checkRequested(widget.searchedId);
 //             //name = snapshot.data["name"];
 //             //profilepic = snapshot.data["image"];
 //             return SafeArea(
@@ -995,7 +1139,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //                                           ),),
 //                                           onPressed: () => {
 //                                             Navigator.pushReplacementNamed(context, '/followers' , arguments: {
-//                                               'id' : data['id'],
+//                                               'id' : widget.searchedId,
 //                                             })
 //                                           },
 //                                         ),
@@ -1023,7 +1167,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //                                           onPressed: () =>
 //                                           {
 //                                             Navigator.pushNamed(context, '/following' , arguments: {
-//                                               'id' : data['id'],
+//                                               'id' : widget.searchedId,
 //                                             })
 //                                           },
 //
@@ -1055,8 +1199,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //
 //                                   onPressed: (){
 //                                     Navigator.pushNamed(context, '/chatbox' , arguments: {
-//                                       'currentId' : currentId,
-//                                       'friendId' : data['id'],
+//                                       'uid' : uid,
+//                                       'friendId' : widget.searchedId,
 //                                     });
 //                                   },
 //
@@ -1085,20 +1229,20 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //                                               onTap: (){
 //                                                 setState(() {
 //
-//                                                   print(currentId);
+//                                                   print(uid);
 //                                                   print("Searched ID");
-//                                                   print(data['id']);
+//                                                   print(widget.searchedId);
 //                                                   isfollowing = false;
 //                                                   str1 = "Be My Friend";
 //
-//                                                   Firestore.instance.collection('Ravan').document(currentId).collection('Following').
+//                                                   Firestore.instance.collection('Ravan').document(uid).collection('Following').
 //                                                   document(data["id"]).delete().then((value){
 //                                                     print(data["id"]);
 //                                                     print("deleted");
 //                                                   });
 //
-//                                                   Firestore.instance.collection('Ravan').document(data['id']).collection('Followers').
-//                                                   document(currentId).delete().then((value) {
+//                                                   Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Followers').
+//                                                   document(uid).delete().then((value) {
 //                                                     Navigator.pop(context);
 //                                                   });
 //                                                 });
@@ -1122,14 +1266,14 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //                                         setState(() {
 //                                           str1 = str2;
 //                                         });
-//                                         Firestore.instance.collection('Ravan').document(data['id']).collection('Requests').
-//                                         document(currentId).setData({
-//                                           'docId' : currentId,
+//                                         Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Requests').
+//                                         document(uid).setData({
+//                                           'docId' : uid,
 //                                           'name' : currentName,
 //                                         });
-//                                         Firestore.instance.collection('Ravan').document(currentId).collection('Requested').
-//                                         document(data['id']).setData({
-//                                           'id' : data['id'],
+//                                         Firestore.instance.collection('Ravan').document(uid).collection('Requested').
+//                                         document(widget.searchedId).setData({
+//                                           'id' : widget.searchedId,
 //                                         });
 //
 //                                       }
@@ -1138,10 +1282,10 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //                                         setState(() {
 //                                           str1 = "Be My Friend";
 //                                         });
-//                                         Firestore.instance.collection('Ravan').document(data['id']).collection('Requests').
-//                                         document(currentId).delete();
-//                                         Firestore.instance.collection('Ravan').document(currentId).collection('Requested').
-//                                         document(data['id']).delete();
+//                                         Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Requests').
+//                                         document(uid).delete();
+//                                         Firestore.instance.collection('Ravan').document(uid).collection('Requested').
+//                                         document(widget.searchedId).delete();
 //                                       }
 //                                     },
 //                                   shape: RoundedRectangleBorder(

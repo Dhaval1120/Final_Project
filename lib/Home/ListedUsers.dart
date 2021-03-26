@@ -77,11 +77,9 @@ class _ListedUsersState extends State<ListedUsers> {
                              height: 36,
                              width: 36,
                              child: Image(
-
                                  image: CachedNetworkImageProvider(snapshot.data),
                                  //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                 fit: BoxFit.contain
-
+                                 fit: BoxFit.cover
                              ),
                            ),
                          );

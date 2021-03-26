@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:obvio/Home/SearchedUser.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -31,12 +32,13 @@ class _FollowersState extends State<Followers> {
 
   Widget buildUser(BuildContext context , DocumentSnapshot snapshot ,int index ,int length)
   {
-
+    print(" Snapshot docID is ${snapshot.documentID}");
     Future<String> getProfile()
     async {
       return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) => value.data['image']);
     }
     var id = snapshot.documentID;
+
     return Padding(
       padding: const EdgeInsets.all(3),
       child: Container(
@@ -59,10 +61,9 @@ class _FollowersState extends State<Followers> {
             }
             else
             {
-              Navigator.pushNamed(context, '/searchedUser' , arguments: {
-                'id' : id,
-                'name' : snapshot['name'],
-              });
+              Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                return SearchedUser(searchedId: snapshot.documentID ,name:snapshot['name'] ,);
+              }));
             }
 
           },
@@ -83,7 +84,6 @@ class _FollowersState extends State<Followers> {
                 child : FutureBuilder(
                     future: getProfile(),
                     builder:(context ,AsyncSnapshot<String> snapshot) {
-
                       if(snapshot.hasData)
                       {
                         return ClipOval(
@@ -91,7 +91,6 @@ class _FollowersState extends State<Followers> {
                             height: 36,
                             width: 36,
                             child: Image(
-
                                 image: CachedNetworkImageProvider(snapshot.data),
                                 //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
                                 fit: BoxFit.cover
@@ -137,9 +136,7 @@ class _FollowersState extends State<Followers> {
 
   @override
   Widget build(BuildContext context) {
-
     data = ModalRoute.of(context).settings.arguments;
-
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -166,7 +163,7 @@ class _FollowersState extends State<Followers> {
                           title: Text(" Followers ", style:  TextStyle(
                               color: Colors.white,
                               fontSize: 20,
-                              fontFamily: "Lobster"
+                              //fontFamily: "Lobster"
                           ),),
                         )
                       //color: Colors.redAccent

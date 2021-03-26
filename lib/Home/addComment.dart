@@ -4,12 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:obvio/Home/imagepicker.dart';
+import 'package:obvio/Notification/notifications.dart';
 
 class AddComment extends StatefulWidget {
   String commentId= '' , imageId = '' , imageUserId = '';
 
   AddComment({this.commentId , this.imageId ,this.imageUserId}){
-    print(" Comment id is $commentId $imageUserId");
+    print(" Comment id is $commentId $imageUserId \n Image id is $imageId");
   }
   @override
   _AddCommentState createState() => _AddCommentState();
@@ -19,7 +20,7 @@ class _AddCommentState extends State<AddComment> {
 
  // Map userInfo = Map<String , String>();
   List<Map> userInfo = List();
-  String userId = '' , comment = '';
+  String userId = '' , comment = '' , userName = '';
   TextEditingController controller = TextEditingController();
   List commentsData = List();
   getComments() async{
@@ -39,6 +40,7 @@ class _AddCommentState extends State<AddComment> {
        'comment' : comment,
        'type' : "text",
        'userId' : userId,
+       'imageUrl' : widget.imageId,
        'timeStamp' : DateTime.now().millisecondsSinceEpoch
     }).then((value) {
       if(commentsData.isNotEmpty)
@@ -48,6 +50,10 @@ class _AddCommentState extends State<AddComment> {
             getComments();
           });
         }
+      Firestore.instance.collection('Ravan').document(widget.imageUserId).get().then((value){
+        sendAndRetrieveMessage(value['token'], comment , userName + ' commented on you photo.');
+      });
+       //sendAndRetrieveMessage(, message, title)
     });
   }
 
@@ -75,14 +81,35 @@ class _AddCommentState extends State<AddComment> {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
       userId = user.uid;
+      Firestore.instance.collection('Ravan').document(userId).get().then((value){
+        setState(() {
+          userName = value['name'];
+        });
+      });
     });
   }
+
+  // getUserData() async{
+  //   Firestore.instance.collection('Ravan').document(userId).get().then((value){
+  //     setState(() {
+  //       userName = value['name'];
+  //     });
+  //   });
+  // }
   @override
   void initState() {
     // TODO: implement initState
     getUserId();
+   // getUserData();
     getComments();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controller.dispose();
   }
   @override
   Widget build(BuildContext context) {
@@ -131,8 +158,13 @@ class _AddCommentState extends State<AddComment> {
                                   return CircleAvatar(
                                     radius: 20,
                                     child: ClipOval(
-                                      child: CachedNetworkImage(
-                                        imageUrl: snapshot.data,
+                                      child: SizedBox(
+                                        height: 40,
+                                        width: 40,
+                                        child: CachedNetworkImage(
+                                          imageUrl: snapshot.data,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
                                   );
@@ -140,7 +172,7 @@ class _AddCommentState extends State<AddComment> {
                               else
                                 {
                                   return CircleAvatar(
-                                    backgroundColor:  Colors.indigo,
+                                    backgroundColor:  Colors.white,
                                   );
                                 }
                             },),
@@ -157,7 +189,7 @@ class _AddCommentState extends State<AddComment> {
                                     }
                                   else
                                     {
-                                      return Text(" Mike ");
+                                      return Text(" ");
                                     }
                                 },
                                 future: getCommentUserInfo(commentsData[index])

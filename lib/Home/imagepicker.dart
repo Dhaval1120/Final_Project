@@ -114,7 +114,13 @@ class _ImagePickState extends State<ImagePick> {
           Center(
             child: _image == null
                 ? Text('No image selected.')
-                : Image.file(_image),
+                : AspectRatio(
+                aspectRatio: 4/5,
+                child: Container(
+                    decoration: BoxDecoration(
+                        border : Border.all(color: Colors.black)
+                    ),
+                    child: Image.file(_image , fit: BoxFit.cover,))),
           ),
           Container(
             child: Padding(

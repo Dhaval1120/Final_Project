@@ -10,7 +10,7 @@ import 'package:obvio/Home/UplaodImage.dart';
 import 'package:obvio/Home/UserEvents.dart';
 import 'package:obvio/Services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'Notifications.dart';
 
 class Home extends StatefulWidget {
@@ -24,9 +24,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   String imageUrl;
   String uid;
   TabController controller;
-
   final AuthService auth = AuthService();
-
   void setUserData() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {

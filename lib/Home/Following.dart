@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:obvio/Home/SearchedUser.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -39,19 +40,12 @@ class _FollowingState extends State<Following> {
     id = snapshot.documentID;
     print(id);
 
-
     Future<String> getProfile()
     async {
-
       return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) => value.data['image']);
-
     }
 
     return Container(
-      /*decoration: BoxDecoration(
-        border: Border.symmetric(vertical: BorderSide(width: 1))
-      )*/
-
       height : 50,
       //color: Colors.white,
       child: InkWell(
@@ -63,10 +57,9 @@ class _FollowingState extends State<Following> {
             }
           else
           {
-            Navigator.pushNamed(context, '/searchedUser' , arguments: {
-              'id' : id,
-              'name' : snapshot['name'],
-            });
+            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+              return SearchedUser(searchedId: snapshot.documentID , name: snapshot['name'],);
+            }) );
           }
             },
         child: Row(
@@ -80,7 +73,6 @@ class _FollowingState extends State<Following> {
                 child : FutureBuilder(
                     future: getProfile(),
                     builder:(context ,AsyncSnapshot<String> snapshot) {
-
                       if(snapshot.hasData)
                       {
                         return ClipOval(
@@ -88,11 +80,9 @@ class _FollowingState extends State<Following> {
                             height: 36,
                             width: 36,
                             child: Image(
-
                                 image: CachedNetworkImageProvider(snapshot.data),
                                 //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
                                 fit: BoxFit.contain
-
                             ),
                           ),
                         );
@@ -163,8 +153,7 @@ class _FollowingState extends State<Following> {
                           ),
                           title: Text(" Following ", style:  TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
-                              fontFamily: "Lobster"
+                              fontSize: 18,
                           ),),
                         )
                       //color: Colors.redAccent
@@ -178,7 +167,6 @@ class _FollowingState extends State<Following> {
                       stream: Firestore.instance.collection('Ravan').document(data['id']).collection('Following').snapshots(),
                       builder: (context , snapshot)
                       {
-
                         if(!snapshot.hasData) return Loading();
                         else if(snapshot.data.documents.length < 1){
                           return Center(

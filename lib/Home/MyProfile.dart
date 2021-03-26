@@ -331,209 +331,6 @@ class _MyProfilePageState extends State<MyProfilePage>  {
     );
 
     return Scaffold(
-//         endDrawer: StreamBuilder(
-//             stream: Firestore.instance.collection('Ravan')
-//                 .document(uid)
-//                 .snapshots(),
-//             builder: (context, snapshot) {
-//               return Drawer(
-//                   child: ListView(
-//
-//                     //padding : EdgeInsets.only(left : 3.0 , right : 3.0),
-//
-//                     children: <Widget>[
-//                       DrawerHeader(
-//                         child: Container(
-//                           decoration: BoxDecoration(
-//                               gradient: LinearGradient(
-//                                 colors: [Color(0xff48c6ef), Color(0xff6f86d6)],
-//                                 begin: Alignment.topLeft,
-//                                 end: Alignment.bottomRight,
-//                               )
-//                           ),
-//
-//                           child: Center(
-//                             child: Column(
-//                               children: <Widget>[
-//                                 SizedBox(height: 5.0,),
-//                                 InkWell(
-//                                   highlightColor: Colors.orangeAccent,
-//                                   splashColor: Colors.cyanAccent,
-//                                   radius: 5.0,
-//
-//                                   /* onTap: () {
-//                                   Navigator.pushNamed(context, '/imagePick');
-//                                   //ImagePick();
-//                                 },*/
-//
-//                                   child: CircleAvatar(
-//                                     backgroundColor: Colors.white,
-//                                     radius: 50,
-//                                     child: ClipOval(
-//
-//                                       child: SizedBox(
-//                                         height: 100,
-//                                         width: 100,
-//                                         child: Image(
-//
-//                                             image: CachedNetworkImageProvider(
-//                                                 snapshot.data["image"]),
-//                                             //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-//                                             fit: BoxFit.contain
-//
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 SizedBox(height: 1),
-//                                 Text(snapshot.data["name"],
-//                                     style: TextStyle(
-//                                         fontSize: 15.0,
-// //                                        fontFamily: 'Sriracha',
-//                                         fontWeight: FontWeight.bold,
-//                                         letterSpacing: 3.0,
-//                                         color: Colors.white
-//                                     )
-//                                 )
-//                               ],
-//                             ),
-//
-//                           ),
-//                         ),
-//                       ),
-//
-//                       Divider(
-//                         color: Colors.blueAccent,
-//                       ),
-//                       Container(
-//                         color: Color(0xff50A6C2),
-//                         child: InkWell(
-//                           highlightColor: Colors.orangeAccent,
-//                           splashColor: Colors.cyanAccent,
-//                           radius: 5.0,
-//                           onTap: () {
-//                             Navigator.of(context).pop();
-//                           },
-//                           child: ListTile(
-//                               leading: Icon(
-//                                 Icons.event_available,
-//                                 color: Colors.deepPurple,
-//                               ),
-//                               title: Text('MyEvents',
-//                                 style: TextStyle(
-//                                   fontSize: 16.0,
-//   ///                                fontFamily: 'Sriracha',
-//                                   color: Colors.white,
-//                                 ),)
-//
-//                           ),
-//                         ),
-//                       ),
-//
-//                       SizedBox(height: 3,),
-//                       Container(
-//                         color: Color(0xff50A6C2),
-//                         child: InkWell(
-//                           highlightColor: Colors.orangeAccent,
-//                           splashColor: Colors.cyanAccent,
-//                           radius: 5.0,
-//                           onTap: () {
-//                             Navigator.pushNamed(context, '/myImages');
-//                           },
-//                           child: ListTile(
-//                               leading: Icon(
-//                                 Icons.image,
-//                                 color: Colors.deepPurple,
-//                               ),
-//                               title: Text('Images',
-//                                 style: TextStyle(
-//                                   fontSize: 16.0,
-//      //                             fontFamily: 'Sriracha',
-//                                   color: Colors.white,
-//                                 ),)
-//
-//                           ),
-//                         ),
-//                       ),
-//
-//                       SizedBox(height: 3),
-//
-//                       Container(
-//                         color: Color(0xff50A6C2),
-//                         child: InkWell(
-//                           highlightColor: Colors.orangeAccent,
-//                           splashColor: Colors.cyanAccent,
-//                           onTap: () {
-//                             Navigator.of(context).pop();
-//                           },
-//
-//                           child: ListTile(
-//                               leading: Icon(
-//                                 Icons.person_outline,
-//                                 color: Colors.deepPurple,
-//                               ),
-//                               title: Text('Friends',
-//                                 style: TextStyle(
-//        //                           fontFamily: 'Sriracha',
-//                                   fontSize: 16.0,
-//                                   color: Colors.white,
-//                                 ),)
-//                           ),
-//                         ),
-//                       ),
-//
-//                       SizedBox(height: 3),
-//
-//                       Container(
-//                         color: Color(0xff50A6C2),
-//                         child: InkWell(
-//                           highlightColor: Colors.orangeAccent,
-//                           splashColor: Colors.cyanAccent,
-//                           onTap: () async {
-//                            // Navigator.pop(context);
-//                             auth.signOut().then((value) {
-//                               Navigator.pop(context);
-//                               Navigator.pop(context);
-//                               //Navigator.pushReplacement(context, 'sig')
-//                             });
-//                           },
-//
-//                           child: ListTile(
-//                               leading: Icon(
-//                                 Icons.arrow_forward,
-//                                 color: Colors.deepPurple,
-//                               ),
-//                               title: Text('LogOut',
-//                                 style: TextStyle(
-//                                   fontFamily: 'Sriracha',
-//                                   fontSize: 16.0,
-//                                   color: Colors.white,
-//                                 ),)
-//                           ),
-//                         ),
-//                       ),
-//                       // ignore: missing_return
-//                     ],
-//                   )
-//
-//               );
-//             }
-//         ),
-//       //   appBar: AppBar(
-      //       elevation: 3.0,
-      //       brightness: Brightness.dark,
-      //       titleSpacing: 2.0,
-      //       title: Text("Profile",
-      //       style : TextStyle(
-      //       fontFamily: 'Pacifico',
-      //       fontSize: 20.0,
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      //   backgroundColor: Color(0xff09203f),
-      // ),
-
         body: StreamBuilder(
             stream: Firestore.instance.collection('Ravan')
                 .document(uid)
@@ -736,6 +533,10 @@ class _MyProfilePageState extends State<MyProfilePage>  {
         return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) => value.data['image']);
       }
 
+      Future<String> getProfileName()
+      async {
+        return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) => value.data['name']);
+      }
       Future<int> getLikes() async{
         DocumentSnapshot documentSnapshot = await Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).get();
         return documentSnapshot.data['likes'];
@@ -830,7 +631,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                                     child: Image(
                                                         image: CachedNetworkImageProvider(snapshot.data),
                                                         //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                                        fit: BoxFit.contain
+                                                        fit: BoxFit.cover
                                                     ),
                                                   ),
                                                 );
@@ -852,14 +653,18 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                         padding: const EdgeInsets.all(8.0),
                                         child: InkWell(
                                           onTap: (){},
-                                          child: Text(snapshot.data['name'],style : TextStyle(
-                                            fontSize: 18,
-                                            //        fontWeight: FontWeight.bold,
-                                            // fontFamily: "Pacifico",
-                                            //  color: Colors.white
-                                          ),),
+                                          child: FutureBuilder(
+                                              future : getProfileName(),
+                                            builder: (BuildContext context , AsyncSnapshot snapshot){
+                                              if(snapshot.connectionState == ConnectionState.done)
+                                                {
+                                                  return Text(snapshot.data);
+                                                }
+                                              return Container();
+                                            }),
+                                          ),
                                         ),
-                                      ),
+
                                     ],
                                   ),
                                 ],

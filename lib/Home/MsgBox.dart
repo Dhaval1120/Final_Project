@@ -12,7 +12,6 @@ class MsgBox extends StatefulWidget {
 class _MsgBoxState extends State<MsgBox> {
 
   var currentUser ='' , currentProfile ='' ,currentId = '';
-
   void setName()
   async{
 
@@ -74,19 +73,19 @@ class _MsgBoxState extends State<MsgBox> {
              );
             });
         },
-        child: Container(
-          height: 80,
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: CircleAvatar(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5 ,vertical: 3),
+          child: Container(
+            
+            child: Row(
+              children: <Widget>[
+                SizedBox(width: 4,),
+                CircleAvatar(
                   backgroundColor: Colors.white,
                   radius: 20,
                   child: FutureBuilder(
                       future: getProfile(),
                       builder:(context ,AsyncSnapshot<String> snapshot) {
-
                         if(snapshot.hasData)
                         {
                           return ClipOval(
@@ -113,47 +112,43 @@ class _MsgBoxState extends State<MsgBox> {
                       }
                   )
                 ),
-              ),
-              Column(
-           //     mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-
-                  Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Container(
-                      height: 22,
-                      child: Text(snapshot.data['name'],style: TextStyle(
-                            fontSize: 20,
-                          ),),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Container(
-                      height: 20,
-                      width: MediaQuery.of(context).size.width-120,
-                      child: snapshot.data['type'] == 'image' ? Align(alignment : Alignment.topLeft,child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(Icons.image , size: 25,),
-                          SizedBox(width: 3,),
-                          Text("Photo" , style: TextStyle(fontSize: 20),)
-                        ],
-                      )) : Text(snapshot.data['msg'], style: TextStyle(
-                        fontSize: 18
-                      ),
-                        overflow: TextOverflow.ellipsis,
-                        //softWrap: false,
-
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(6 ,8 , 0 ,0),
+                      child: Container(
+                        height: 22,
+                        child: Text(snapshot.data['name'],style: TextStyle(
+                              fontSize: 17,
+                            ),),
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-            ],
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(6 ,8 , 0 ,3),
+                      child: Container(
+                        height: 20,
+                        width: MediaQuery.of(context).size.width-120,
+                        child: snapshot.data['type'] == 'image' ? Align(alignment : Alignment.topLeft,child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(Icons.image , size: 25,),
+                            SizedBox(width: 3,),
+                            Text("Photo" , style: TextStyle(fontSize: 20),)
+                              ],
+                            )) : Text(snapshot.data['msg'], style: TextStyle(
+                          fontSize: 18
+                            ),
+                          overflow: TextOverflow.ellipsis,
+                          //softWrap: false,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -168,24 +163,9 @@ class _MsgBoxState extends State<MsgBox> {
   }
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: Scaffold(
-        // appBar: AppBar(
-        //   elevation: 3.0,
-        //   brightness: Brightness.dark,
-        //   titleSpacing: 2.0,
-        //
-        //   title: Text("Chats",
-        //     style : TextStyle(
-        //       // fontFamily: 'Pacifico',
-        //       fontSize: 20.0,
-        //     ),
-        //   ),
-        //   centerTitle: true,
-        //   backgroundColor: Color(0xff09203f),
-        //
-        // ),
+       // backgroundColor: Colors.black.withOpacity(0.3),
         body: Column(
           children: [
             ClipRRect(
@@ -203,7 +183,6 @@ class _MsgBoxState extends State<MsgBox> {
                         title: Text(" Messages ", style:  TextStyle(
                             color: Colors.white,
                             fontSize: 20,
-                            fontFamily: "Lobster"
                         ),),
                       )
                     //color: Colors.redAccent
@@ -228,7 +207,6 @@ class _MsgBoxState extends State<MsgBox> {
                          return ListView.builder(
                            itemBuilder: (context ,index) => buildChats(context , snapshot.data.documents[index]),
                            itemCount: snapshot.data.documents.length,
-
                          );
                        }
                      }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:obvio/Home/SearchedUser.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:obvio/Design/background.dart';
 
@@ -27,6 +28,7 @@ class _RequestsState extends State<Requests> {
       Firestore.instance.collection('Ravan').document(currentId).get().then((value) {
         setState(() {
           currentName = value['name'];
+
         });
       });
     });
@@ -37,7 +39,6 @@ class _RequestsState extends State<Requests> {
 
   Future<void> setUser(DocumentSnapshot snapshot , String requestedId) async{
     Firestore.instance.collection('Ravan').document(snapshot['docId']).get().then((value)  {
-
       setState(() {
         requestedName = value['name'];
         userProfilePic = value['image'];
@@ -47,15 +48,23 @@ class _RequestsState extends State<Requests> {
   }
   var requestedId;
 
+
     Widget buildRequestList(BuildContext context , DocumentSnapshot snapshot)
   {
     var id = snapshot.documentID;
+    print(" Doucment is ${snapshot.data}");
     requestedId = snapshot["docId"];
-
+    print(" I am Name ${snapshot.data['name']}");
+    Future<String> getProfileName()
+    async {
+      return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) {
+        print(" Name is ${value['name']}");
+        return value.data['name'];
+      });
+    }
     //print(id);
     //print(requestedId);
-    //setUser(snapshot , requestedId);
-
+    setUser(snapshot , requestedId);
 
     return  Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -69,35 +78,27 @@ class _RequestsState extends State<Requests> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    /*SizedBox(width: 5,),
-                    CircleAvatar(
-                      backgroundColor: Colors.red,
-                      radius: 25,
-                      child: ClipOval(
-                        child: SizedBox(
-                          height: 50,
-                          width: 50,
-                          child: Image(
-
-                              image: CachedNetworkImageProvider(
-                                  userProfilePic),
-                              //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                              fit: BoxFit.contain
-
-                          ),
-                        ),
-                      ),
-                    ),*/
                     SizedBox(width: 10,),
-                    Text(snapshot.data["name"],style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.deepPurple,
-                        fontWeight:FontWeight.bold
-                    )
-                    ),
+                    InkWell(
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext contetx){
+                          return SearchedUser(searchedId: requestedId,name: requestedName.toString(),);
+                        }));
+                      },
+                      child :  Text(snapshot.data['name']),),
+                    //   child: FutureBuilder(
+                    //       future : getProfileName(),
+                    //       builder: (BuildContext context , AsyncSnapshot snapshot){
+                    //         if(snapshot.connectionState == ConnectionState.done)
+                    //         {
+                    //           return Text(snapshot.data);
+                    //         }
+                    //         return Container();
+                    //       }),
+                    // ),
                     SizedBox(width :2 ),
-                    Text("sent you a request." ,style: TextStyle(
-                        fontSize: 18,
+                    Text(" sent you a request." ,style: TextStyle(
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         //fontFamily: 'Sriracha',
                         color: Colors.black
@@ -158,7 +159,6 @@ class _RequestsState extends State<Requests> {
                        onPressed: (){
                          Firestore.instance.collection('Ravan').document(currentId).
                          collection('Requests').document(snapshot.documentID).delete();
-
                        },
                        shape: RoundedRectangleBorder(
                            borderRadius: BorderRadius.circular(6)

@@ -244,7 +244,7 @@ class _UserEventsState extends State<UserEvents> {
 
                                               image: CachedNetworkImageProvider(snapshot.data),
                                               //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                              fit: BoxFit.contain
+                                              fit: BoxFit.cover
 
                                           ),
                                         ),

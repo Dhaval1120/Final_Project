@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:obvio/Home/MsgBox.dart';
-import 'package:obvio/Home/MyProfile.dart';
-import 'package:obvio/Home/UserEvents.dart';
 import 'package:obvio/Home/addComment.dart';
-import 'package:obvio/Loading/Loading.dart';
 import 'package:obvio/Services/auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:obvio/Notification/notifications.dart';
 class NewPosts extends StatefulWidget {
   @override
   _NewPostsState createState() => _NewPostsState();
@@ -24,12 +22,16 @@ class _NewPostsState extends State<NewPosts> {
   int totalLikes = 0;
   TransformationController controller = TransformationController();
   String currentId = '' , currentProfile = '';
-
+ FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   var profilePic = "";
   Future<void> sendNotification (var id , DocumentSnapshot snapshot)async{
+    String token = '';
+    Firestore.instance.collection("Ravan").document(snapshot.data['docId']).get().then((value){
+      token = value['token'];
+      print(" Token is $token ");
+      sendAndRetrieveMessage(token, currentUser.toString() + " liked your photo.", "" , currentProfile);
+    });
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-   // var email = snapshot.data['email'];
-
    var docId = snapshot.data["docId"];
     Firestore.instance.collection('Ravan').document(docId).collection('Notifications').add({
       'name' : currentUser,
@@ -38,8 +40,9 @@ class _NewPostsState extends State<NewPosts> {
       'userId' : currentId,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'profilepic' : currentProfile,
+      'type' : "like",
+      'imgUrl' : snapshot['image']
     });
-
   }
 
   void setName()
@@ -51,18 +54,43 @@ class _NewPostsState extends State<NewPosts> {
         currentUser = value["name"],
          currentProfile = value["image"],
         //print(currentProfile),
+       Firestore.instance.collection('Ravan').document(currentId).get().then((value) async{
+       print("token is ${value['token']}");
+        sendAndRetrieveMessage(value['token'], 'Hii' , 'Hey Man');
+       })
       });
     });
-
   }
-
+  getToken() async {
+    String token = await firebaseMessaging.getToken();
+    if(token != null)
+      {
+        Firestore.instance.collection('Ravan').document(currentId).updateData({
+          "token" : token
+        });
+      }
+    Firestore.instance.collection('Ravan').document(currentId).get().then((value) async{
+      print("token is ${value['token']}");
+       // Map<String , dynamic> response =  await sendAndRetrieveMessage(value['token'], "Hii Buddy", "How Are You");
+       // print(" Response is ${response}");
+    });
+  }
   void initState(){
     super.initState();
     setName();
+    getToken();
+   //  firebaseMessaging.configure(
+   //    onMessage: (message ) async{
+   //      print("Message ${message['notification']['title']}");
+   //      return Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"] , duration: Duration(seconds: 3),));
+   //    },
+   //    onResume: (message) async {
+   //      Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"],duration: Duration(seconds: 3),));
+   //    }
+   //  );
   }
   
   var docId ;
-
 
   Widget _buildNewPosts(BuildContext context, DocumentSnapshot snapshot, int index ,int length) {
     TransformationController controller = TransformationController();
@@ -124,7 +152,6 @@ class _NewPostsState extends State<NewPosts> {
     }
     void decreaseLikes()
     async {
-      print(" decresing ");
       Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).collection("Likes").document(currentId).delete();
       Firestore.instance.collection('Ravan').document(snapshot['docId']).collection("MyImages").document(snapshot.documentID).get().then((likesData) {
         int x = likesData['likes']  - 1;
@@ -149,7 +176,7 @@ class _NewPostsState extends State<NewPosts> {
             maxHeight: 500,
           ),
           child: Padding(
-            padding: EdgeInsets.only(top: 8, bottom: 8),
+            padding: EdgeInsets.only(top: 4, bottom: 2),
             child: Material(
               color: Colors.white,
               shadowColor: Colors.orangeAccent,
@@ -191,7 +218,7 @@ class _NewPostsState extends State<NewPosts> {
                                                   child: Image(
                                                       image: CachedNetworkImageProvider(snapshot.data),
                                                       //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                                      fit: BoxFit.contain
+                                                      fit: BoxFit.cover
                                                   ),
                                                 ),
                                               );
@@ -273,14 +300,15 @@ class _NewPostsState extends State<NewPosts> {
                               children: <Widget>[
                                 FutureBuilder(
                                     future: checkLiked(),
-                                    builder:(context ,AsyncSnapshot<bool> snapshot) {
-                                      if(snapshot.hasData)
+                                    builder:(context ,AsyncSnapshot<bool> asyncSnapshot) {
+                                      if(asyncSnapshot.hasData)
                                       {
-                                        if(snapshot.data == false)
+                                        if(asyncSnapshot.data == false)
                                           {
                                             return IconButton(
                                               onPressed: (){
                                                 increaseLikes();
+                                                sendNotification(id, snapshot);
                                               },
                                               icon: Icon(Icons.favorite_border,size: 25,),
                                             );
@@ -311,7 +339,7 @@ class _NewPostsState extends State<NewPosts> {
                                     Navigator.push(context, MaterialPageRoute(
                                         builder: (BuildContext context)
                                         {
-                                          return AddComment(commentId: snapshot.documentID , imageUserId: snapshot['docId'],);
+                                          return AddComment(commentId: snapshot.documentID , imageUserId: snapshot['docId'], imageId: snapshot['image'],);
                                         }
                                     ));
                                   },
@@ -337,7 +365,7 @@ class _NewPostsState extends State<NewPosts> {
                               ],
                             ),
                           ),
-                         SizedBox(height: 3,),
+                         SizedBox(height: 1,),
                          //Text(totalLikes.toString())
                        ],
                      ),
@@ -358,58 +386,6 @@ class _NewPostsState extends State<NewPosts> {
     ]);
     return SafeArea(
       child: Scaffold(
-          // bottomNavigationBar: Material(
-          //   color: Colors.red,
-          //   child: Container(
-          //     decoration: BoxDecoration(
-          //       gradient: LinearGradient(
-          //         colors: [Color(0xffff512f),Color(0xffdd2476)],
-          //       )
-          //     ),
-          //       child: Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //         children: <Widget>[
-          //           Container(
-          //               child:IconButton(
-          //                 highlightColor: Colors.deepOrangeAccent,
-          //                 splashColor: Colors.deepPurple,
-          //                 icon : Icon(Icons.event_available,color:Colors.white,size:30, ),
-          //                 onPressed: () => Navigator.pushNamed(context, '/userEvent'),
-          //               )
-          //           ),
-          //
-          //           Container(
-          //               child:IconButton(
-          //                 highlightColor: Colors.deepOrangeAccent,
-          //                 splashColor: Colors.deepPurple,
-          //                 icon : Icon(Icons.search,color:Colors.white,size:30, ),
-          //                 onPressed: () => Navigator.pushNamed(context, '/searchHere'),
-          //               )
-          //           ),
-          //           Container(
-          //               child:IconButton(
-          //                 splashColor: Colors.deepPurple,
-          //                 highlightColor: Colors.deepOrangeAccent,
-          //                 icon : Icon(Icons.notifications,color:Colors.white,size:30, ),
-          //                 onPressed: () => Navigator.pushNamed(context, '/notifications'),
-          //               )
-          //           ),
-          //           Container(
-          //
-          //               child:IconButton(
-          //                 highlightColor: Colors.deepOrangeAccent,
-          //                 splashColor: Colors.deepPurple,
-          //                 icon : Icon(Icons.person_outline,color:Colors.white,size:30, ),
-          //                 onPressed: () => Navigator.pushNamed(context, '/myProfile'),
-          //
-          //               )
-          //           ),
-          //
-          //         ],
-          //       )
-          //   ),
-          // ),
-        //drawer: openDrawer(),
         body :
         Column(
           children: [
@@ -449,12 +425,25 @@ class _NewPostsState extends State<NewPosts> {
                                 })
                             );
                           },
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.white,
-                            child:  ClipOval(
-                                child: Image.asset("assets/message_icon.png" , height: 32, width: 32,),
+                          child: ClipOval(
+                            child: Material(
+                              elevation: 25,
+                              child: Container(
+                                decoration: BoxDecoration(),
+                                child: CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.white,
+                                  child:  Container(
+                                    child: ClipOval(
+                                      child: Material(
+                                        elevation: 10,
+                                        child: Image.asset("assets/message_icon.png" , height: 32, width: 32,),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
+                            ),
                           ),
                         ),
                       ),

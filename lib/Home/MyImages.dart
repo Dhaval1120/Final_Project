@@ -45,26 +45,13 @@ class _MyImagesState extends State<MyImages> {
     return Stack(
       children: <Widget>[
         ConstrainedBox(
-
           constraints: BoxConstraints(
             maxHeight: 500,
 
-          )
-        /*decoration: BoxDecoration(
-            /*gradient: LinearGradient(
-                        colors: [
-                          Color(0xffff512f),
-                          Color(0xffdd2476)
-                        ], //Color(0xff009fff) ,Color(0xffec2f4b)],
-
-                        // begin : Alignment.topLeft,
-                        //   end : Alignment.bottomRight
-                      ),*/
-          )*/,
+          ),
           child: Padding(
             padding: EdgeInsets.only(top: 8, bottom: 8),
             child: Material(
-
               color: Colors.white,
               elevation: 6.0,
               shadowColor: Colors.orangeAccent,
@@ -80,9 +67,7 @@ class _MyImagesState extends State<MyImages> {
 
                     child: Column(
                       children: <Widget>[
-
                         Container(
-
                           width: MediaQuery
                               .of(context)
                               .size
@@ -90,7 +75,6 @@ class _MyImagesState extends State<MyImages> {
                           //height : .0,
                           child: Row(
                             children: <Widget>[
-
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal : 6.0 ,vertical : 5),
                                 child: CircleAvatar(
@@ -111,7 +95,7 @@ class _MyImagesState extends State<MyImages> {
 
                                                     image: CachedNetworkImageProvider(snapshot.data),
                                                     //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                                    fit: BoxFit.contain
+                                                    fit: BoxFit.cover
 
                                                 ),
                                               ),
@@ -144,7 +128,6 @@ class _MyImagesState extends State<MyImages> {
                                 ],
                               ),
 
-
                             ],
                           ),
 
@@ -158,9 +141,8 @@ class _MyImagesState extends State<MyImages> {
                                 .of(context)
                                 .size
                                 .width,
-                            height: 300.0,
+                            //height: 300.0,
                             child:
-
                             Container(
                               decoration: BoxDecoration(
                                 //  color: Colors.blueAccent,
@@ -171,7 +153,7 @@ class _MyImagesState extends State<MyImages> {
                                   decoration: BoxDecoration(
                                       image : DecorationImage(
                                         image : imageProvider,
-                                        fit : BoxFit.contain,
+                                        fit : BoxFit.cover,
                                       )
                                   ),
                                 ),
@@ -181,14 +163,8 @@ class _MyImagesState extends State<MyImages> {
                           ),
                         ),
                         SizedBox(height: 3),
-
                         Container(
                             decoration: BoxDecoration(
-                              /*border: Border.all(
-                                        color : Colors.deepPurpleAccent,
-                                        width: 3
-
-                                      )*/
                             ),
 
                         ),

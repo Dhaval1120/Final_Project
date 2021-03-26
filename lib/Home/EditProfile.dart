@@ -98,7 +98,7 @@ class _EditProfileState extends State<EditProfile> {
                                 child: Image(
                                     image: CachedNetworkImageProvider(currentProfile),
                                     //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                    fit: BoxFit.contain
+                                    fit: BoxFit.cover
                                 ),
                               ),
                             ),
