@@ -261,7 +261,7 @@ class _UserEventsState extends State<UserEvents> {
                               )
                           ),
 
-                          SizedBox(width : 2) ,
+                          SizedBox(width : 5) ,
 
                           Text(snapshot['currentName'],
                               style: TextStyle(
@@ -271,7 +271,7 @@ class _UserEventsState extends State<UserEvents> {
                                 color: Colors.black,
                               )
                           ),
-                          SizedBox(width: 1.0,),
+                         // SizedBox(width: 1.0,),
 
                           Text(' added an event.',
                               overflow: TextOverflow.ellipsis,

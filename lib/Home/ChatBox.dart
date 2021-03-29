@@ -22,6 +22,8 @@ class _ChatBoxState extends State<ChatBox> {
   TextEditingController myController;
   Widget _buildMsg(BuildContext context , DocumentSnapshot snapshot)
   {
+   String timeToShow  = calculateTime(DateTime.fromMillisecondsSinceEpoch(snapshot['timestamp']));
+   // print('time is $timeToShow');
     if(snapshot['sent'] == true)
       {
         if(snapshot['type'] == 'image')
@@ -114,15 +116,18 @@ class _ChatBoxState extends State<ChatBox> {
                       )
                       //color : Color(0xff66cdaa)
                     ),
-                    child: Padding(
-
-                      padding: const EdgeInsets.all(6),
-                        child: Text(snapshot['msg'],
-                        style: TextStyle(
-                          fontSize: 20,
-                              color: Colors.white,
-                        ),),
-
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(6),
+                            child: Text(snapshot['msg'],
+                            style: TextStyle(
+                              fontSize: 20,
+                                  color: Colors.white,
+                            ),),
+                        ),
+                       // Text(timeToShow)
+                      ],
                     ),
                   ),
               ),
@@ -132,6 +137,7 @@ class _ChatBoxState extends State<ChatBox> {
       }
     else
       {
+        String timeToShow  = calculateTime(DateTime.fromMillisecondsSinceEpoch(snapshot['timestamp']));
         if(snapshot['type'] == 'image')
         {
           return Padding(
@@ -224,14 +230,17 @@ class _ChatBoxState extends State<ChatBox> {
                     //color: Color(0xffcd5c5c)
                   ),
 
-                  child: Padding(
-                    padding: const EdgeInsets.all(6),
-                      child: Text(snapshot['msg'] , style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white
-
-                      ),),
-
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(6),
+                          child: Text(snapshot['msg'] , style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white
+                          ),),
+                      ),
+                      //Text(timeToShow)
+                    ],
                   ),
                 ),
               ),
@@ -361,6 +370,8 @@ class _ChatBoxState extends State<ChatBox> {
     currentId = data['currentId'];
     //print(currentId);
     friendId = data['friendId'];
+
+
     Future<String> getProfile()
     async {
       return await Firestore.instance.collection('Ravan').document(data['friendId']).get().then((value) => value.data['image']);
@@ -386,13 +397,16 @@ class _ChatBoxState extends State<ChatBox> {
                Container(
                  color: Colors.black.withOpacity(0.8),
                  child: ClipRRect(
-                   borderRadius: BorderRadius.only(bottomRight: Radius.circular(30) , bottomLeft: Radius.circular(30)),
+                   borderRadius: BorderRadius.circular(20),
+                   //borderRadius: BorderRadius.only(bottomRight: Radius.circular(30) , bottomLeft: Radius.circular(30)),
                    child: Padding(
                      padding: const EdgeInsets.fromLTRB(5, 3 , 5 ,5),
                      child: Container(
                        decoration: BoxDecoration(
+                           border: Border.all(color: Colors.white ,width: 1),
                            gradient: LinearGradient(
-                               colors: [Colors.lightBlue, Colors.deepPurple]
+                               colors: [Color(0xff833ab4) , Color(0xfffd1d1d) , Color(0xfffcb045)]
+                               //colors: [Colors.lightBlue, Colors.deepPurple]
                              //colors: [Colors.deepOrangeAccent , Colors.orange]
                            )
                        ),
@@ -412,8 +426,8 @@ class _ChatBoxState extends State<ChatBox> {
                                        {
                                          return ClipOval(
                                            child: SizedBox(
-                                             height: 40,
-                                             width: 40,
+                                             height: 39,
+                                             width: 39,
                                              child: Image(
                                                  image: CachedNetworkImageProvider(snapshot.data),
                                                  //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
@@ -436,7 +450,7 @@ class _ChatBoxState extends State<ChatBox> {
                              Text(friendName,
                                style : TextStyle(
                                  // fontFamily: 'Pacifico',
-                                   fontSize: 20.0,
+                                   fontSize: 18.0,
                                    color: Colors.white
                                ),
                              ),
@@ -475,20 +489,23 @@ class _ChatBoxState extends State<ChatBox> {
                ),
                Align(
                  alignment: Alignment.bottomCenter,
-                 child: Padding(
-                   padding: const EdgeInsets.all(8.0),
+                 child: ClipRRect(
                    child: Container(
+                     color: Colors.black.withOpacity(0.8),
                      child: Row(
                        children: <Widget>[
+                         SizedBox(width: 5,),
                          InkWell(
                            onTap: (){
                              getImage();
                            },
                            child: Container(
-                             height: 50,
-                             child: Image(image: AssetImage('assets/gallery_icon_1.jfif'),),
+                            // height: 50,
+                             child: Icon(Icons.photo ,size: 40, color: Colors.white,),
+                            // child: Image(image: AssetImage('assets/gallery_icon_1.jfif'),),
                            ),
                          ),
+                         SizedBox(width: 5,),
                          Expanded(
                            child: TextField(
                              controller: myController,
@@ -528,8 +545,8 @@ class _ChatBoxState extends State<ChatBox> {
                          InkWell(
                            onTap: (){
                              myController.clear();
-                             scrollController.animateTo(scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 20), curve: Curves.easeOutQuint);
-                             sendAndRetrieveMessage(token, msg , currentName);
+                              setScrollPostion();
+                             sendAndRetrieveMessage(token, msg , currentName , screen: 'MsgBox()' );
                              print(msg);
                              Firestore.instance.collection('Ravan').document(currentId).collection(msgId.toString()).add({
                                'msg' : msg,
@@ -563,7 +580,8 @@ class _ChatBoxState extends State<ChatBox> {
                            },
                            child: CircleAvatar(
                              // backgroundColor: Color(0xff00ffff),
-                               backgroundColor:  Color(0xff6495ed),
+                               backgroundColor: Colors.white,
+                               //backgroundColor:  Color(0xff6495ed),
                                radius: 25,
                                child:  Image(
                                  height: 40,
@@ -572,6 +590,7 @@ class _ChatBoxState extends State<ChatBox> {
                                )
                            ),
                          ),
+                         SizedBox(width: 5,)
                        ],
                      ),
                    ),

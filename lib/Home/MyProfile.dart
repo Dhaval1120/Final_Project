@@ -113,7 +113,6 @@ class _MyProfilePageState extends State<MyProfilePage>  {
       DeviceOrientation.portraitUp
     ]);
 
-
     var flexibleSpaceWidget = new SliverAppBar(
       leading: Container(),
       expandedHeight: 400.0,
@@ -449,7 +448,8 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                      padding: const EdgeInsets.all(8.0),
                                      child: Container(
                                          decoration: BoxDecoration(
-                                             color: Color(0xfff0fff0),
+                                           color: Colors.black12,
+                                             //color: Color(0xfff0fff0),
                                              border: Border.all(color: Colors.black),
                                              borderRadius: BorderRadius.circular(5)
                                          ),
@@ -475,13 +475,14 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                 child: Container(
                                   // padding: EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                      color: Color(0xfff0fff0),
+                                    color: Colors.black12,
+                                     // color: Color(0xfff0fff0),
                                       border: Border.all(color: Colors.black),
                                       borderRadius: BorderRadius.circular(5)
                                   ),
                                   height: 50,
                                   child: ListTile(
-                                    leading: Icon(Icons.event_available , color: Colors.lightGreen,),
+                                    leading: Icon(Icons.event_available , color: Colors.deepPurple,),
                                     onTap: (){
                                       Navigator.pushNamed(context, '/eventDescription', arguments: {
                                         'event_id' : registeredEventsDocIds[index],

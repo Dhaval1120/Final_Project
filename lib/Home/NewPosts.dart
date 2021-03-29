@@ -29,7 +29,7 @@ class _NewPostsState extends State<NewPosts> {
     Firestore.instance.collection("Ravan").document(snapshot.data['docId']).get().then((value){
       token = value['token'];
       print(" Token is $token ");
-      sendAndRetrieveMessage(token, currentUser.toString() + " liked your photo.", "" , currentProfile);
+      sendAndRetrieveMessage(token, currentUser.toString() + " liked your photo.", "" , imgUrl: currentProfile);
     });
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
    var docId = snapshot.data["docId"];
@@ -56,7 +56,6 @@ class _NewPostsState extends State<NewPosts> {
         //print(currentProfile),
        Firestore.instance.collection('Ravan').document(currentId).get().then((value) async{
        print("token is ${value['token']}");
-        sendAndRetrieveMessage(value['token'], 'Hii' , 'Hey Man');
        })
       });
     });
@@ -79,15 +78,15 @@ class _NewPostsState extends State<NewPosts> {
     super.initState();
     setName();
     getToken();
-   //  firebaseMessaging.configure(
-   //    onMessage: (message ) async{
-   //      print("Message ${message['notification']['title']}");
-   //      return Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"] , duration: Duration(seconds: 3),));
-   //    },
-   //    onResume: (message) async {
-   //      Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"],duration: Duration(seconds: 3),));
-   //    }
-   //  );
+    // firebaseMessaging.configure(
+    //   onMessage: (message ) async{
+    //     print("Message ${message['notification']['title']}");
+    //     return Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"] , duration: Duration(seconds: 3),));
+    //   },
+    //   onResume: (message) async {
+    //     Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"],duration: Duration(seconds: 3),));
+    //   }
+    // );
   }
   
   var docId ;
@@ -413,7 +412,7 @@ class _NewPostsState extends State<NewPosts> {
                           onTap: (){
                             Navigator.of(context).push(PageRouteBuilder(pageBuilder: (context, animation, anotherAnimation) {
                               return MsgBox();
-                            }, transitionDuration: Duration(milliseconds: 1000),
+                            }, transitionDuration: Duration(milliseconds: 300),
                                 transitionsBuilder: (context, animation, anotherAnimation, child) {
                                   animation = CurvedAnimation(curve: Curves.easeOut, parent: animation);
                                   return Align(
@@ -437,7 +436,8 @@ class _NewPostsState extends State<NewPosts> {
                                     child: ClipOval(
                                       child: Material(
                                         elevation: 10,
-                                        child: Image.asset("assets/message_icon.png" , height: 32, width: 32,),
+                                       child: Icon(Icons.message_outlined,),
+                                       // child: Image.asset("assets/message_icon.png" , height: 32, width: 32,),
                                       ),
                                     ),
                                   ),

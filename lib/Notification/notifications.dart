@@ -3,8 +3,9 @@ import 'package:http/http.dart' as http ;
 import 'dart:convert';
 final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
 
-Future sendAndRetrieveMessage(String token , String message, String title , [String imgUrl]) async {
+Future sendAndRetrieveMessage(String token , String message, String title , {String imgUrl , String screen}) async {
   print(" In Send Notification");
+  print(" Screen is $screen");
   await firebaseMessaging.requestNotificationPermissions(
     const IosNotificationSettings(sound: true, badge: true, alert: true, provisional: false),
   );
@@ -25,7 +26,9 @@ Future sendAndRetrieveMessage(String token , String message, String title , [Str
         'data': <String, dynamic>{
           'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           'id': '1',
-          'status': 'done'
+          'status': 'done',
+          'screen' : screen,
+          'x' : 'MsgBox()',
         },
         'to': token,
         'apns' : {
@@ -43,4 +46,44 @@ Future sendAndRetrieveMessage(String token , String message, String title , [Str
   ).catchError((e){
     print(" Error is $e");
   });
+}
+
+
+String calculateTime(time) {
+  var now = DateTime.now();
+  var difference = now.difference(time);
+  var diffInDay = difference.inDays;
+  String headerText = '';
+  if (diffInDay == 0 && difference.inHours == 0) {
+    headerText = 'just now';
+  } else if (diffInDay == 0 && difference.inHours > 0) {
+    if (difference.inHours > 1)
+      headerText = '${difference.inHours} hrs ago';
+    else
+      headerText = '${difference.inHours} hr ago';
+  } else if (diffInDay > 0 && diffInDay <= now.day) {
+    if (diffInDay < 2)
+      headerText = '$diffInDay day ago';
+    else
+      headerText = '$diffInDay days ago';
+  } else if (diffInDay >= 7 && diffInDay <= now.day) {
+    headerText = '1 week ago';
+  } else if (diffInDay >= 14 && diffInDay <= now.day) {
+    headerText = '2 weeks ago';
+  } else if (diffInDay >= 21 && diffInDay <= now.day) {
+    headerText = '3 weeks ago';
+  } else if (diffInDay >= 28 && diffInDay <= now.day) {
+    headerText = '4 weeks ago';
+  } else if (diffInDay >= 30 && time.year == now.year || diffInDay < 365) {
+    if (now.month < time.month) {
+      int diff = (now.month + 12) - time.month;
+      headerText = '$diff months ago';
+    } else {
+      int diff = now.month - time.month;
+      headerText = '$diff months ago';
+    }
+  } else {
+    headerText = 'year Ago';
+  }
+  return headerText;
 }

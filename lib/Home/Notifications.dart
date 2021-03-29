@@ -171,7 +171,7 @@ class _NotificationsState extends State<Notifications> {
                                   child: Container(
                                     child: CircleAvatar(
                                      backgroundColor: Colors.white,
-                                    child: Icon(Icons.person_add , size: 28,)),
+                                    child: Icon(Icons.person_add_alt_1_outlined,)),
                                   ),
                                 ),
                               ),
@@ -193,7 +193,7 @@ class _NotificationsState extends State<Notifications> {
                       if(!snapshot.hasData) return Container();
                       else if(snapshot.data.documents.length < 1){
                         return Center(
-                            child: Text("No Records" ,style: TextStyle(color: Colors.black,fontSize: 20),
+                            child: Text("Notifications will be displayed here." ,style: TextStyle(color: Colors.black,fontSize: 20),
                             )
                         );
                       }

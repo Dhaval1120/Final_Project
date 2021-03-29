@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:obvio/Home/MsgBox.dart';
 import 'package:obvio/Home/MyProfile.dart';
 import 'package:obvio/Home/NewPosts.dart';
 import 'package:obvio/Home/SearchHere.dart';
@@ -24,6 +25,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   String imageUrl;
   String uid;
   TabController controller;
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   final AuthService auth = AuthService();
   void setUserData() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -41,6 +43,43 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     setUserData();
 //    SharedPre();
     controller = TabController(vsync: this, length: 5);
+    firebaseMessaging.configure(
+        onMessage: (message ) async{
+          print(" Configuration ");
+          print("Message ${message['notification']['title']}");
+          return Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"] , duration: Duration(seconds: 3),));
+        },
+        onResume: (message) async {
+          print(" HELLO ");
+          print("message is ${message['screen'] }");
+          print(" x is ${message['x']}");
+          setState(() {
+            if(message['screen'] == 'MsgBox()')
+              {
+                print("msgbx");
+                print(" Configuration ");
+                Navigator.push(context , MaterialPageRoute(builder: (BuildContext context ){
+                  return MsgBox();
+                }));
+              }
+          });
+        },
+        onLaunch: (message) async{
+          print(" HELLO ");
+          print("message is ${message['screen'] }");
+          print(" x is ${message['x']}");
+          setState(() {
+            if(message['screen'] == 'MsgBox()')
+            {
+              print("msgbx");
+              print(" Configuration ");
+              Navigator.push(context , MaterialPageRoute(builder: (BuildContext context ){
+                return MsgBox();
+              }));
+            }
+          });
+        }
+    );
   }
 
 
