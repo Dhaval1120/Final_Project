@@ -26,38 +26,40 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<User>.value(
-      value : AuthService().user,
-      child: MaterialApp(
-        theme: ThemeData(
-          primaryColor : Colors.white,
-        ),
-        debugShowCheckedModeBanner: false,
-        home: Wrapper(),
-        routes : {
-          //'/signUp' : (context) => Register(),
-          '/eventDescription' : (context) => EventDesc(),
-          '/imagePick' : (context) => ImagePick(),
-          '/addEvent' : (context) => AddEvent(),
-          '/userEvent' : (context) => UserEvents(),
-          '/myProfile' : (context) => MyProfilePage(),
-          '/uploadMyImage' : (context) => UploadMyImage(),
-          '/myImages' : (context) => MyImages(),
-          '/searchHere' : (context) => SearchHere(),
-          '/listedUsers' : (context) =>ListedUsers(),
-          '/searchedUser' : (context) => SearchedUser(),
-          '/notifications' : (context)=> Notifications(),
-          '/requests' : (context) => Requests(),
-          '/followers': (context) => Followers(),
-          '/following':(context) => Following(),
-          '/chatbox' : (context) => ChatBox(),
-          '/msgbox' : (context) => MsgBox(),
-          '/editProfile' : (context) => EditProfile(),
-        },
+    return  MaterialApp(
+      theme: ThemeData(
+        primaryColor : Colors.white,
       ),
+      debugShowCheckedModeBanner: false,
+      home: Wrapper(),
+      routes : {
+        //'/signUp' : (context) => Register(),
+        '/eventDescription' : (context) => EventDesc(),
+        '/imagePick' : (context) => ImagePick(),
+        '/addEvent' : (context) => AddEvent(),
+        '/userEvent' : (context) => UserEvents(),
+        '/myProfile' : (context) => MyProfilePage(),
+        '/uploadMyImage' : (context) => UploadMyImage(),
+        '/myImages' : (context) => MyImages(),
+        '/searchHere' : (context) => SearchHere(),
+        '/listedUsers' : (context) =>ListedUsers(),
+        '/searchedUser' : (context) => SearchedUser(),
+        '/notifications' : (context)=> Notifications(),
+        '/requests' : (context) => Requests(),
+        '/followers': (context) => Followers(),
+        '/following':(context) => Following(),
+        '/chatbox' : (context) => ChatBox(),
+        '/msgbox' : (context) => MsgBox(),
+        '/editProfile' : (context) => EditProfile(),
+      },
     );
   }
 }

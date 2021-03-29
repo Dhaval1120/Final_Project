@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:obvio/Authenticate/sign_in.dart';
 import 'package:obvio/Design/background.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:obvio/Services/auth.dart';
@@ -215,11 +216,20 @@ class _RegisterState extends State<Register> {
                                  });
                                  dynamic result = await auth.registerWithEmailAndPassword(email, password , name , username);
                                  if(result == null) {
-
+                                   print('result is $result');
                                    setState(() {
                                      loading = false;
                                      error = "Please supply valid email";
                                    });
+                                 }
+                                 else{
+                                   setState(() {
+                                     loading = false;
+                                   });
+                                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
+                                     return SignIn();
+                                   }));
+                                   print('result is $result');
                                  }
                                }
                             }
@@ -256,8 +266,7 @@ class _RegisterState extends State<Register> {
                             ),
                             autofocus: true,
                             onPressed: () {
-
-                                 widget.toggleView();
+                              Navigator.pop(context);
                             }
                         ),
 

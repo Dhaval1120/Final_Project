@@ -206,9 +206,9 @@ class _MyImagesState extends State<MyImages> {
               else if(snapshot.data.documents.length < 1){
                 return Center(
                   child: Text("No Images to Show" , style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 22,
-                    fontFamily: 'Pacifico'
+                    //color: Colors.blue,
+                    fontSize: 16,
+                    //fontFamily: 'Pacifico'
                   ),),
                 );
               }

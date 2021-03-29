@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:obvio/Authenticate/Register.dart';
 import 'package:obvio/Design/background.dart';
+import 'package:obvio/Home/SharedPre.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:obvio/Services/auth.dart';
 import 'package:obvio/Home/home.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class SignIn extends StatefulWidget {
   final Function toggleView;
   SignIn({this.toggleView});
@@ -104,7 +106,6 @@ class _SignInState extends State<SignIn> {
                                 focusedBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
                                 ),
-
                                 labelText : "Password",
                               labelStyle: TextStyle(
                                 color: Colors.black
@@ -126,7 +127,6 @@ class _SignInState extends State<SignIn> {
                             alignment: Alignment.center,
                             child: RaisedButton(
                               padding: EdgeInsets.symmetric(horizontal : 50 , vertical:  5),
-
                               color : Color(0xff000080) ,
                               child: Text(' Sign In ',
                                 style : TextStyle (
@@ -160,19 +160,28 @@ class _SignInState extends State<SignIn> {
                                         error = "Could not Sign In";
                                       });
                                     }
+                                    else
+                                      {
+                                        SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                                        sharedPreferences.setString("email", email);
+                                        sharedPreferences.setString("password", password);
+                                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
+                                          return Home();
+                                        }));//  widget.toggleView();
+                                      }
                                   }
                                 },
                             ),
                           ),
                           SizedBox(
-                              height : 5.0
+                              height : 2.0
                           ),
                           Center(
                             child: Text(error,
                               style: TextStyle(
                               //  backgroundColor: Colors.white,
                                   color: Colors.white,
-                                  fontSize: 17
+                                  fontSize: 15
                               ),),
                           ),
                         ],
@@ -209,8 +218,10 @@ class _SignInState extends State<SignIn> {
                   //Navigator.pushNamed(context, '/signUp');
                   dynamic result = await auth.signInWithEmailAndPassword(email, password);
                   if(result == null) {
-                    widget.toggleView();
-                  }
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
+                      return Register();
+                    }));//  widget.toggleView();
+                    }
                 },
               ),
             ),

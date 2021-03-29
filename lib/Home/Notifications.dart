@@ -193,7 +193,7 @@ class _NotificationsState extends State<Notifications> {
                       if(!snapshot.hasData) return Container();
                       else if(snapshot.data.documents.length < 1){
                         return Center(
-                            child: Text("Notifications will be displayed here." ,style: TextStyle(color: Colors.black,fontSize: 20),
+                            child: Text("Notifications will be displayed here." ,style: TextStyle(color: Colors.black,fontSize: 15),
                             )
                         );
                       }

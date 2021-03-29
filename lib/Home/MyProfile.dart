@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:obvio/Authenticate/sign_in.dart';
 import 'package:obvio/Home/registeredUsers.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,6 +13,7 @@ import 'package:obvio/Services/auth.dart';
 import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'addComment.dart';
 
@@ -187,7 +189,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                   ),
                                 ),
                                 SizedBox(height: 5,),
-                                snapshot.data != null ?
+                                snapshot.data['bio'] != null ?
                                 Center(child: Container(color: Colors.black12,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -376,6 +378,13 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                           color: Colors.black12,),
                                           onTap: (){
                                             auth.signOut().then((value) {
+                                              SharedPreferences.getInstance().then((value) {
+                                                value.clear();
+                                                Navigator.pushReplacement(context, MaterialPageRoute(builder:
+                                                (context) {
+                                                  return SignIn();
+                                                }));
+                                              });
                                             });
                                           },
                                         ),
@@ -417,9 +426,9 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                             else if(snapshot.data.documents.length < 1){
                              return Center(
                                child: Text("No Images to Show" , style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 22,
-                                  fontFamily: 'Pacifico'
+                                  //color: Colors.blue,
+                                  fontSize: 16,
+                                  //fontFamily: 'Pacifico'
                               ),),
                             );
                           }

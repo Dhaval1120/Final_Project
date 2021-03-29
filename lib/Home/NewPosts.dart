@@ -461,7 +461,7 @@ class _NewPostsState extends State<NewPosts> {
                       if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
                               else if(snapshot.data.documents.length < 1){
                                 return Center(
-                                  child: Text("No Images to Show" , style: TextStyle(
+                                  child: Text("Hello, $currentUser go and make friends !" , style: TextStyle(
                                     //  color: Colors.blue,
                                       fontSize: 18,
                                       //fontFamily: 'Pacifico'
