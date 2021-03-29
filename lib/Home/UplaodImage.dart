@@ -43,7 +43,7 @@ class _UploadMyImageState extends State<UploadMyImage> {
           );
         }
 
-  Future uploadPicture(var profilepic , var name1) async {
+   uploadPicture(var profilepic , var name1) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     var userId = user.uid;
     i = randomNumber.nextInt(100000);
@@ -150,10 +150,31 @@ class _UploadMyImageState extends State<UploadMyImage> {
         titleSpacing: 2.0,
         title: Text("Image",
           style : TextStyle(
-            fontFamily: 'Pacifico',
+          //  fontFamily: 'Pacifico',
             fontSize: 20.0,
+            color: Colors.white
           ),
         ),
+        backwardsCompatibility: false,
+        actions: [
+          _image != null ?   InkWell(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: Text('Upload',
+                  style: TextStyle(
+                   // fontFamily: 'Pacifico',
+                    fontSize: 18,
+                    color: Colors.white
+                  ),
+                ),
+              ),
+            ),
+            onTap:(){
+              uploadPicture(profilepic ,name);
+            },
+          ) : Container()
+        ],
         centerTitle: true,
          backgroundColor: Color(0xff09203f),
       ),
@@ -172,16 +193,16 @@ class _UploadMyImageState extends State<UploadMyImage> {
                     ),
                     child: Image.file(_image , fit: BoxFit.cover,))),
           ),
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Align(
-                alignment: Alignment.bottomLeft,
-                child: RaisedButton(child: Text("Add",
-                    style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
-                    color: Colors.red,
-                    onPressed: () => uploadPicture(profilepic,name))
-            ),
-          )
+          // Padding(
+          //   padding: const EdgeInsets.all(15.0),
+          //   child: Align(
+          //       alignment: Alignment.bottomLeft,
+          //       child: RaisedButton(child: Text("Add",
+          //           style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
+          //           color: Colors.red,
+          //           onPressed: () => uploadPicture(profilepic,name))
+          //   ),
+          // )
         ],
       ),
 

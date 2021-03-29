@@ -171,7 +171,7 @@ class _NotificationsState extends State<Notifications> {
                                   child: Container(
                                     child: CircleAvatar(
                                      backgroundColor: Colors.white,
-                                    child: Icon(Icons.person_add_alt_1_outlined,)),
+                                    child: Icon(Icons.person_add_alt_1_outlined,color: Colors.black)),
                                   ),
                                 ),
                               ),

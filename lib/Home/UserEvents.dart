@@ -69,13 +69,18 @@ class _UserEventsState extends State<UserEvents> {
       });
     }
     Firestore.instance.collection('EventDetails').orderBy('timeStamp' , descending: true).where(type , isEqualTo: subType).getDocuments().then((value) {
-      value.documents.forEach((element) {
-        setState(() {
-          events.add(element);
-        //  print("time Month is ${DateTime.parse(element['startdate']).toLocal().month}");
-        });
-      });
-      Navigator.pop(context);
+      if(value.documents.isNotEmpty)
+        {
+          value.documents.forEach((element) {
+            setState(() {
+              events.add(element);
+            });
+          });
+         // Navigator.pop(context);
+        }
+      else{
+        //Navigator.pop(context);
+      }
     });
   }
   @override
@@ -107,6 +112,7 @@ class _UserEventsState extends State<UserEvents> {
                       setState(() {
                         type = "department";
                         subType = "Computer";
+                        Navigator.pop(context);
                         getByFilter();
                       });
                      },child: Chip(label: Text("Computer"),backgroundColor: Colors.white,)),
@@ -114,14 +120,15 @@ class _UserEventsState extends State<UserEvents> {
                       setState(() {
                         type = "department";
                         subType = "IT";
+                        Navigator.pop(context);
                         getByFilter();
                       });
-                      getByFilter();
                      },child: Chip(label: Text('IT'),backgroundColor: Colors.white,)),
                     InkWell(onTap:(){
                       setState(() {
                         type = "department";
                         subType = "Electrical";
+                        Navigator.pop(context);
                         getByFilter();
                       });
                     },child: Chip(label: Text("Electrical"),backgroundColor: Colors.white,)),
@@ -129,6 +136,7 @@ class _UserEventsState extends State<UserEvents> {
                       setState(() {
                         type = "department";
                         subType = "EC";
+                        Navigator.pop(context);
                         getByFilter();
                       });
                     },child: Chip(label: Text("EC"),backgroundColor: Colors.white,)),
@@ -136,6 +144,7 @@ class _UserEventsState extends State<UserEvents> {
                       setState(() {
                         type = "department";
                         subType = "Chemical";
+                        Navigator.pop(context);
                         getByFilter();
                       });
                     },child: Chip(label :Text("Chemical"),backgroundColor: Colors.white,))
@@ -153,6 +162,7 @@ class _UserEventsState extends State<UserEvents> {
                       setState(() {
                         type = "level";
                         subType = "National";
+                        Navigator.pop(context);
                         getByFilter();
                       });
                     },child: Chip(label: Text("National"),backgroundColor: Colors.white,)),
@@ -160,6 +170,7 @@ class _UserEventsState extends State<UserEvents> {
                       setState(() {
                         type = "level";
                         subType = "State";
+                        Navigator.pop(context);
                         getByFilter();
                       });
                     },child: Chip(label: Text('State'),backgroundColor: Colors.white,)),
@@ -167,6 +178,7 @@ class _UserEventsState extends State<UserEvents> {
                       setState(() {
                         type = "level";
                         subType = "College";
+                        Navigator.pop(context);
                         getByFilter();
                       });
                     },child: Chip(label: Text("College"),backgroundColor: Colors.white,)),
@@ -645,7 +657,7 @@ class _UserEventsState extends State<UserEvents> {
 
     return SafeArea(
       child: Scaffold(
-        body : events.isNotEmpty ? Column(
+        body : Column(
           children: <Widget>[
             ClipRRect(
                 child: Material(
@@ -668,14 +680,14 @@ class _UserEventsState extends State<UserEvents> {
                             onTap: (){dialogFilter();},
                             child: CircleAvatar(
                                 backgroundColor: Colors.white,
-                                child: Icon(Icons.filter_none_sharp , color: Colors.blue,))),
+                                child: Icon(Icons.filter_none_sharp , color: Colors.black,))),
                       )
                     //color: Colors.redAccent
                   ),
                 ),
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
             ),
-            Expanded(
+            events.isNotEmpty ? Expanded(
               child: Container(
                 child: StreamBuilder(
                     stream : Firestore.instance.collection('EventDetails').orderBy('timeStamp' , descending: true).snapshots(),
@@ -690,9 +702,10 @@ class _UserEventsState extends State<UserEvents> {
                       );
                     })
               ),
-            ),
+            ) :  Center(child: Container(child: Center(child: Text(" No Events ! "))),
+            )
           ],
-        ) : Center(child: Text(" No Events Found "),),
+        ),
 
         floatingActionButton: FloatingActionButton(
 

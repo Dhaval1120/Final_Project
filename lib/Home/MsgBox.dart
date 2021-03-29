@@ -200,7 +200,7 @@ class _MsgBoxState extends State<MsgBox> {
                      {
                        if(snapshot.data.documents.length < 1)
                        {
-                         return Center(child: Text("NO Chats" , style: TextStyle(fontSize: 20),));
+                         return Center(child: Text("No Chats" , style: TextStyle(fontSize: 18),));
                        }
                        else
                        {

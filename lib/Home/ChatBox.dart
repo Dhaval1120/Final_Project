@@ -548,6 +548,8 @@ class _ChatBoxState extends State<ChatBox> {
                               setScrollPostion();
                              sendAndRetrieveMessage(token, msg , currentName , screen: 'MsgBox()' );
                              print(msg);
+                             print("Msg Id is $msgId");
+                             print("Current and Friend ID is $currentId $friendId");
                              Firestore.instance.collection('Ravan').document(currentId).collection(msgId.toString()).add({
                                'msg' : msg,
                                'sent' : true,

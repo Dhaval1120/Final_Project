@@ -50,6 +50,7 @@ class _NewPostsState extends State<NewPosts> {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
      setState(() {
        currentId = user.uid;
+       print("Id is $currentId");
        Firestore.instance.collection('Ravan').document(currentId).get().then((value) => {
         currentUser = value["name"],
          currentProfile = value["image"],
@@ -436,7 +437,7 @@ class _NewPostsState extends State<NewPosts> {
                                     child: ClipOval(
                                       child: Material(
                                         elevation: 10,
-                                       child: Icon(Icons.message_outlined,),
+                                       child: Icon(Icons.message_outlined, color: Colors.black,),
                                        // child: Image.asset("assets/message_icon.png" , height: 32, width: 32,),
                                       ),
                                     ),

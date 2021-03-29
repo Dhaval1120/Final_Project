@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -88,22 +89,27 @@ class _ImagePickState extends State<ImagePick> {
         titleSpacing: 2.0,
         title: Text("Image",
           style : TextStyle(
-            fontFamily: 'Pacifico',
+            //fontFamily: 'Pacifico',
             fontSize: 20.0,
           ),
         ),
-        /*actions: <Widget>[
-          InkWell(
-            child: Text('Upload',
-              style: TextStyle(
-                  fontFamily: 'Pacifico',
-                  fontSize: 20.0,
-
+        backwardsCompatibility: false,
+        actions: <Widget>[
+          _image != null ?   InkWell(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Text('Upload',
+                  style: TextStyle(
+                //    fontFamily: 'Pacifico',
+                    fontSize: 18,
+                  ),
                 ),
+              ),
             ),
             onTap: uploadProfilePicture,
-           )*/
-        //],
+          ) : Container()
+        ],
         centerTitle: true,
         backgroundColor: Color(0xff09203f),
       ),
@@ -122,18 +128,18 @@ class _ImagePickState extends State<ImagePick> {
                     ),
                     child: Image.file(_image , fit: BoxFit.cover,))),
           ),
-          Container(
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: RaisedButton(child: Text("Add",
-                      style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
-                      color: Colors.red,
-                      onPressed: uploadProfilePicture)
-              ),
-            ),
-          )
+          // Container(
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(15.0),
+          //     child: Align(
+          //         alignment: Alignment.bottomLeft,
+          //         child: RaisedButton(child: Text("Add",
+          //             style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
+          //             color: Colors.red,
+          //             onPressed: uploadProfilePicture)
+          //     ),
+          //   ),
+          // )
 
         ],
 
