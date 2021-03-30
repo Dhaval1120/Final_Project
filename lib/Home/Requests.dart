@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:obvio/Home/SearchedUser.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:obvio/Design/background.dart';
+import 'package:obvio/Utils/TimeConversion.dart';
 
 
 class Requests extends StatefulWidget {
@@ -17,24 +19,38 @@ class _RequestsState extends State<Requests> {
 
   var currentId , currentName;
   var userProfilePic;
-
+  List requests = List();
   void setId () async{
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-
     setState(() {
       currentId = user.uid;
       print(currentId);
-
       Firestore.instance.collection('Ravan').document(currentId).get().then((value) {
         setState(() {
           currentName = value['name'];
-
         });
       });
+      getRequests();
     });
 
   }
 
+  getRequests()async {
+    if (requests.isNotEmpty)
+    {
+      setState(() {
+        requests.clear();
+      });
+    }
+    Firestore.instance.collection('Ravan').document(currentId).collection("Requests").getDocuments().then((value) {
+      value.documents.forEach((element) {
+        setState(() {
+          requests.add(element);
+          print(" len is ${requests.length}");
+        });
+      });
+    });
+  }
   var requestedName;
 
   Future<void> setUser(DocumentSnapshot snapshot , String requestedId) async{
@@ -49,10 +65,9 @@ class _RequestsState extends State<Requests> {
   var requestedId;
 
 
-    Widget buildRequestList(BuildContext context , DocumentSnapshot snapshot)
+  Widget buildRequestList(BuildContext context , DocumentSnapshot snapshot)
   {
     var id = snapshot.documentID;
-    print(" Doucment is ${snapshot.data}");
     requestedId = snapshot["docId"];
     print(" I am Name ${snapshot.data['name']}");
     Future<String> getProfileName()
@@ -62,9 +77,16 @@ class _RequestsState extends State<Requests> {
         return value.data['name'];
       });
     }
+    Future<String> getProfilePic()
+    async {
+      return await Firestore.instance.collection('Ravan').document(snapshot.data['docId']).get().then((value) {
+       // print(" Name is ${value['name']}");
+        return value.data['image'];
+      });
+    }
     //print(id);
     //print(requestedId);
-    setUser(snapshot , requestedId);
+   setUser(snapshot , requestedId);
 
     return  Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -78,100 +100,163 @@ class _RequestsState extends State<Requests> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    SizedBox(width: 10,),
+                    //SizedBox(width: 10,),
+                    SizedBox(width: 5,),
                     InkWell(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext contetx){
-                          return SearchedUser(searchedId: requestedId,name: requestedName.toString(),);
-                        }));
-                      },
-                      child :  Text(snapshot.data['name']),),
-                    //   child: FutureBuilder(
-                    //       future : getProfileName(),
-                    //       builder: (BuildContext context , AsyncSnapshot snapshot){
-                    //         if(snapshot.connectionState == ConnectionState.done)
-                    //         {
-                    //           return Text(snapshot.data);
-                    //         }
-                    //         return Container();
-                    //       }),
-                    // ),
-                    SizedBox(width :2 ),
-                    Text(" sent you a request." ,style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        //fontFamily: 'Sriracha',
-                        color: Colors.black
-                    )
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.redAccent,
+                        child:FutureBuilder(
+                        future: getProfilePic(),
+                          builder: (context , asyncSnap){
+                             if(asyncSnap.hasData && asyncSnap != null)
+                               {
+                                 return ClipOval(
+                                   child: SizedBox(
+                                     height: 40,
+                                     width: 40,
+                                     child: Image(
+                                       image: NetworkImage(asyncSnap.data),
+                                       fit: BoxFit.cover,
+                                     ),
+                                   ),
+                                 );
+                               }
+                             return Container();
+                          },
+                        ),
+                      ),
                     ),
+                    SizedBox(width: 3,),
+                    Expanded(
+                      child: Container(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Row(
+                                children: [
+                                  FutureBuilder(
+                                  future: getProfileName(),
+                                  builder: (context , asyncSnap)
+                                  {
+                                    if(asyncSnap.hasData && asyncSnap != null)
+                                    {
+                                      return  InkWell(
+                                        onTap: (){
+                                          Navigator.push(context, MaterialPageRoute(builder: (BuildContext contetx){
+                                            return SearchedUser(searchedId: snapshot.data['docId'],name: asyncSnap.data,);
+                                          }));
+                                        },
+                                        child: Text(asyncSnap.data,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                // fontWeight: FontWeight.bold,
+                                                //fontFamily: 'Sriracha',
+                                                color: Colors.black
+                                            )),
+                                      );
+                                    }
+                                    //  if(asyncSnap.connectionState != ConnectionState.waiting)
+                                    //    {
+                                    //      return  Text(asyncSnap.data,
+                                    //          style: TextStyle(
+                                    //              fontSize: 16,
+                                    //              // fontWeight: FontWeight.bold,
+                                    //              //fontFamily: 'Sriracha',
+                                    //              color: Colors.black
+                                    //          ));
+                                    //    }
+                                    return Container();
+                                  },
+                                ),
+                                  Text(" sent you a request." ,style: TextStyle(
+                                      fontSize: 16,
+                                      // fontWeight: FontWeight.bold,
+                                      //fontFamily: 'Sriracha',
+                                      color: Colors.black
+                                  )
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(TimeConvert(snapshot['timestamp']),style: TextStyle(color: Colors.black38),)
+                          ],
+                        ),
+                      ),
+                    )
                   ],
                 ),
                 SizedBox(height: 5,),
-               Align(
-                 alignment: Alignment.topLeft,
-                 child:Row(
-                   children: <Widget>[
-                     //SizedBox(width: 50),
-                     RaisedButton(
-                       onPressed : () {
-                         Firestore.instance.collection('Ravan').document(requestedId).collection('Following').document(currentId).setData({
-                           'docId' : currentId,
-                           'name' : currentName,
-                         }).then((value) {
+                Align(
+                    alignment: Alignment.topLeft,
+                    child:Row(
+                      children: <Widget>[
+                        //SizedBox(width: 50),
+                        RaisedButton(
+                          onPressed : () {
+                            Firestore.instance.collection('Ravan').document(requestedId).collection('Following').document(currentId).setData({
+                              'docId' : currentId,
+                              'name' : currentName,
+                            }).then((value) {
 
-                           Firestore.instance.collection('Ravan').document(currentId).
-                           collection('Requests').document(snapshot.documentID).delete();
+                              Firestore.instance.collection('Ravan').document(currentId).
+                              collection('Requests').document(snapshot.documentID).delete();
 
-                           Firestore.instance.collection('Ravan').document(requestedId).
-                           collection('Requested').document(currentId).delete();
+                              Firestore.instance.collection('Ravan').document(requestedId).
+                              collection('Requested').document(currentId).delete();
 
 
-                           Firestore.instance.collection('Ravan').document(requestedId).
-                           collection('Requested').document(currentId).delete();
+                              Firestore.instance.collection('Ravan').document(requestedId).
+                              collection('Requested').document(currentId).delete();
 
-                           Firestore.instance.collection('Ravan').document(currentId).collection('Followers').document(requestedId).setData({
-                             'docId' : requestedId,
-                             'name' : snapshot.data["name"],
-                           });
-                         }
-                         );
-                         },
-                       shape: RoundedRectangleBorder(
-                           borderRadius: BorderRadius.circular(6)
-                       ),
-                       elevation: 6,
-                       highlightElevation: 8,
-                       highlightColor: Colors.purple,
-                       color: Colors.purple,
-                       focusColor: Colors.blue,
-                       child:  Text('Accept', style: TextStyle(
-                         color: Colors.white,
-                         fontSize: 15,
-                       ),),
+                              Firestore.instance.collection('Ravan').document(currentId).collection('Followers').document(requestedId).setData({
+                                'docId' : requestedId,
+                                'name' : snapshot.data["name"],
+                              });
 
-                     ),
-                     SizedBox(width: 5,),
+                              getRequests();
+                            }
+                            );
+                          },
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6)
+                          ),
+                          elevation: 6,
+                          highlightElevation: 8,
+                          highlightColor: Colors.purple,
+                          color: Colors.purple,
+                          focusColor: Colors.blue,
+                          child:  Text('Accept', style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                          ),),
 
-                     RaisedButton(
+                        ),
+                        SizedBox(width: 5,),
 
-                       color: Colors.blue,
-                       elevation: 5,
-                       onPressed: (){
-                         Firestore.instance.collection('Ravan').document(currentId).
-                         collection('Requests').document(snapshot.documentID).delete();
-                       },
-                       shape: RoundedRectangleBorder(
-                           borderRadius: BorderRadius.circular(6)
-                       ),
-                       child:  Text('Reject', style: TextStyle(
-                         fontSize: 15 ,
-                         color: Colors.white
-                       ),),
+                        RaisedButton(
+                          color: Colors.blue,
+                          elevation: 5,
+                          onPressed: (){
+                            Firestore.instance.collection('Ravan').document(currentId).
+                            collection('Requests').document(snapshot.documentID).delete().then((value) {
+                              getRequests();
+                            });
+                          },
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6)
+                          ),
+                          child:  Text('Reject', style: TextStyle(
+                              fontSize: 15 ,
+                              color: Colors.white
+                          ),),
 
-                     ),
-                   ],
-                 )
-               )
+                        ),
+                      ],
+                    )
+                )
               ],
             ),
           )
@@ -226,27 +311,13 @@ class _RequestsState extends State<Requests> {
                 ),
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
             ),
-            Expanded(
+            requests.length != 0 ? Expanded(
               child: Container(
-                child: StreamBuilder(
-                    stream: Firestore.instance.collection('Ravan').document(currentId).collection('Requests').snapshots(),
-                    builder: (context , snapshot)
-                    {
-                      if(!snapshot.hasData) return Container();
-                      else if(snapshot.data.documents.length < 1){
-                        return Center(
-                            child: Text("No Records Found" ,style: TextStyle(color: Colors.black,fontSize: 18 ,),
-                            )
-                        );
-                      }
-                      return ListView.builder(
-                        itemBuilder: (context , index) => buildRequestList(context ,snapshot.data.documents[index]),
-                        itemCount: snapshot.data.documents.length,
-                      );
-                    }
-                ),
+                child: ListView.builder(itemBuilder: (BuildContext context , int index){
+                  return buildRequestList(context, requests[index]);
+                },itemCount: requests.length,),
               ),
-            ),
+            ) : Expanded(child: Center(child: Text('No Requests'),))
           ],
         )
       ),

@@ -97,10 +97,10 @@ class _ListedUsersState extends State<ListedUsers> {
              Center(
                child: Text(snapshot['name'],
                    style: TextStyle(
-                       fontWeight: FontWeight.bold,
+                      // fontWeight: FontWeight.bold,
                        fontSize: 18,
                        //  fontFamily: 'Pacifico',
-                       color: Colors.deepPurple
+                       color: Colors.black
                    )),
              ),
            ],

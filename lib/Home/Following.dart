@@ -8,6 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 
 class Following extends StatefulWidget {
+  String followingId;
+  Following({this.followingId});
   @override
   _FollowingState createState() => _FollowingState();
 }
@@ -32,7 +34,7 @@ class _FollowingState extends State<Following> {
   }
 
   getFollowing() async{
-    Firestore.instance.collection('Ravan').document(currentId).collection('Following').getDocuments().then((value) {
+    Firestore.instance.collection('Ravan').document(widget.followingId).collection('Following').getDocuments().then((value) {
       value.documents.forEach((element) {
         setState(() {
           following.add(element);

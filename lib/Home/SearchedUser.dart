@@ -5,6 +5,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:obvio/Home/ChatBox.dart';
+import 'package:obvio/Home/Followers.dart';
+import 'package:obvio/Home/Following.dart';
 import 'package:obvio/Home/registeredUsers.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +16,7 @@ import 'package:obvio/Services/auth.dart';
 import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:obvio/Utils/TimeConversion.dart';
 
 import 'addComment.dart';
 
@@ -182,51 +185,31 @@ class _SearchedUserState extends State<SearchedUser>  {
                                     child: Container(
                                       clipBehavior: Clip.antiAlias,
                                       decoration: BoxDecoration(),
-                                      child: InkWell(
-                                        onLongPress: () =>
-                                            showDialog(context: context,
-                                                barrierDismissible: true,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    content: RaisedButton(
-                                                      focusColor: Colors
-                                                          .redAccent,
-                                                      color: Colors.redAccent,
-                                                      child: Text(
-                                                        "Upload Profile Picture",
-                                                        style: TextStyle(
-                                                          fontSize: 17,
-                                                          color: Colors.white,
-
-                                                        ),),
-                                                      onPressed: () =>
-                                                          Navigator
-                                                              .pushReplacementNamed(
-                                                              context,
-                                                              '/imagePick'),
-                                                    ),
-                                                  );
-                                                }
-                                            ),
-                                        child: snapshot.data != null ? Image(
-                                            image: CachedNetworkImageProvider(
-                                                snapshot.data["image"]),
-                                            //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                            fit: BoxFit.cover
-                                        ):Container(),
-                                      ),
+                                      child: snapshot.data != null ? Image(
+                                          image: CachedNetworkImageProvider(
+                                              snapshot.data["image"]),
+                                          //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                                          fit: BoxFit.cover
+                                      ):Container(),
                                     ),
                                   ),
                                 ),
                               ),
                               SizedBox(height: 5,),
-                              snapshot.data != null ?
                               Center(child: Container(color: Colors.black12,
-                                  child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child:snapshot.data['bio'] != null ? Text(snapshot.data['bio'],
-                                        style: TextStyle(fontSize: 16),) : SizedBox(height: 0,width: 0,)
-                                  )),) : SizedBox(height: 0,width: 0,),
+                                  child: snapshot.data['bio'] !=null ?  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(snapshot.data['bio'],
+                                      style: TextStyle(fontSize: 16),),
+                                  ) : Container(height: 0,width: 0,)
+                              ),),
+                              // snapshot.data != null ?
+                              // Center(child: Container(color: Colors.black12,
+                              //     child: Padding(
+                              //         padding: const EdgeInsets.all(8.0),
+                              //         child:snapshot.data['bio'] != null ? Text(snapshot.data['bio'],
+                              //           style: TextStyle(fontSize: 16),) : SizedBox(height: 0,width: 0,)
+                              //     )),) : SizedBox(height: 0,width: 0,),
                               SizedBox(height: 3),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -261,11 +244,14 @@ class _SearchedUserState extends State<SearchedUser>  {
                                           ),),
                                           onPressed: () =>
                                           {
-                                            Navigator.pushReplacementNamed(
-                                                context, '/followers',
-                                                arguments: {
-                                                  'id': uid,
-                                                })
+                                            Navigator.push(context , MaterialPageRoute(builder: (context){
+                                              return Followers(followersId: widget.searchedId,);
+                                            }))
+                                            // Navigator.pushNamed(
+                                            //     context, '/followers',
+                                            //     arguments: {
+                                            //       'id': widget.searchedId,
+                                            //     })
                                           },
                                         ),
                                       ),
@@ -290,13 +276,17 @@ class _SearchedUserState extends State<SearchedUser>  {
                                               color: Colors.white
 
                                           ),),
-                                          onPressed: () =>
+                                          onPressed: ()
                                           {
-                                            Navigator.pushNamed(
-                                                context, '/following',
-                                                arguments: {
-                                                  'id': uid,
-                                                })
+
+                                            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                                              return Following(followingId: widget.searchedId,);
+                                          }));
+                                            // Navigator.pushNamed(
+                                            //     context, '/following',
+                                            //     arguments: {
+                                            //       'id': widget.searchedId,
+                                            //     })
                                           },
                                         ),
                                       ),
@@ -364,9 +354,10 @@ class _SearchedUserState extends State<SearchedUser>  {
                                   document(uid).setData({
                                     'docId' : uid,
                                     'name' : currentName,
+                                    'timestamp' : DateTime.now().millisecondsSinceEpoch
                                   });
                                   print("sending Notification ");
-                                  sendAndRetrieveMessage(token, " ", "$currentName sent you a friend request.");
+                                  sendAndRetrieveMessage(token, " ", "$currentName sent you a friend request." , screen: 'Requests');
                                   Firestore.instance.collection('Ravan').document(uid).collection('Requested').
                                   document(widget.searchedId).setData({
                                     'id' : widget.searchedId,
@@ -525,7 +516,8 @@ class _SearchedUserState extends State<SearchedUser>  {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Container(
                                           decoration: BoxDecoration(
-                                              color: Color(0xfff0fff0),
+                                              color: Colors.black12,
+                                             // color: Color(0xfff0fff0),
                                               border: Border.all(color: Colors.black),
                                               borderRadius: BorderRadius.circular(5)
                                           ),
@@ -691,20 +683,27 @@ class _SearchedUserState extends State<SearchedUser>  {
                                         )
                                     ),
                                   ),
-                                  Column(
+                                  Row(
                                     children: <Widget>[
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: InkWell(
                                           onTap: (){},
                                           child: Text(snapshot.data['name'],style : TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 16,
                                             //        fontWeight: FontWeight.bold,
                                             // fontFamily: "Pacifico",
                                             //  color: Colors.white
                                           ),),
                                         ),
                                       ),
+                                      CircleAvatar(
+                                        radius: 4,
+                                        backgroundColor: Colors.red,),
+                                      SizedBox(width: 9,),
+                                      Text(TimeConvert(snapshot['timestamp']),style: TextStyle(
+                                          color: Colors.black38
+                                      ),)
                                     ],
                                   ),
                                 ],
@@ -712,7 +711,6 @@ class _SearchedUserState extends State<SearchedUser>  {
                             ],
                           ),
                         ),
-
                         Expanded(
                           child: Container(
                             width: MediaQuery
@@ -814,7 +812,6 @@ class _SearchedUserState extends State<SearchedUser>  {
                             ],
                           ),
                         ),
-                        SizedBox(height: 3,),
                         //Text(totalLikes.toString())
                       ],
                     ),
@@ -873,14 +870,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 //   var currentName;
 //   var uid , following ="" , followers = "";
 //
-//   Future<void> sendFriend(String docId , String name1) async {
-//    print("SendFriend");
-//
-//    print(docId);
-//    print('senreq');
-//    print(uid);
-//
-//     Firestore.instance.collection('Ravan').document(uid).get().then((value) => {
+//   Future<void> ) => {
 //         currentName = value['name'],
 //         print(currentName),
 //     });

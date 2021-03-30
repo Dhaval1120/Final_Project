@@ -25,7 +25,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
       body: Center(
         child: Container(
           decoration: BoxDecoration(
-              border: Border.all(color: Colors.black ,width: 3)
+              //border: Border.all(color: Colors.black ,width: 3)
             ),
           child: InteractiveViewer(
             transformationController: controller,

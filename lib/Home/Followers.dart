@@ -7,6 +7,9 @@ import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Followers extends StatefulWidget {
+   String followersId;
+
+   Followers({this.followersId});
 
   @override
   _FollowersState createState() => _FollowersState();
@@ -32,7 +35,7 @@ class _FollowersState extends State<Followers> {
   }
 
   getFollowers() async{
-    Firestore.instance.collection('Ravan').document(currentId).collection('Followers').getDocuments().then((value) {
+    Firestore.instance.collection('Ravan').document(widget.followersId).collection('Followers').getDocuments().then((value) {
       value.documents.forEach((element) {
         setState(() {
           followers.add(element);

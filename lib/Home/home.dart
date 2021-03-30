@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:obvio/Home/MsgBox.dart';
 import 'package:obvio/Home/MyProfile.dart';
 import 'package:obvio/Home/NewPosts.dart';
+import 'package:obvio/Home/Requests.dart';
 import 'package:obvio/Home/SearchHere.dart';
 import 'package:obvio/Home/SharedPre.dart';
 import 'package:obvio/Home/UplaodImage.dart';
@@ -41,20 +42,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
     setUserData();
-//    SharedPre();
+
     controller = TabController(vsync: this, length: 5);
     firebaseMessaging.configure(
         onMessage: (message ) async{
           print(" Configuration ");
           print("Message ${message['notification']['title']}");
-          return Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"] , duration: Duration(seconds: 3),));
+       //   return Scaffold.of(context).showSnackBar(SnackBar(content: message["notification"]["title"] , duration: Duration(seconds: 3),));
         },
         onResume: (message) async {
-          print(" HELLO ");
-          print("message is ${message['screen'] }");
-          print(" x is ${message['x']}");
+          print("Screen is ${(message['data']['screen'])}");
           setState(() {
-            if(message['screen'] == 'MsgBox()')
+            if(message['data']['screen'] == 'MsgBox()')
               {
                 print("msgbx");
                 print(" Configuration ");
@@ -62,14 +61,27 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   return MsgBox();
                 }));
               }
+            else if(message['data']['screen'] == 'Notification')
+              {
+                controller.animateTo(3);
+              }
+            else if(message['data']['screen'] == 'Requests')
+            {
+              controller.animateTo(3);
+              Navigator.push(
+                context , MaterialPageRoute(
+                builder: (BuildContext context)
+                    {
+                      return Requests();
+                    }
+              )
+              );
+            }
           });
         },
         onLaunch: (message) async{
-          print(" HELLO ");
-          print("message is ${message['screen'] }");
-          print(" x is ${message['x']}");
           setState(() {
-            if(message['screen'] == 'MsgBox()')
+            if(message['data']['screen'] == 'MsgBox()')
             {
               print("msgbx");
               print(" Configuration ");

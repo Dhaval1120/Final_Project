@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:obvio/Notification/notifications.dart';
+import 'package:obvio/Utils/TimeConversion.dart';
 import 'package:obvio/Utils/common_image_display_widget.dart';
 class ChatBox extends StatefulWidget {
   @override
@@ -116,18 +117,46 @@ class _ChatBoxState extends State<ChatBox> {
                       )
                       //color : Color(0xff66cdaa)
                     ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(6),
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(snapshot['msg'],
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                                   color: Colors.white,
                             ),),
-                        ),
-                       // Text(timeToShow)
-                      ],
+                          ),
+                          // Align(
+                          //   alignment: Alignment.bottomRight,
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.fromLTRB(0, 0, 5, 2),
+                          //     child: Container(
+                          //       decoration: BoxDecoration(
+                          //         //  color: Colors.black38
+                          //       ),
+                          //       child: Text(TimeConvert(snapshot['timestamp']) ,style:TextStyle(
+                          //           color: Colors.white
+                          //       ),),
+                          //     ),
+                          //   ),
+                          // )
+                          // Align(
+                          //     alignment: Alignment.bottomRight,
+                          //     child: Padding(
+                          //       padding: const EdgeInsets.fromLTRB(0 , 10 ,5 ,1),
+                          //       child: Container(
+                          //         decoration: BoxDecoration(
+                          //         //  color: Colors.black38
+                          //         ),
+                          //         child: Text(TimeConvert(snapshot['timestamp']) ,style:TextStyle(
+                          //             color: Colors.black38
+                          //         ),),
+                          //       ),
+                          //     ))
+                        ],
+                      ),
                     ),
                   ),
               ),
@@ -235,10 +264,11 @@ class _ChatBoxState extends State<ChatBox> {
                       Padding(
                         padding: const EdgeInsets.all(6),
                           child: Text(snapshot['msg'] , style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             color: Colors.white
                           ),),
                       ),
+                     // Text(TimeConvert(snapshot['timestamp']))
                       //Text(timeToShow)
                     ],
                   ),
@@ -255,7 +285,6 @@ class _ChatBoxState extends State<ChatBox> {
   {
 //    var userId = user.uid;
     i = randomNumber.nextInt(100000);
-
     setState(() {
       isUploading = true;
     });
@@ -367,7 +396,8 @@ class _ChatBoxState extends State<ChatBox> {
 
   Widget build(BuildContext context) {
     Map data = ModalRoute.of(context).settings.arguments;
-    currentId = data['currentId'];
+    currentId = data['uid'];
+
     //print(currentId);
     friendId = data['friendId'];
 
@@ -514,13 +544,12 @@ class _ChatBoxState extends State<ChatBox> {
                              maxLines: null,
                              decoration: InputDecoration(
                                filled: true,
-                               focusColor: Colors.purple,
+                               focusColor: Colors.redAccent,
                                hoverColor: Colors.red,
                                hintText: "Type Message",
                                fillColor: Colors.white,
 
                                border : OutlineInputBorder(),
-
 
                                enabledBorder: OutlineInputBorder(
                                    borderRadius: BorderRadius.circular(6),
@@ -528,7 +557,7 @@ class _ChatBoxState extends State<ChatBox> {
                                ),
                                focusedBorder: OutlineInputBorder(
                                    borderRadius: BorderRadius.circular(10),
-                                   borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
+                                   borderSide: BorderSide(color: Colors.redAccent,width: 2)
                                ),
                              ),
                              onChanged : (val) {

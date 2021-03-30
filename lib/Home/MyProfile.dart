@@ -13,8 +13,12 @@ import 'package:obvio/Services/auth.dart';
 import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:obvio/Utils/TimeConversion.dart';
+import 'package:obvio/Utils/common_image_display_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'Followers.dart';
+import 'Following.dart';
 import 'addComment.dart';
 
 class MyProfilePage extends StatefulWidget {
@@ -230,11 +234,14 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                             ),),
                                             onPressed: () =>
                                             {
-                                              Navigator.pushNamed(
-                                                  context, '/followers',
-                                                  arguments: {
-                                                    'id': uid,
-                                                  })
+                                              Navigator.push(context , MaterialPageRoute(builder: (context){
+                                                return Followers(followersId: uid,);
+                                              }))
+                                              // Navigator.pushNamed(
+                                              //     context, '/followers',
+                                              //     arguments: {
+                                              //       'id': uid,
+                                              //     })
                                             },
                                           ),
                                         ),
@@ -261,11 +268,14 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                             ),),
                                             onPressed: () =>
                                             {
-                                              Navigator.pushNamed(
-                                                  context, '/following',
-                                                  arguments: {
-                                                    'id': uid,
-                                                  })
+                                            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                                            return Following(followingId: uid,);
+                                            }))
+                                              // Navigator.pushNamed(
+                                              //     context, '/following',
+                                              //     arguments: {
+                                              //       'id': uid,
+                                              //     })
                                             },
 
                                           ),
@@ -420,7 +430,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                         children: <Widget>[
                           // Images
                           new StreamBuilder(
-                          stream: Firestore.instance.collection('Ravan').document(uid).collection('MyImages').snapshots(),
+                          stream: Firestore.instance.collection('Ravan').document(uid).collection('MyImages').orderBy('timestamp' ,descending: true).snapshots(),
                            builder: (context, snapshot) {
                            if (!snapshot.hasData) return Container();
                             else if(snapshot.data.documents.length < 1){
@@ -520,6 +530,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
 
     Widget _buildMyImages(BuildContext context, DocumentSnapshot snapshot) {
       TransformationController controller = TransformationController();
+      String timeToDisplay = TimeConvert(snapshot['timestamp']);
       var id = snapshot.documentID;
       var increment , decrement;
       bool isLiked = false;
@@ -599,7 +610,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
             maxHeight: 500,
           ),
           child: Padding(
-            padding: EdgeInsets.only(top: 8, bottom: 8),
+            padding: EdgeInsets.only(top: 3, bottom: 3),
             child: Material(
               color: Colors.white,
               shadowColor: Colors.orangeAccent,
@@ -657,10 +668,12 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                         )
                                     ),
                                   ),
-                                  Column(
+                                  Row(
+                                    //mainAxisAlignment: m,
+                                    //crossAxisAlignment: CrossAxisAlignment.center,
                                     children: <Widget>[
                                       Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.symmetric(vertical: 2,horizontal: 5),
                                         child: InkWell(
                                           onTap: (){},
                                           child: FutureBuilder(
@@ -674,7 +687,13 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                             }),
                                           ),
                                         ),
-
+                                      CircleAvatar(
+                                        radius: 4,
+                                        backgroundColor: Colors.red,),
+                                      SizedBox(width: 9,),
+                                      Text(TimeConvert(snapshot['timestamp']) , style: TextStyle(
+                                        color: Colors.black38
+                                      ),)
                                     ],
                                   ),
                                 ],
@@ -690,24 +709,31 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                 .size
                                 .width,
                             //    height: 300.0,
-                            child: Container(
-                              decoration: BoxDecoration(),
-                              child: InteractiveViewer(
-                                transformationController: controller,
-                                onInteractionEnd: (ScaleEndDetails endDetails){
-                                  controller.value = Matrix4.identity();
-                                },
-                                child: CachedNetworkImage(
-                                  imageUrl: snapshot["image"],
-                                  imageBuilder: (context , imageProvider) => Container(
-                                    decoration: BoxDecoration(
-                                        image : DecorationImage(
-                                          image : imageProvider,
-                                          fit : BoxFit.cover,
-                                        )
+                            child: InkWell(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                                  return ImageDisplay(imgUrl: snapshot["image"],);
+                                }));
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(),
+                                child: InteractiveViewer(
+                                  transformationController: controller,
+                                  onInteractionEnd: (ScaleEndDetails endDetails){
+                                    controller.value = Matrix4.identity();
+                                  },
+                                  child: CachedNetworkImage(
+                                    imageUrl: snapshot["image"],
+                                    imageBuilder: (context , imageProvider) => Container(
+                                      decoration: BoxDecoration(
+                                          image : DecorationImage(
+                                            image : imageProvider,
+                                            fit : BoxFit.cover,
+                                          )
+                                      ),
                                     ),
+                                    placeholder: (context , url) => Center(child: SpinKitCubeGrid(color: Colors.indigo,size: 60,)),
                                   ),
-                                  placeholder: (context , url) => Center(child: SpinKitCubeGrid(color: Colors.indigo,size: 60,)),
                                 ),
                               ),
                             ),
@@ -784,7 +810,7 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                             ],
                           ),
                         ),
-                        SizedBox(height: 3,),
+                        //SizedBox(height: 3,),
                         //Text(totalLikes.toString())
                       ],
                     ),

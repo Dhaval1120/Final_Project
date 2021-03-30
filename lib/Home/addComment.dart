@@ -146,7 +146,7 @@ class _AddCommentState extends State<AddComment> {
                   child: Container(
                    // color: Color(0xffffe4b5),
                     height: MediaQuery.of(context).size.height,
-                    child: ListView.builder(itemCount : commentsData.length,itemBuilder: (BuildContext context, int index){
+                    child:commentsData.length != 0 ? ListView.builder(itemCount : commentsData.length,itemBuilder: (BuildContext context, int index){
                       return Container(
                         //color: Colors.blue,
                         child: Padding(
@@ -200,7 +200,7 @@ class _AddCommentState extends State<AddComment> {
                           )
                         ),
                       );
-                    }),
+                    }) : Center(child: Text("No Comments"),)
                   ),
                 ),
                 Align(
@@ -245,6 +245,7 @@ class _AddCommentState extends State<AddComment> {
                               addCommentToFirestore();
                               setState(() {
                                 controller.clear();
+                                getComments();
                               });
                             },
                             child: CircleAvatar(

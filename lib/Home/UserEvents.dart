@@ -702,7 +702,9 @@ class _UserEventsState extends State<UserEvents> {
                       );
                     })
               ),
-            ) :  Center(child: Container(child: Center(child: Text(" No Events ! "))),
+            ) :  Expanded(
+              child: Center(child: Container(child: Center(child: Text(" No Events ! "))),
+              ),
             )
           ],
         ),

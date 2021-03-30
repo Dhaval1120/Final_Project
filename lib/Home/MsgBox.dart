@@ -49,7 +49,7 @@ class _MsgBoxState extends State<MsgBox> {
     return InkWell(
       onTap: (){
         Navigator.pushNamed(context, '/chatbox' , arguments: {
-          'currentId' : currentId,
+          'uid' : currentId,
           'friendId' : snapshot.data['Id'],
         });
       },
@@ -75,79 +75,80 @@ class _MsgBoxState extends State<MsgBox> {
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5 ,vertical: 3),
-          child: Container(
-            
-            child: Row(
-              children: <Widget>[
-                SizedBox(width: 4,),
-                CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 20,
-                  child: FutureBuilder(
-                      future: getProfile(),
-                      builder:(context ,AsyncSnapshot<String> snapshot) {
-                        if(snapshot.hasData)
-                        {
-                          return ClipOval(
-                            child: SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: Image(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black12
+              ),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(width: 4,),
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 20,
+                    child: FutureBuilder(
+                        future: getProfile(),
+                        builder:(context ,AsyncSnapshot<String> snapshot) {
+                          if(snapshot.hasData)
+                          {
+                            return ClipOval(
+                              child: SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: Image(
+                                    image: CachedNetworkImageProvider(snapshot.data ,),
+                                    //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                                    fit: BoxFit.cover
 
-                                  image: CachedNetworkImageProvider(snapshot.data ,),
-                                  //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                  fit: BoxFit.cover
-
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          }
+                          else
+                          {
+                            return CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 20,
+                            );
+                          }
                         }
-                        else
-                        {
-                          return CircleAvatar(
-                            backgroundColor: Colors.white,
-                            radius: 20,
-                          );
-                        }
-                      }
-                  )
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(6 ,8 , 0 ,0),
-                      child: Container(
-                        height: 22,
+                    )
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(6 ,8 , 0 ,0),
                         child: Text(snapshot.data['name'],style: TextStyle(
                               fontSize: 17,
                             ),),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(6 ,8 , 0 ,3),
-                      child: Container(
-                        height: 20,
-                        width: MediaQuery.of(context).size.width-120,
-                        child: snapshot.data['type'] == 'image' ? Align(alignment : Alignment.topLeft,child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Icon(Icons.image , size: 25,),
-                            SizedBox(width: 3,),
-                            Text("Photo" , style: TextStyle(fontSize: 20),)
-                              ],
-                            )) : Text(snapshot.data['msg'], style: TextStyle(
-                          fontSize: 18
-                            ),
-                          overflow: TextOverflow.ellipsis,
-                          //softWrap: false,
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(6 ,8 , 0 ,3),
+                        child: Container(
+                          height: 20,
+                          width: MediaQuery.of(context).size.width-120,
+                          child: snapshot.data['type'] == 'image' ? Align(alignment : Alignment.topLeft,child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Icon(Icons.image , size: 25,),
+                              SizedBox(width: 3,),
+                              Text("Photo" , style: TextStyle(fontSize: 20),)
+                                ],
+                              )) : Text(snapshot.data['msg'], style: TextStyle(
+                            fontSize: 16
+                              ),
+                            overflow: TextOverflow.ellipsis,
+                            //softWrap: false,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -16,30 +16,48 @@ class Notifications extends StatefulWidget {
 
 class _NotificationsState extends State<Notifications> {
   var uid;
+  int requests ;
   void setUserId() async{
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
       uid = user.uid;
       print(uid);
+      getRequests();
+    });
+  }
+
+  getRequests() async{
+    Firestore.instance.collection('Ravan').document(uid).collection("Requests").getDocuments().then((value) {
+
+       print("len is ${value.documents.length}");
+      if(value.documents.length != 0 && value.documents.isNotEmpty)
+        {
+          setState(() {
+            requests = value.documents.length;
+          });
+        }
     });
   }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    //getRequests();
    // print(DateTime.now().month);
    // print(DateFormat.jm().format(DateTime.now())
 
     setUserId();
   }
   Widget buildNotifications(BuildContext context, DocumentSnapshot snapshot) {
-    String timeToDisplay = TimeConvert(DateTime.fromMillisecondsSinceEpoch(snapshot['timestamp']));
+  //  String timeToDisplay = TimeConvert(DateTime.fromMillisecondsSinceEpoch(snapshot['timestamp']));
+    String timeToDisplay = TimeConvert(snapshot['timestamp']);
+
     print(" Date is ${DateTime.fromMillisecondsSinceEpoch(snapshot['timestamp'])}");
     Future<String> getProfile()
     async {
       return await Firestore.instance.collection('Ravan').document(snapshot.data['userId']).get().then((value) => value.data['image']);
     }
-    print("Image Url is ${snapshot.data['timestamp']}");
+    //print("Image Url is ${snapshot.data['timestamp']}");
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3 ,horizontal: 3),
       child: Container(
@@ -82,28 +100,40 @@ class _NotificationsState extends State<Notifications> {
                   )
               ),
               SizedBox(width: 10,),
-              Text(snapshot.data['name'],style: TextStyle(
-                fontSize: 16,
-                     // fontFamily: 'Sriracha',
-                     // color: Colors.deepPurple,
-                //  fontWeight:FontWeight.bold
-              ),overflow: TextOverflow.ellipsis,),
-              SizedBox(width :4 ),
               Expanded(
-                child: Text("Liked Your photo." ,style: TextStyle(
-                    fontSize: 16,
-                    //fontWeight: FontWeight.bold,
-                    //fontFamily: 'Sriracha',
-                    color: Colors.black
-                ),
+                child: Container(
+                  child: Wrap(
+                    direction: Axis.vertical,
+                    children: [
+                      Text(snapshot.data['name'],style: TextStyle(
+                        fontSize: 16,
+                        // fontFamily: 'Sriracha',
+                        // color: Colors.deepPurple,
+                        //  fontWeight:FontWeight.bold
+                      ),overflow: TextOverflow.ellipsis,),
+                      SizedBox(width:2),
+                      Text("Liked Your photo." ,style: TextStyle(
+                          fontSize: 16,
+                          //fontWeight: FontWeight.bold,
+                          //fontFamily: 'Sriracha',
+                          color: Colors.black
+                      ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(timeToDisplay , style: TextStyle(
+                        color: Colors.black38
+                      ),),
+                      ]
+                  ),
                 ),
               ),
-             // Text(timeToDisplay),
+
               // Container(
               //   color: Colors.black,
               //   height: 30,
               //   width: 30,
               // ),
+
               Align(
                 alignment: Alignment.topRight,
                 child: InkWell(
@@ -136,14 +166,11 @@ class _NotificationsState extends State<Notifications> {
 
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-
     return SafeArea(
       child: Scaffold(
-
         body: Column(
           children: [
             ClipRRect(
@@ -157,26 +184,54 @@ class _NotificationsState extends State<Notifications> {
                       ),
                       height: 55,
                       width: MediaQuery.of(context).size.width,
-                      child: ListTile(
-                        title: Text(" Notifications ", style:  TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          //fontFamily: "Lobster"
-                        ),),
-                        trailing: InkWell(
-                            child: ClipOval(
-                              child: Material(
-                                elevation: 20,
-                                child: ClipOval(
-                                  child: Container(
-                                    child: CircleAvatar(
-                                     backgroundColor: Colors.white,
-                                    child: Icon(Icons.person_add_alt_1_outlined,color: Colors.black)),
-                                  ),
-                                ),
+                      child: InkWell(
+                        onTap: () {
+                          return Navigator.pushNamed(context, '/requests');
+                        },
+                        child: Container(
+                          width: 45,
+                          child: Stack(
+                            children: [
+                              Align(
+                                alignment: Alignment.center,
+                                child: Text("Notification" ,style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),),
                               ),
-                            ),hoverColor: Colors.blue,highlightColor: Colors.red,
-                         onTap: () => Navigator.pushNamed(context, '/requests'))
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Stack(
+                                  children: [
+                                   Align(
+                                     alignment: Alignment.topRight,
+                                     child: Container(
+                                       child : CircleAvatar(
+                                         radius: 20,
+                                         backgroundColor: Colors.white,
+                                         child: Icon(Icons.person_add_alt_1_outlined , color: Colors.black,),
+                                       ),
+                                     ),
+                                   ),
+                                    requests != null ? Align(
+                                      child: Container(
+                                        child : CircleAvatar(
+                                          radius: 5,
+                                          backgroundColor: Colors.indigo,
+                                          // child: Text(requests.toString() , style: TextStyle(
+                                          //   color: Colors.redAccent,
+                                          //   fontWeight: FontWeight.bold
+                                          // ),),
+                                        ),
+                                      ),
+                                      alignment: Alignment.topRight,
+                                    ) : Container(height: 0,)
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                       )
                     //color: Colors.redAccent
                   ),
