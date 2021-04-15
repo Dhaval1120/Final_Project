@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import "dart:async";
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 class MsgBox extends StatefulWidget {
   @override
   _MsgBoxState createState() => _MsgBoxState();
@@ -14,7 +15,6 @@ class _MsgBoxState extends State<MsgBox> {
   var currentUser ='' , currentProfile ='' ,currentId = '';
   void setName()
   async{
-
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     Firestore.instance.collection('Ravan').document(user.uid).get().then((value) {
      setState(() {
@@ -38,16 +38,13 @@ class _MsgBoxState extends State<MsgBox> {
 
     Future<String> getProfile()
     async {
-
-      //print(snapshot.documentID);
-      //print('getPro');
       return await Firestore.instance.collection('Ravan').document(snapshot.data['Id']).get().then((value) => value.data['image']);
-
-      // return userProfile;
-
     }
     return InkWell(
       onTap: (){
+        Firestore.instance.collection("Ravan").document(currentId).collection("MsgBox").document(snapshot.documentID).updateData({
+          'isNewMessage' : false
+        });
         Navigator.pushNamed(context, '/chatbox' , arguments: {
           'uid' : currentId,
           'friendId' : snapshot.data['Id'],
@@ -79,9 +76,10 @@ class _MsgBoxState extends State<MsgBox> {
             borderRadius: BorderRadius.circular(8),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black12
+                  color: snapshot.data['isNewMessage'] != null && snapshot.data['isNewMessage']? Colors.redAccent :
+                  Colors.black12
               ),
-              child: Row(
+              child:  Row(
                 children: <Widget>[
                   SizedBox(width: 4,),
                   CircleAvatar(
@@ -123,6 +121,8 @@ class _MsgBoxState extends State<MsgBox> {
                         padding: const EdgeInsets.fromLTRB(6 ,8 , 0 ,0),
                         child: Text(snapshot.data['name'],style: TextStyle(
                               fontSize: 17,
+                              color: snapshot.data['isNewMessage'] != null && snapshot.data['isNewMessage'] ?
+                                  Colors.white : Colors.black
                             ),),
                       ),
                       Padding(
@@ -135,10 +135,15 @@ class _MsgBoxState extends State<MsgBox> {
                             children: <Widget>[
                               Icon(Icons.image , size: 25,),
                               SizedBox(width: 3,),
-                              Text("Photo" , style: TextStyle(fontSize: 20),)
+                              Text("Photo" , style: TextStyle(fontSize: 20
+                              ,color: snapshot.data['isNewMessage'] != null && snapshot.data['isNewMessage'] ?
+                                  Colors.white : Colors.black
+                              ),)
                                 ],
                               )) : Text(snapshot.data['msg'], style: TextStyle(
-                            fontSize: 16
+                            fontSize: 16,
+                              color: snapshot.data['isNewMessage'] != null && snapshot.data['isNewMessage'] ?
+                              Colors.white : Colors.black
                               ),
                             overflow: TextOverflow.ellipsis,
                             //softWrap: false,
@@ -173,11 +178,12 @@ class _MsgBoxState extends State<MsgBox> {
                 child: Material(
                   elevation: 20,
                   child: Container(
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              colors: [Colors.deepOrangeAccent , Colors.orange]
-                          )
-                      ),
+                      // decoration: BoxDecoration(
+                      //     gradient: LinearGradient(
+                      //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                      //     )
+                      // ),
+                      color: appBarColor,
                       height: 55,
                       width: MediaQuery.of(context).size.width,
                       child: ListTile(

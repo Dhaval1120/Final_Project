@@ -89,6 +89,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 return MsgBox();
               }));
             }
+            else if(message['data']['screen'] == 'Notification')
+            {
+              controller.animateTo(3);
+            }
+            else if(message['data']['screen'] == 'Requests')
+            {
+              controller.animateTo(3);
+              Navigator.push(
+                  context , MaterialPageRoute(
+                  builder: (BuildContext context)
+                  {
+                    return Requests();
+                  }
+                )
+              );
+            }
           });
         }
     );
@@ -118,11 +134,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               alignment: Alignment.bottomCenter,
               child: Container(
                 height: 50,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xffff512f),Color(0xffdd2476)],
-                    )
-                ),
+                color: Colors.white,
                 child: TabBar(
                   controller: controller,
                   indicator:  BoxDecoration(
@@ -134,7 +146,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         child:IconButton(
                           highlightColor: Colors.deepOrangeAccent,
                           splashColor: Colors.deepPurple,
-                          icon : Icon(Icons.home,color:Colors.white,size:30, ),
+                          icon : Icon(Icons.home,color:Colors.black,size:30, ),
                           onPressed: () => UserEvents(),
                           // onPressed: () => Navigator.pushNamed(context, '/userEvent'),
                         )
@@ -143,7 +155,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         child:IconButton(
                           highlightColor: Colors.deepOrangeAccent,
                           splashColor: Colors.deepPurple,
-                          icon : Icon(Icons.event_available,color:Colors.white,size:30, ),
+                          icon : Icon(Icons.event_available,color:Colors.black,size:30, ),
                           onPressed: () => UserEvents(),
                           // onPressed: () => Navigator.pushNamed(context, '/userEvent'),
                         )
@@ -152,7 +164,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         child:IconButton(
                           highlightColor: Colors.deepOrangeAccent,
                           splashColor: Colors.deepPurple,
-                          icon : Icon(Icons.search,color:Colors.white,size:30, ),
+                          icon : Icon(Icons.search,color:Colors.black,size:30, ),
                           onPressed: () => SearchHere(),
                           //onPressed: () => Navigator.pushNamed(context, '/searchHere'),
                         )
@@ -161,7 +173,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         child:IconButton(
                           splashColor: Colors.deepPurple,
                           highlightColor: Colors.deepOrangeAccent,
-                          icon : Icon(Icons.notifications,color:Colors.white,size:30, ),
+                          icon : Icon(Icons.notifications,color:Colors.black,size:30, ),
                           onPressed: () => Notifications(),
                           //onPressed: () => Navigator.pushNamed(context, '/notifications'),
                         )
@@ -170,7 +182,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         child:IconButton(
                           highlightColor: Colors.deepOrangeAccent,
                           splashColor: Colors.deepPurple,
-                          icon : Icon(Icons.person_outline,color:Colors.white,size:30, ),
+                          icon : Icon(Icons.person_outline,color:Colors.black,size:30, ),
                           onPressed: () => MyProfilePage(),
                         //  onPressed: () => Navigator.pushNamed(context, '/myProfile'),
                         )

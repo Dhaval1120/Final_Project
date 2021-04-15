@@ -14,15 +14,15 @@ class AuthService{
   }
   User userFromFirebaseUser(FirebaseUser user)
   {
+
     return user != null ? User(uid : user.uid) : null ;
   }
 
-
-  Stream<User> get user{
-    return auth.onAuthStateChanged
-     //   .map((FirebaseUser user) => userFromFirebaseUser(user));
-         .map(userFromFirebaseUser);
-  }
+  // Stream<User> get user{
+  //   return auth.onAuthStateChanged
+  //    //   .map((FirebaseUser user) => userFromFirebaseUser(user));
+  //        .map(userFromFirebaseUser);
+  // }
   //sign in anon
   Future signInAnon() async
   {
@@ -45,7 +45,9 @@ class AuthService{
       FirebaseUser user = result.user;
 
       await DatabaseService(uid : user.uid).updateUserData(name , username , email , password ,id ,image);
-      return userFromFirebaseUser(user);
+
+      return user;
+     // return userFromFirebaseUser(user);
     }
     catch(e)
     {
@@ -58,7 +60,8 @@ class AuthService{
     try{
       AuthResult result = await auth.signInWithEmailAndPassword(email: email, password: password);
       FirebaseUser user = result.user;
-      return userFromFirebaseUser(user);
+      return user;
+      //return userFromFirebaseUser(user);
     }
     catch(e)
     {
@@ -74,5 +77,12 @@ class AuthService{
       print(e.toString());
       return null;
     }
+  }
+
+  forgotPassWord(String email)async{
+    auth.sendPasswordResetEmail(email: email).then((value) {
+    }).catchError((e){
+      print(" Forgot Password error is $e");
+    });
   }
 }

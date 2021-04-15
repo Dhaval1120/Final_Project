@@ -4,6 +4,7 @@ import 'package:obvio/Design/background.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 
 class SearchHere extends StatefulWidget {
   @override
@@ -28,11 +29,12 @@ class _SearchHereState extends State<SearchHere> {
                 child: Material(
                   elevation: 20,
                   child: Container(
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              colors: [Colors.deepOrangeAccent , Colors.orange]
-                          )
-                      ),
+                      // decoration: BoxDecoration(
+                      //     gradient: LinearGradient(
+                      //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                      //     )
+                      // ),
+                     color: appBarColor,
                       height: 55,
                       width: MediaQuery.of(context).size.width,
                       child: ListTile(
@@ -51,8 +53,9 @@ class _SearchHereState extends State<SearchHere> {
               key : formKey,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: TextField(style: TextStyle(color: Colors.white),
+                child: TextField(style: TextStyle(color: Colors.black),
                   cursorColor: Colors.deepPurple,
+
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white,width: 2)
@@ -61,11 +64,11 @@ class _SearchHereState extends State<SearchHere> {
                         borderSide: BorderSide(color: Colors.deepPurpleAccent,width: 2)
                     ),
                     labelText : "Search",
-                    labelStyle: TextStyle(color: Colors.white),
+                    labelStyle: TextStyle(color: Colors.black),
                     filled: true,
                     focusColor: Colors.purple,
                     hoverColor: Colors.red,
-                    fillColor: Colors.redAccent,
+                 //   fillColor: Colors.redAccent,
                   ),
                   onChanged: (val){
                     setState(() {

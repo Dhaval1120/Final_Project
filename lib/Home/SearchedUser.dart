@@ -1,23 +1,18 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:obvio/Home/ChatBox.dart';
 import 'package:obvio/Home/Followers.dart';
 import 'package:obvio/Home/Following.dart';
-import 'package:obvio/Home/registeredUsers.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:obvio/Notification/notifications.dart';
 import 'package:obvio/Services/auth.dart';
-import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:obvio/Utils/TimeConversion.dart';
-
+import 'package:obvio/Utils/theme_colors.dart';
 import 'addComment.dart';
 
 class SearchedUser extends StatefulWidget {
@@ -424,11 +419,12 @@ class _SearchedUserState extends State<SearchedUser>  {
                                 child: Material(
                                   elevation: 20,
                                   child: Container(
-                                      decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                              colors: [Colors.deepOrangeAccent , Colors.orange]
-                                          )
-                                      ),
+                                      // decoration: BoxDecoration(
+                                      //     gradient: LinearGradient(
+                                      //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                                      //     )
+                                      // ),
+                                      color: appBarColor,
                                       height: 55,
                                       width: MediaQuery.of(context).size.width,
                                       child: ListTile(
@@ -448,7 +444,7 @@ class _SearchedUserState extends State<SearchedUser>  {
                                           child: Text("Message" , style: TextStyle(
                                             color: Colors.white
                                           ),),
-                                          color: Colors.indigo,),
+                                          color: Colors.redAccent,),
                                       )
                                     //color: Colors.redAccent
                                   ),
@@ -484,7 +480,7 @@ class _SearchedUserState extends State<SearchedUser>  {
                               stream: Firestore.instance.collection('Ravan').document(widget.searchedId).collection('MyImages').snapshots(),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) return Container();
-                                else if(snapshot.data.documents.length < 1){
+                                else if(snapshot.data.documents.length == 0){
                                   return Center(
                                     child: Text("No Images to Show" , style: TextStyle(
                                         fontSize: 18,
@@ -508,9 +504,10 @@ class _SearchedUserState extends State<SearchedUser>  {
                                 itemBuilder: (BuildContext context, int index) {
                                   return myEvents.length != 0 ? InkWell(
                                     onTap: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                                        return RegisteredUsers(docId: eventsDocIds[index]);
-                                      }));
+                                      Navigator.pushNamed(context, '/eventDescription', arguments: {
+                                      'event_id' : eventsDocIds[index],
+                                      'isRegistered' : false,
+                                      });
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -852,462 +849,3 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:obvio/Loading/Loading.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
-//
-// class SearchedUser extends StatefulWidget {
-//   @override
-//   _SearchedUserState createState() => _SearchedUserState();
-// }
-//
-// class _SearchedUserState extends State<SearchedUser> {
-//
-//   var currentName;
-//   var uid , following ="" , followers = "";
-//
-//   Future<void> ) => {
-//         currentName = value['name'],
-//         print(currentName),
-//     });
-//
-//     Firestore.instance.collection("Ravan").document(docId).collection('Requests').add({
-//       'name' :  currentName,
-//       'docId' : uid,
-//
-//     });
-//
-//    Firestore.instance.collection("Ravan").document(uid).collection('Requested').document(docId).setData({
-//      'docId': docId,
-//    });
-//    }
-//
-//   var str1 = " ";
-//
-//   bool requested;
-// //  var followers = "", following = "";
-//   var str2 = 'Requested';
-//
-//
-//   void setUserData()
-//   async {
-//     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-//     setState(() {
-//       uid = user.uid;
-//       print(uid);
-//
-//
-//     });
-//
-//     Firestore.instance.collection('Ravan').document(uid).get().then((value)
-//     {
-//       setState(() {
-//         currentName = value['name'];
-//       });
-//     });
-//   }
-//
-//  bool isfollowing;
-//
-//  Future<void> checkFollowing(String id)
-//  async{
-//
-//    Firestore.instance.collection('Ravan').document(id).collection("Followers").getDocuments().then((value)
-//    {
-//      setState(() {
-//        followers = value.documents.length.toString();
-//      });
-//    });
-//
-//    Firestore.instance.collection('Ravan').document(id).collection('Following').getDocuments().then((value){
-//      setState(() {
-//        following = value.documents.length.toString();
-//      });
-//    });
-//
-//    Firestore.instance.collection('Ravan').document(uid).collection('Following').document(id).get().then((value) {
-//      if(!value.exists)
-//        {
-//          setState(() {
-//
-//
-//            isfollowing = false;
-//
-//          });
-//          //str1 = "Be My Friend";
-//          //checkRequested(id);
-//          Firestore.instance.collection('Ravan').document(uid).collection('Requested').document(id).get().then((value){
-//
-//            if(!value.exists)
-//
-//              {
-//                setState(() {
-//                  requested = false;
-//                  str1 = "Be My Friend";
-//                });
-//              }
-//            else{
-//              setState(() {
-//                requested = true;
-//                str1 = str2;
-//              });
-//            }
-//
-//          });
-//
-//
-//        }
-//      else
-//        {
-//          setState(() {
-//            str1 = "Following";
-//            isfollowing = true;
-//          });
-//        }
-//    });
-//  }
-//   @override
-//   void initState()
-//   {
-//     super.initState();
-//     setUserData();
-//     //checkRequested(uid);
-//      }
-//   @override
-//   Widget build(BuildContext context) {
-//     SystemChrome.setPreferredOrientations([
-//       DeviceOrientation.portraitUp,
-//     ]);
-//
-//     Map data = ModalRoute.of(context).settings.arguments;
-//
-//     checkFollowing(widget.searchedId);
-//
-//     return Scaffold(
-//
-//       // appBar: AppBar(
-//       //   elevation: 3.0,
-//       //   brightness: Brightness.dark,
-//       //   titleSpacing: 2.0,
-//       //   title: Text(data['name'],
-//       //     style : TextStyle(
-//       //      // fontFamily: 'Pacifico',
-//       //       fontSize: 20.0,
-//       //     ),
-//       //   ),
-//       //   centerTitle: true,
-//       //   backgroundColor: Color(0xff09203f),
-//       //
-//       // ),
-//
-//       body : StreamBuilder(
-//
-//
-//           stream: Firestore.instance.collection('Ravan').document(widget.searchedId).snapshots(),
-//           builder: (context,snapshot){
-//
-//
-//             print(widget.searchedId);
-//             if(!snapshot.hasData){
-//               return Loading();
-//             }
-//
-//             //checkRequested(widget.searchedId);
-//             //name = snapshot.data["name"];
-//             //profilepic = snapshot.data["image"];
-//             return SafeArea(
-//               child: Scaffold(
-//                 // backgroundColor: Colors.lightBlue,
-//                 body : Container(
-//                   child: Column(
-//                     mainAxisAlignment: MainAxisAlignment.start,
-//                     children: <Widget>[
-//                       ClipRRect(
-//                           child: Material(
-//                             elevation: 20,
-//                             child: Container(
-//                                 decoration: BoxDecoration(
-//                                     gradient: LinearGradient(
-//                                         colors: [Colors.deepOrangeAccent , Colors.orange]
-//                                     )
-//                                 ),
-//                                 height: 55,
-//                                 width: MediaQuery.of(context).size.width,
-//                                 child: ListTile(
-//                                   title: Text(" Profile ", style:  TextStyle(
-//                                     color: Colors.white,
-//                                     fontSize: 20,
-//                                     //fontFamily: "Lobster"
-//                                   ),),
-//                                   trailing: InkWell(
-//                                     child: Container(
-//                                       child: Padding(
-//                                         padding: const EdgeInsets.all(8.0),
-//                                         child: Text("Log Out" ,style: TextStyle(color: Colors.white),),
-//                                       ),
-//                                       color: Colors.black12,),
-//                                   ),
-//                                 )
-//                               //color: Colors.redAccent
-//                             ),
-//                           ),
-//                           borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
-//                       ),
-//                       Padding(
-//                         padding: const EdgeInsets.all(8.0),
-//                         child: Container(
-//                           width: MediaQuery.of(context).size.width,
-//                           decoration: BoxDecoration(
-//                             //color: Colors.redAccent
-//                               border: Border.all(
-//                                   color: Colors.indigo,
-//                                   width: 3
-//                               ),
-//                               gradient: LinearGradient(
-//                                   colors: [Color(0xffff512f),Color(0xffdd2476)]
-//                               )
-//                           ),
-//                           child: Column(
-//                             children: <Widget>[
-//                               Padding(
-//                                 padding: EdgeInsets.symmetric(vertical: 10),
-//                               ),
-//                               CircleAvatar(
-//                                 backgroundColor: Colors.white,
-//                                 radius: 100,
-//                                 child: ClipOval(
-//                                   child: SizedBox(
-//                                     height: 200,
-//                                     width: 200,
-//                                     child: Image(
-//
-//                                         image: CachedNetworkImageProvider(
-//                                             snapshot.data["image"]),
-//                                         //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-//                                         fit: BoxFit.contain
-//
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ),
-//                               SizedBox(height: 5,),
-//                               Row(
-//                                 mainAxisAlignment: MainAxisAlignment.center,
-//                                 children: <Widget>[
-//                                   Center(
-//                                     child: Text(snapshot.data['name']
-//                                       ,style : TextStyle(
-//                                           fontSize: 23,
-//                                           fontFamily: "Pacifico",
-//                                           color: Colors.white
-//                                       ),),
-//                                   ),
-//
-//
-//                                 ],
-//                               ),
-//
-//                               SizedBox(height:12),
-//                               Row(
-//                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                                 children: <Widget>[
-//                                   Column(
-//                                     children: <Widget>[
-//                                       Padding(
-//                                         padding: const EdgeInsets.all(8.0),
-//                                         child: RaisedButton(
-//                                           color: Colors.blueAccent,
-//                                           child: Text("Followers",style: TextStyle(
-//                                               fontSize: 20,
-//                                               // fontFamily: 'Pacifico',
-//                                               color: Colors.white
-//
-//                                           ),),
-//                                           onPressed: () => {
-//                                             Navigator.pushReplacementNamed(context, '/followers' , arguments: {
-//                                               'id' : widget.searchedId,
-//                                             })
-//                                           },
-//                                         ),
-//                                       ),
-//                                       Text(followers,style: TextStyle(
-//                                           fontSize: 20,
-//                                           // fontFamily: 'Pacifico',
-//                                           color: Colors.white
-//                                       ),),
-//                                       SizedBox(height: 3,)
-//                                     ],
-//                                   ),
-//                                   Column(
-//                                     children: <Widget>[
-//                                       Padding(
-//                                         padding: const EdgeInsets.all(8.0),
-//                                         child: RaisedButton(
-//                                           color: Colors.blueAccent,
-//                                           child: Text("Following",style: TextStyle(
-//                                               fontSize: 20,
-//                                               // fontFamily: 'Pacifico',
-//                                               color: Colors.white
-//
-//                                           ),),
-//                                           onPressed: () =>
-//                                           {
-//                                             Navigator.pushNamed(context, '/following' , arguments: {
-//                                               'id' : widget.searchedId,
-//                                             })
-//                                           },
-//
-//                                         ),
-//                                       ),
-//                                       Text(following , style: TextStyle(
-//                                           fontSize: 20,
-//                                           // fontFamily: 'Pacifico',
-//                                           color: Colors.white
-//                                       ),),
-//                                     ],
-//                                   ),
-//                                 ],
-//                               ),
-//                               SizedBox(
-//                                 height: 10,
-//                               ),
-//
-//
-//                               RaisedButton(
-//                                   shape: RoundedRectangleBorder(
-//                                       borderRadius: BorderRadius.circular(20)
-//                                   ),
-//
-//                                   elevation: 5,
-//                                   highlightColor: Colors.redAccent,
-//                                   highlightElevation: 5,
-//                                   color: Colors.deepPurpleAccent,
-//
-//                                   onPressed: (){
-//                                     Navigator.pushNamed(context, '/chatbox' , arguments: {
-//                                       'uid' : uid,
-//                                       'friendId' : widget.searchedId,
-//                                     });
-//                                   },
-//
-//                                   child : Text("Message" ,
-//                                     style: TextStyle(fontSize: 18 , color: Colors.white),
-//                                   ),
-//                               ),
-//
-//                               SizedBox(
-//                                 height: 5,
-//                               ),
-//                               Padding(
-//                                 padding: const EdgeInsets.all(8.0),
-//                                 child: RaisedButton(
-//                                   child: Text(str1 , style: TextStyle(fontSize: 18 , color: Colors.white),),
-//
-//                                   onPressed: () {
-//
-//                                     if(str1 == "Following")
-//                                       {
-//                                         showDialog(context: context,
-//                                         barrierDismissible: true,
-//                                         builder: (context){
-//                                           return AlertDialog(
-//                                             content: InkWell(
-//                                               onTap: (){
-//                                                 setState(() {
-//
-//                                                   print(uid);
-//                                                   print("Searched ID");
-//                                                   print(widget.searchedId);
-//                                                   isfollowing = false;
-//                                                   str1 = "Be My Friend";
-//
-//                                                   Firestore.instance.collection('Ravan').document(uid).collection('Following').
-//                                                   document(data["id"]).delete().then((value){
-//                                                     print(data["id"]);
-//                                                     print("deleted");
-//                                                   });
-//
-//                                                   Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Followers').
-//                                                   document(uid).delete().then((value) {
-//                                                     Navigator.pop(context);
-//                                                   });
-//                                                 });
-//
-//                                               },
-//
-//                                               child: Text(
-//                                                 "Unfollow" ,
-//                                                 style: TextStyle(
-//                                                   fontSize: 20,
-//                                                 ),
-//                                               ),
-//                                             ),
-//
-//                                           );
-//                                         }
-//                                         );
-//                                       }
-//                                     else if(str1 == "Be My Friend")
-//                                       {
-//                                         setState(() {
-//                                           str1 = str2;
-//                                         });
-//                                         Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Requests').
-//                                         document(uid).setData({
-//                                           'docId' : uid,
-//                                           'name' : currentName,
-//                                         });
-//                                         Firestore.instance.collection('Ravan').document(uid).collection('Requested').
-//                                         document(widget.searchedId).setData({
-//                                           'id' : widget.searchedId,
-//                                         });
-//
-//                                       }
-//                                     else if(str1 == "Requested")
-//                                       {
-//                                         setState(() {
-//                                           str1 = "Be My Friend";
-//                                         });
-//                                         Firestore.instance.collection('Ravan').document(widget.searchedId).collection('Requests').
-//                                         document(uid).delete();
-//                                         Firestore.instance.collection('Ravan').document(uid).collection('Requested').
-//                                         document(widget.searchedId).delete();
-//                                       }
-//                                     },
-//                                   shape: RoundedRectangleBorder(
-//                                       borderRadius: BorderRadius.circular(20)
-//                                   ),
-//                                   elevation: 5,
-//                                   highlightColor: Colors.redAccent,
-//                                   highlightElevation: 5,
-//                                   color: Colors.deepPurpleAccent,
-//                                   ),
-//                               ),
-//
-//
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(height: 5,),
-//
-//                       Divider(
-//                         height: 5,
-//                         thickness: 2,
-//                         color: Colors.deepPurple,
-//                       ),
-//
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             );
-//           }
-//       ),
-//     );
-//   }
-// }

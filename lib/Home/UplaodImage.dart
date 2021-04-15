@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' show Firestore;
@@ -142,76 +143,77 @@ class _UploadMyImageState extends State<UploadMyImage> {
       DeviceOrientation.portraitUp,
     ]);
 
-    return Scaffold(
-
-       appBar: AppBar(
-        elevation: 3.0,
-        brightness: Brightness.dark,
-        titleSpacing: 2.0,
-        title: Text("Image",
-          style : TextStyle(
-          //  fontFamily: 'Pacifico',
-            fontSize: 20.0,
-            color: Colors.white
+    return SafeArea(
+      child: Scaffold(
+         appBar: AppBar(
+          elevation: 3.0,
+          brightness: Brightness.dark,
+          titleSpacing: 2.0,
+          title: Text("Image",
+            style : TextStyle(
+            //  fontFamily: 'Pacifico',
+              fontSize: 20.0,
+              color: Colors.white
+            ),
           ),
-        ),
-        backwardsCompatibility: false,
-        actions: [
-          _image != null ?   InkWell(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: Text('Upload',
-                  style: TextStyle(
-                   // fontFamily: 'Pacifico',
-                    fontSize: 18,
-                    color: Colors.white
+          backwardsCompatibility: false,
+          actions: [
+            _image != null ?   InkWell(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Text('Upload',
+                    style: TextStyle(
+                     // fontFamily: 'Pacifico',
+                      fontSize: 18,
+                      color: Colors.white
+                    ),
                   ),
                 ),
               ),
+              onTap:(){
+                uploadPicture(profilepic ,name);
+              },
+            ) : Container()
+          ],
+          centerTitle: true,
+           backgroundColor: appBarColor,
+        ),
+
+        body: flagForCircle == true ? Center(child: CircularProgressIndicator()) : Stack(
+
+          children: <Widget>[
+            Center(
+              child: _image == null
+                  ? Text('No image selected.')
+                  : AspectRatio(
+                   aspectRatio: 4/5,
+                  child: Container(
+                      decoration: BoxDecoration(
+                        border : Border.all(color: Colors.black)
+                      ),
+                      child: Image.file(_image , fit: BoxFit.cover,))),
             ),
-            onTap:(){
-              uploadPicture(profilepic ,name);
-            },
-          ) : Container()
-        ],
-        centerTitle: true,
-         backgroundColor: Color(0xff09203f),
-      ),
+            // Padding(
+            //   padding: const EdgeInsets.all(15.0),
+            //   child: Align(
+            //       alignment: Alignment.bottomLeft,
+            //       child: RaisedButton(child: Text("Add",
+            //           style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
+            //           color: Colors.red,
+            //           onPressed: () => uploadPicture(profilepic,name))
+            //   ),
+            // )
+          ],
+        ),
 
-      body: flagForCircle == true ? Center(child: CircularProgressIndicator()) : Stack(
-
-        children: <Widget>[
-          Center(
-            child: _image == null
-                ? Text('No image selected.')
-                : AspectRatio(
-                 aspectRatio: 4/5,
-                child: Container(
-                    decoration: BoxDecoration(
-                      border : Border.all(color: Colors.black)
-                    ),
-                    child: Image.file(_image , fit: BoxFit.cover,))),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.all(15.0),
-          //   child: Align(
-          //       alignment: Alignment.bottomLeft,
-          //       child: RaisedButton(child: Text("Add",
-          //           style: TextStyle(fontSize:21 , fontFamily: 'Sriracha',color: Colors.white)),
-          //           color: Colors.red,
-          //           onPressed: () => uploadPicture(profilepic,name))
-          //   ),
-          // )
-        ],
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: getImage,
-        tooltip: 'Pick Image',
-        child: Icon(Icons.add_a_photo,
-          color: Colors.white,),
-        backgroundColor: Color(0xff09203f),
+        floatingActionButton: FloatingActionButton(
+          onPressed: getImage,
+          tooltip: 'Pick Image',
+          child: Icon(Icons.add_a_photo,
+            color: Colors.white,),
+          backgroundColor: Color(0xff09203f),
+        ),
       ),
     );
   }

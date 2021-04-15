@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:obvio/Authenticate/sign_in.dart';
@@ -16,6 +18,10 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   @override
 
+  bool isPasswordVisible = false;
+  Icon icon1 = Icon(Icons.visibility);
+  Icon icon2 = Icon(Icons.visibility_off_outlined);
+
   final AuthService auth = AuthService();
   final formKey = GlobalKey<FormState>();
   String email = '';
@@ -33,7 +39,8 @@ class _RegisterState extends State<Register> {
           elevation: 8.0,
           brightness: Brightness.dark,
           titleSpacing: 2.0,
-          title: Text("Sign Up",
+          leading: Container(),
+          title: Text("Register",
             style : TextStyle(
               fontFamily: 'Pacifico',
               fontSize: 20.0,
@@ -163,10 +170,22 @@ class _RegisterState extends State<Register> {
                           autofocus: true,
                           decoration: InputDecoration(
                             filled: true,
+                            suffixIcon: !isPasswordVisible ? IconButton(icon: icon1, onPressed: (){
+                              print("Before $isPasswordVisible");
+                              setState(() {
+                                isPasswordVisible = !isPasswordVisible;
+                              });
+                              print("After $isPasswordVisible");
+                            } , color: Colors.black,) : IconButton(icon: icon2, onPressed: (){
+                              print("Before $isPasswordVisible");
+                              setState(() {
+                                isPasswordVisible = !isPasswordVisible;
+                              });
+                              print("After $isPasswordVisible");
+                            }, color: Colors.black,),
                             focusColor: Colors.purple,
                             hoverColor: Colors.red,
                             fillColor: Colors.white,
-
                             border: OutlineInputBorder(),
                             labelText : "Password",
                             labelStyle: TextStyle(
@@ -180,7 +199,7 @@ class _RegisterState extends State<Register> {
                             ),
 
                           ),
-                          obscureText: true,
+                          obscureText: isPasswordVisible,
                           onChanged: (val){
                             setState(() {
                               password = val;
@@ -214,7 +233,8 @@ class _RegisterState extends State<Register> {
                                  setState(() {
                                    loading = true;
                                  });
-                                 dynamic result = await auth.registerWithEmailAndPassword(email, password , name , username);
+
+                                 FirebaseUser result = await auth.registerWithEmailAndPassword(email, password , name , username);
                                  if(result == null) {
                                    print('result is $result');
                                    setState(() {
@@ -226,6 +246,7 @@ class _RegisterState extends State<Register> {
                                    setState(() {
                                      loading = false;
                                    });
+                                   result.sendEmailVerification();
                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
                                      return SignIn();
                                    }));
@@ -239,7 +260,6 @@ class _RegisterState extends State<Register> {
                         height : 10.0
                       ),
                       Center(
-
                         child: Text(error,
                         style: TextStyle(
                           backgroundColor: Colors.white,

@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:obvio/Authenticate/Register.dart';
 import 'package:obvio/Design/background.dart';
 import 'package:obvio/Home/SharedPre.dart';
 import 'package:obvio/Loading/Loading.dart';
+import 'package:obvio/Authenticate/forgot_password.dart';
 import 'package:obvio/Services/auth.dart';
 import 'package:obvio/Home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,8 +22,11 @@ class _SignInState extends State<SignIn> {
   final AuthService auth = AuthService();
   final formKey = GlobalKey<FormState>();
 
-  bool loading = false;
+  Icon icon1 = Icon(Icons.visibility);
+  Icon icon2 = Icon(Icons.visibility_off_outlined);
 
+  bool loading = false;
+  bool isPasswordVisible = false;
   String email = "";
   String password = "";
   String error = "";
@@ -50,13 +55,12 @@ class _SignInState extends State<SignIn> {
            Container(
               child : Background(),
             ),
-
             Form(
               key: formKey,
               child: Center(
                 child: Container(
                 alignment: Alignment.center,
-                height: 300,
+              //  height: 300,
                 padding: EdgeInsets.symmetric(vertical : 20.0 , horizontal: 20.0),
 
                     child: Padding(
@@ -70,7 +74,7 @@ class _SignInState extends State<SignIn> {
                             autofocus: false,
                             validator: (val) => val.isEmpty ? 'Enter an Email' : null,
                             decoration: InputDecoration(
-
+                              errorStyle: TextStyle(color: Colors.white),
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white,width: 2)
                                 ),
@@ -99,8 +103,22 @@ class _SignInState extends State<SignIn> {
                             autofocus: true,
                             validator: (val) => val.length < 6 ? 'Enter a password 6 chars long': null,
                             decoration: InputDecoration(
-                              fillColor: Colors.white,
-                              enabledBorder: OutlineInputBorder(
+                                suffixIcon: !isPasswordVisible ? IconButton(icon: icon1, onPressed: (){
+                                  print("Before $isPasswordVisible");
+                                  setState(() {
+                                    isPasswordVisible = !isPasswordVisible;
+                                  });
+                                  print("After $isPasswordVisible");
+                                } , color: Colors.black,) : IconButton(icon: icon2, onPressed: (){
+                                  print("Before $isPasswordVisible");
+                                  setState(() {
+                                    isPasswordVisible = !isPasswordVisible;
+                                  });
+                                  print("After $isPasswordVisible");
+                                }, color: Colors.black,),
+                                errorStyle: TextStyle(color: Colors.white),
+                                fillColor: Colors.white,
+                                 enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.white,width: 2)
                               ),
                                 focusedBorder: OutlineInputBorder(
@@ -113,7 +131,7 @@ class _SignInState extends State<SignIn> {
                               filled: true,
                               focusColor: Colors.purple
                             ),
-                            obscureText: true,
+                            obscureText: isPasswordVisible,
                             onChanged: (val){
                               setState(() {
                                 password = val;
@@ -151,8 +169,8 @@ class _SignInState extends State<SignIn> {
                                     setState(() {
                                       loading = true;
                                     });
-                                    dynamic result = await auth.signInWithEmailAndPassword(email, password);
 
+                                    FirebaseUser result = await auth.signInWithEmailAndPassword(email, password);
                                     if(result == null)
                                     {
                                       setState(() {
@@ -162,19 +180,35 @@ class _SignInState extends State<SignIn> {
                                     }
                                     else
                                       {
+                                        setState(() {
+                                          loading = false;
+                                        });
                                         SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
                                         sharedPreferences.setString("email", email);
                                         sharedPreferences.setString("password", password);
                                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
                                           return Home();
-                                        }));//  widget.toggleView();
+                                        }));//
+                                        // if(result.isEmailVerified)
+                                        //   {
+                                        //     // SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                                        //     // sharedPreferences.setString("email", email);
+                                        //     // sharedPreferences.setString("password", password);
+                                        //     // Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
+                                        //     //   return Home();
+                                        //     // }));//
+                                        //   }
+                                        // else
+                                        //   {
+                                        //     print(" Please Register again and Verify your mail !");
+                                        //   }
                                       }
                                   }
                                 },
                             ),
                           ),
                           SizedBox(
-                              height : 2.0
+                              height : 5.0
                           ),
                           Center(
                             child: Text(error,
@@ -184,6 +218,81 @@ class _SignInState extends State<SignIn> {
                                   fontSize: 15
                               ),),
                           ),
+                          SizedBox(
+                              height : 5.0
+                          ),
+                          FittedBox(
+                            child: Row(
+                              children: [
+                                Container(
+                                  child: InkWell(
+                                      onTap: (){
+                                        Navigator.push(context, MaterialPageRoute(
+                                            builder: (BuildContext context){
+                                              return Register();
+                                            }
+                                        ));
+                                        //auth.forgotPassWord(email);
+                                      },
+                                      child: Center(child: Text(" Create New Account or" , style: TextStyle(
+                                          color: Colors.white
+                                      ),))),
+                                ),
+                                Container(
+                                  child: InkWell(
+                                      onTap: (){
+                                        Navigator.push(context, MaterialPageRoute(
+                                          builder: (BuildContext context){
+                                            return ForgotPassword();
+                                          }
+                                        ));
+                                        //auth.forgotPassWord(email);
+                                      },
+                                      child: Center(child: Text(" Forgot Password ?" , style: TextStyle(
+                                        color: Colors.white
+                                      ),))),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                              height : 5.0
+                          ),
+                          // Align(
+                          //   alignment: Alignment.center,
+                          //   child: RaisedButton(
+                          //     padding: EdgeInsets.symmetric(horizontal : 50 , vertical:  5),
+                          //     color : Color(0xff000080),
+                          //     hoverColor: Colors.blueAccent,
+                          //     elevation: 10.0,
+                          //     shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(20)
+                          //     ),
+                          //     splashColor: Colors.purple,
+                          //     child: Text("Register",
+                          //         style : TextStyle(
+                          //             fontFamily: 'Pacifico',
+                          //             color : Colors.white,
+                          //             fontSize: 20
+                          //         )
+                          //
+                          //     ),
+                          //     autofocus: true,
+                          //     onPressed: () async{
+                          //       Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                          //         return Register();
+                          //       }));
+                          //     }
+                          //     //Navigator.pushNamed(context, '/signUp');
+                          //     //   dynamic result = await auth.signInWithEmailAndPassword(email, password);
+                          //     //   if(result == null) {
+                          //     //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
+                          //     //       return Register();
+                          //     //     }));//  widget.toggleView();
+                          //     //   }
+                          //     // },
+                          //   ),
+                          // ),
                         ],
                       ),
                     //),
@@ -193,38 +302,10 @@ class _SignInState extends State<SignIn> {
               ),
 
 
-            Align(
-              alignment : Alignment.bottomCenter,
-              child: RaisedButton(
-
-                padding: EdgeInsets.symmetric(horizontal : 50 , vertical:  5),
-                color : Color(0xff000080),
-                hoverColor: Colors.blueAccent,
-                elevation: 10.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)
-                ),
-                splashColor: Colors.purple,
-                child: Text("Register",
-                    style : TextStyle(
-                        fontFamily: 'Pacifico',
-                        color : Colors.white,
-                        fontSize: 20
-                    )
-
-                ),
-                autofocus: true,
-                onPressed: () async{
-                  //Navigator.pushNamed(context, '/signUp');
-                  dynamic result = await auth.signInWithEmailAndPassword(email, password);
-                  if(result == null) {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
-                      return Register();
-                    }));//  widget.toggleView();
-                    }
-                },
-              ),
-            ),
+            // Align(
+            //   alignment : Alignment.bottomCenter,
+            //   child:
+            // ),
           ]
       ),
       // This trailing comma makes auto-formatting nicer for build methods.

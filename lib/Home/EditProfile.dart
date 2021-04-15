@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:obvio/Authenticate/sign_in.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 class EditProfile extends StatefulWidget {
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -47,11 +48,12 @@ class _EditProfileState extends State<EditProfile> {
                 child: Material(
                   elevation: 20,
                   child: Container(
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              colors: [Colors.deepOrangeAccent , Colors.orange]
-                          )
-                      ),
+                      // decoration: BoxDecoration(
+                      //     gradient: LinearGradient(
+                      //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                      //     )
+                      // ),
+                       color: appBarColor,
                       height: 55,
                       width: MediaQuery.of(context).size.width,
                       child: ListTile(

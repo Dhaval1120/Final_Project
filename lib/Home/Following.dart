@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:obvio/Home/SearchedUser.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 
 
 class Following extends StatefulWidget {
@@ -144,11 +145,12 @@ class _FollowingState extends State<Following> {
                   child: Material(
                     elevation: 20,
                     child: Container(
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [Colors.deepOrangeAccent , Colors.orange]
-                            )
-                        ),
+                        // decoration: BoxDecoration(
+                        //     gradient: LinearGradient(
+                        //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                        //     )
+                        // ),
+                        color: appBarColor,
                         height: 55,
                         width: MediaQuery.of(context).size.width,
                         child: ListTile(
@@ -156,7 +158,7 @@ class _FollowingState extends State<Following> {
                             onTap: (){
                               Navigator.pop(context);
                             },
-                            child: Icon(Icons.arrow_back),
+                            child: Icon(Icons.arrow_back , color: Colors.white,),
                           ),
                           title: Text(" Following ", style:  TextStyle(
                             color: Colors.white,

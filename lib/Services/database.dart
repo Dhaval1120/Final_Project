@@ -54,6 +54,7 @@ class DatabaseService {
          'Id' : id,
          'department' : department,
          'level' : level,
+         'isPending' : true,
          'timeStamp' : DateTime.now().toUtc().toString()
        }).then((value) {
          events.document(value.documentID).setData({
@@ -69,6 +70,7 @@ class DatabaseService {
            'level' : level,
            'currentName' : currentName,
            'currentId' : currentId,
+           'isPending' : true,
            'timeStamp' : DateTime.now().toUtc().toString()
          });
     });

@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:obvio/Design/background.dart';
 import 'package:obvio/Services/auth.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 
 class ImagePick extends StatefulWidget {
   @override
@@ -111,7 +112,7 @@ class _ImagePickState extends State<ImagePick> {
           ) : Container()
         ],
         centerTitle: true,
-        backgroundColor: Color(0xff09203f),
+        backgroundColor: appBarColor,
       ),
 
       body: !flagForCircle ?  Stack(

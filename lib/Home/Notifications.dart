@@ -1,3 +1,5 @@
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:obvio/Design/background.dart';
 import 'package:obvio/Utils/TimeConversion.dart';
 import 'package:obvio/Utils/common_image_display_widget.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 
 class Notifications extends StatefulWidget {
   @override
@@ -74,7 +77,6 @@ class _NotificationsState extends State<Notifications> {
                   child: FutureBuilder(
                       future: getProfile(),
                       builder:(context ,AsyncSnapshot<String> snapshot) {
-
                         if(snapshot.hasData)
                         {
                           return ClipOval(
@@ -177,11 +179,12 @@ class _NotificationsState extends State<Notifications> {
                 child: Material(
                   elevation: 20,
                   child: Container(
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              colors: [Colors.deepOrangeAccent , Colors.orange]
-                          )
-                      ),
+                      // decoration: BoxDecoration(
+                      //     gradient: LinearGradient(
+                      //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                      //     )
+                      // ),
+                     color: appBarColor,
                       height: 55,
                       width: MediaQuery.of(context).size.width,
                       child: InkWell(
@@ -217,7 +220,7 @@ class _NotificationsState extends State<Notifications> {
                                       child: Container(
                                         child : CircleAvatar(
                                           radius: 5,
-                                          backgroundColor: Colors.indigo,
+                                          backgroundColor: Colors.red,
                                           // child: Text(requests.toString() , style: TextStyle(
                                           //   color: Colors.redAccent,
                                           //   fontWeight: FontWeight.bold

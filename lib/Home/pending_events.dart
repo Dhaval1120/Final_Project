@@ -9,13 +9,13 @@ import 'package:obvio/Loading/Loading.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:obvio/Utils/TimeConversion.dart';
 import 'package:obvio/Utils/theme_colors.dart';
-import 'package:obvio/Home/pending_events.dart';
-class UserEvents extends StatefulWidget {
+
+class PendingEvents extends StatefulWidget {
   @override
-  _UserEventsState createState() => _UserEventsState();
+  _PendingEventsState createState() => _PendingEventsState();
 }
 
-class _UserEventsState extends State<UserEvents> {
+class _PendingEventsState extends State<PendingEvents> {
 
   int month = 0;
   String userId = '';
@@ -24,25 +24,25 @@ class _UserEventsState extends State<UserEvents> {
   String type , subType = '';
   getEvents () async{
     if(events.isNotEmpty)
-      {
+    {
+      setState(() {
+        events.clear();
+      });
+    }
+    print("if ");
+    Firestore.instance.collection('EventDetails').orderBy('timeStamp' , descending: true).getDocuments().then((value) {
+      value.documents.forEach((element) {
         setState(() {
-          events.clear();
+           if(element['isPending'])
+             {
+               events.add(element);
+             }
+          print("time Month is ${DateTime.parse(element['startdate']).toLocal().month}");
         });
-      }
-        print("if ");
-        Firestore.instance.collection('EventDetails').orderBy('timeStamp' , descending: true).getDocuments().then((value) {
-          value.documents.forEach((element) {
-              if(!element['isPending'])
-                {
-                  setState(() {
-                    events.add(element);
-                  });
-                }
-              print("time Month is ${DateTime.parse(element['startdate']).toLocal().month}");
-          });
-        });
+      });
+    });
   }
-  
+
   getByFilter() async{
     if(events.isNotEmpty)
     {
@@ -52,17 +52,14 @@ class _UserEventsState extends State<UserEvents> {
     }
     Firestore.instance.collection('EventDetails').orderBy('timeStamp' , descending: true).where(type , isEqualTo: subType).getDocuments().then((value) {
       if(value.documents.isNotEmpty)
-        {
-          value.documents.forEach((element) {
-            if(!element['isPending'])
-            {
-             setState(() {
-               events.add(element);
-             });
-            }
+      {
+        value.documents.forEach((element) {
+          setState(() {
+            events.add(element);
           });
-         // Navigator.pop(context);
-        }
+        });
+        // Navigator.pop(context);
+      }
       else{
         //Navigator.pop(context);
       }
@@ -71,15 +68,12 @@ class _UserEventsState extends State<UserEvents> {
 
   getUserData()async{
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-      Firestore.instance.collection('Ravan').document(user.uid).get().then((value) {
-        setState(() {
-          if(value['admin'] != null)
-            {
-              isAdmin = value['admin'];
-            }
-        });
-        print(" isAdmin $isAdmin");
+    Firestore.instance.collection('Ravan').document(user.uid).get().then((value) {
+      setState(() {
+        isAdmin = value['admin'];
       });
+      print(" isAdmin $isAdmin");
+    });
     setState(() {
       userId = user.uid;
     });
@@ -118,7 +112,7 @@ class _UserEventsState extends State<UserEvents> {
                         Navigator.pop(context);
                         getByFilter();
                       });
-                     },child: Chip(label: Text("Computer"),backgroundColor: Colors.white,)),
+                    },child: Chip(label: Text("Computer"),backgroundColor: Colors.white,)),
                     InkWell(onTap:(){
                       setState(() {
                         type = "department";
@@ -126,7 +120,7 @@ class _UserEventsState extends State<UserEvents> {
                         Navigator.pop(context);
                         getByFilter();
                       });
-                     },child: Chip(label: Text('IT'),backgroundColor: Colors.white,)),
+                    },child: Chip(label: Text('IT'),backgroundColor: Colors.white,)),
                     InkWell(onTap:(){
                       setState(() {
                         type = "department";
@@ -204,7 +198,7 @@ class _UserEventsState extends State<UserEvents> {
     }
     return ConstrainedBox(
       constraints: BoxConstraints(
-        maxHeight: 300
+          maxHeight: 300
       ),
       child: Padding(
         padding: EdgeInsets.only(top: 2, bottom: 3),
@@ -220,12 +214,12 @@ class _UserEventsState extends State<UserEvents> {
                   Navigator.pushNamed(context, '/eventDescription', arguments: {
                     'event_id' : snapshot.documentID,
                     'isRegistered' : false,
-                    'isAdmin' : false
+                    'isAdmin' : true,
                   }
                   ).then((value)
                   {
                     setState(() {
-                        getEvents();
+                      getEvents();
                     });
                   });
                 },
@@ -280,33 +274,33 @@ class _UserEventsState extends State<UserEvents> {
 
                           SizedBox(width : 5) ,
 
-                         Container(
-                           child: Wrap(
-                             runAlignment: WrapAlignment.center,
-                             alignment: WrapAlignment.spaceBetween,
-                             children: [
-                               Text(snapshot['currentName'],
-                                   style: TextStyle(
-                                     //fontFamily: 'Pacifico',
-                                     fontSize: 16.0,
-                                     //      fontWeight: FontWeight.bold,
-                                     color: Colors.black,
-                                   )
-                               ),
-                               // SizedBox(width: 1.0,),
+                          Container(
+                            child: Wrap(
+                              runAlignment: WrapAlignment.center,
+                              alignment: WrapAlignment.spaceBetween,
+                              children: [
+                                Text(snapshot['currentName'],
+                                    style: TextStyle(
+                                      //fontFamily: 'Pacifico',
+                                      fontSize: 16.0,
+                                      //      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    )
+                                ),
+                                // SizedBox(width: 1.0,),
 
-                               Text(' added an event.',
-                                   overflow: TextOverflow.ellipsis,
-                                   style: TextStyle(
-                                     //fontFamily: 'Pacifico',
-                                     fontSize: 15.0,
-                                     //    fontWeight: FontWeight.bold,
-                                     color: Colors.black,
-                                   )
-                               ),
-                             ],
-                           ),
-                         ),
+                                Text(' added an event.',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      //fontFamily: 'Pacifico',
+                                      fontSize: 15.0,
+                                      //    fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    )
+                                ),
+                              ],
+                            ),
+                          ),
                           /*Padding(
                             padding: const EdgeInsets.fromLTRB(100, 0, 5, 0),
                             child: InkWell(
@@ -341,7 +335,7 @@ class _UserEventsState extends State<UserEvents> {
                       child: Text(snapshot['about'],style: TextStyle(
                         fontSize: 16,
                       ),
-                      overflow: TextOverflow.ellipsis,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
 
@@ -349,7 +343,7 @@ class _UserEventsState extends State<UserEvents> {
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.orangeAccent ,width: 5),
+                            border: Border.all(color: Colors.orangeAccent ,width: 5),
                             color: Colors.blueAccent,
                             borderRadius : BorderRadius.circular(5)
                         ),
@@ -618,36 +612,36 @@ class _UserEventsState extends State<UserEvents> {
 
     showModalBottomSheet(
         enableDrag: true,
-       backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.redAccent,
         context: context,
         builder: (context) => Container(
-         child: ListView(
-           children: <Widget>[
-             ConstrainedBox(
-               constraints: BoxConstraints(
-                 maxHeight: 200
-               ),
-               child: Column(
-                 mainAxisAlignment: MainAxisAlignment.start,
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: <Widget>[
-                   Text('Month' ,style: TextStyle(color: Colors.white ,height: 20),),
+          child: ListView(
+            children: <Widget>[
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxHeight: 200
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Month' ,style: TextStyle(color: Colors.white ,height: 20),),
 
-                 ],
-               ),
-            //   color: Colors.blue,
-              // height: 200,
-             ),
-             Container(
-               color: Colors.indigo,
-               height: 200,
-             ),
-             Container(
-               color:Colors.blueAccent,
-               height: 200,
-             ),
-           ],
-         ),
+                  ],
+                ),
+                //   color: Colors.blue,
+                // height: 200,
+              ),
+              Container(
+                color: Colors.indigo,
+                height: 200,
+              ),
+              Container(
+                color:Colors.blueAccent,
+                height: 200,
+              ),
+            ],
+          ),
         )
     );
   }
@@ -664,11 +658,11 @@ class _UserEventsState extends State<UserEvents> {
                     child: Material(
                       elevation: 20,
                       child: Container(
-                          // decoration: BoxDecoration(
-                          //     gradient: LinearGradient(
-                          //         colors: [Colors.deepOrangeAccent , Colors.orange]
-                          //     )
-                          // ),
+                        // decoration: BoxDecoration(
+                        //     gradient: LinearGradient(
+                        //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                        //     )
+                        // ),
                           color: appBarColor,
                           height: 55,
                           width: MediaQuery.of(context).size.width,
@@ -691,19 +685,19 @@ class _UserEventsState extends State<UserEvents> {
                 ),
                 events.isNotEmpty ? Expanded(
                   child: Container(
-                    child: StreamBuilder(
-                        stream : Firestore.instance.collection('EventDetails').orderBy('timeStamp' , descending: true).snapshots(),
-                        builder : (context,snapshot)
-                        {
+                      child: StreamBuilder(
+                          stream : Firestore.instance.collection('EventDetails').orderBy('timeStamp' , descending: true).snapshots(),
+                          builder : (context,snapshot)
+                          {
 
-                          if(!snapshot.hasData) return Container();
-                          return ListView.builder(
-                            itemBuilder: (context,index) =>
-                                _buildEventList(context, events[index]),//snapshot.data.documents[index]),
-                            itemCount: events.length,
-  //              itemExtent: 80.0,
-                          );
-                        })
+                            if(!snapshot.hasData) return Container();
+                            return ListView.builder(
+                              itemBuilder: (context,index) =>
+                                  _buildEventList(context, events[index]),//snapshot.data.documents[index]),
+                              itemCount: events.length,
+                              //              itemExtent: 80.0,
+                            );
+                          })
                   ),
                 ) :  Expanded(
                   child: Center(child: Container(child: Center(child: Text(" No Events ! "))),
@@ -711,59 +705,6 @@ class _UserEventsState extends State<UserEvents> {
                 )
               ],
             ),
-
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    isAdmin ? CircleAvatar(
-                      radius: 25,
-                      backgroundColor: Colors.deepPurple,
-                      child: Container(
-                        child: InkWell(
-                          onTap: () =>
-                          {
-                            Navigator.push(context , MaterialPageRoute(builder: (context){
-                              return PendingEvents();
-                            }))
-                          },
-                          child: Icon(
-                            Icons.event,
-                            //  size: 35,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ) : Container(),
-                    SizedBox(height: 8,),
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundColor: Colors.deepPurple,
-                      child: Container(
-                        child: InkWell(
-                          onTap: () => {
-                            Navigator.pushNamed(context , '/addEvent' ).then((value) {
-                              setState(() {
-                                print(" I am back");
-                                getEvents();
-                              });
-                            })},
-                          child: Icon(
-                            Icons.add,
-                          //  size: 35,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
           ],
         ),
         //
@@ -790,25 +731,25 @@ class _UserEventsState extends State<UserEvents> {
 
 showAlert(BuildContext context , int docId) {
   DatabaseService dbService = new DatabaseService();
- return showDialog(
+  return showDialog(
       context: context,
       barrierDismissible: true,
       builder: (context)
-     {
-       return AlertDialog(
-         content: Text("Are u sure u want to Delete ?"),
-         actions: <Widget>[
-           FlatButton(
-             child: Text("Delete"),
-             onPressed: () => dbService.deleteEvent(docId).then((value) => Navigator.pop(context)),
-           ),
-           FlatButton(
-             child : Text("Cancel"),
-             onPressed:() => Navigator.pop(context),
-           )
-         ],
-       );
-     }
+      {
+        return AlertDialog(
+          content: Text("Are u sure u want to Delete ?"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Delete"),
+              onPressed: () => dbService.deleteEvent(docId).then((value) => Navigator.pop(context)),
+            ),
+            FlatButton(
+              child : Text("Cancel"),
+              onPressed:() => Navigator.pop(context),
+            )
+          ],
+        );
+      }
   );
 }
 

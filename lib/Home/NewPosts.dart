@@ -523,14 +523,20 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:obvio/Notification/notifications.dart';
 import 'package:obvio/Utils/TimeConversion.dart';
 import 'package:obvio/Utils/common_image_display_widget.dart';
+import 'package:obvio/Utils/theme_colors.dart';
+
+
 class NewPosts extends StatefulWidget {
   @override
   _NewPostsState createState() => _NewPostsState();
 }
 
 class _NewPostsState extends State<NewPosts> {
+
   final AuthService auth = AuthService();
   var name;
+  bool isNewMessages = false;
+  bool msgFlag = false;
   String currentUser = '';
   int totalLikes = 0;
   TransformationController controller = TransformationController();
@@ -567,7 +573,11 @@ class _NewPostsState extends State<NewPosts> {
        Firestore.instance.collection('Ravan').document(currentId).get().then((value) => {
         currentUser = value["name"],
          currentProfile = value["image"],
-        //print(currentProfile),
+         isNewMessages = value['isNewMessages'],
+          if(value['isNewMessages'] != null )
+            {
+              msgFlag = value['isNewMessages'],
+            },
        Firestore.instance.collection('Ravan').document(currentId).get().then((value) async{
        print("token is ${value['token']}");
        })
@@ -748,6 +758,39 @@ class _NewPostsState extends State<NewPosts> {
                                   ),
                                   Row(
                                     children: <Widget>[
+                                      // Padding(
+                                      //   padding: const EdgeInsets.symmetric(horizontal: 5 ,vertical: 3),
+                                      //   child: InkWell(
+                                      //       onTap: (){
+                                      //         if(snapshot['docId'] == currentId)
+                                      //         {
+                                      //           Navigator.pushNamed(context, '/myProfile');
+                                      //         }
+                                      //         else
+                                      //         {
+                                      //           Navigator.push(
+                                      //               context , MaterialPageRoute(builder: (BuildContext context){
+                                      //             return SearchedUser(searchedId: snapshot['docId'], name: snapshot.data['name'],);
+                                      //           })
+                                      //           );
+                                      //           // Navigator.pushNamed(context, '/searchedUser' ,arguments: {
+                                      //           //   'id' : snapshot['docId'],
+                                      //           //   'name' : snapshot.data['name'],
+                                      //           // });
+                                      //         }
+                                      //       },
+                                      //       child: FutureBuilder(
+                                      //         future: getProfileName(),
+                                      //         builder: (BuildContext context , AsyncSnapshot asyncSnap){
+                                      //           if(asyncSnap != null)
+                                      //             {
+                                      //               return Text(asyncSnap.data);
+                                      //             }
+                                      //           return Container();
+                                      //         },
+                                      //       )
+                                      //   ),
+                                      // ),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 5 ,vertical: 3),
                                         child: InkWell(
@@ -805,23 +848,17 @@ class _NewPostsState extends State<NewPosts> {
                               },
                               child: Container(
                                 decoration: BoxDecoration(),
-                                child: InteractiveViewer(
-                                  transformationController: controller,
-                                  onInteractionEnd: (ScaleEndDetails endDetails){
-                                    controller.value = Matrix4.identity();
-                                  },
-                                  child: CachedNetworkImage(
-                                    imageUrl: snapshot["image"],
-                                    imageBuilder: (context , imageProvider) => Container(
-                                      decoration: BoxDecoration(
-                                        image : DecorationImage(
-                                          image : imageProvider,
-                                          fit : BoxFit.cover,
-                                        )
-                                      ),
+                                child: CachedNetworkImage(
+                                  imageUrl: snapshot["image"],
+                                  imageBuilder: (context , imageProvider) => Container(
+                                    decoration: BoxDecoration(
+                                      image : DecorationImage(
+                                        image : imageProvider,
+                                        fit : BoxFit.cover,
+                                      )
                                     ),
-                                    placeholder: (context , url) => Center(child: SpinKitCubeGrid(color: Colors.indigo,size: 60,)),
                                   ),
+                                  placeholder: (context , url) => Center(child: SpinKitCubeGrid(color: Colors.indigo,size: 60,)),
                                 ),
                               ),
                             ),
@@ -919,6 +956,18 @@ class _NewPostsState extends State<NewPosts> {
 
   @override
   Widget build(BuildContext context) {
+    Firestore.instance.collection('Ravan').document(currentId).get().then((value) {
+     if(value['isNewMessages'] != null )
+       {
+         if(mounted)
+           {
+             setState(() {
+               msgFlag = value['isNewMessages'];
+               print(" MSG FLG IS $msgFlag");
+             });
+           }
+       }
+    });
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
@@ -931,67 +980,164 @@ class _NewPostsState extends State<NewPosts> {
                 child: Material(
                   elevation: 20,
                   child: Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            colors: [Colors.deepOrangeAccent , Colors.orange]
-                        )
-                    ),
-                    height: 55,
-                    width: MediaQuery.of(context).size.width,
-                    child: ListTile(
-                      title: Text(" Ecstasy", style:  TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                       // fontWeight: FontWeight.bold
-                       // fontFamily: "Lobster"
-                      ),),
-                      trailing: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: InkWell(
-                          onTap: (){
-                            Navigator.of(context).push(PageRouteBuilder(pageBuilder: (context, animation, anotherAnimation) {
-                              return MsgBox();
-                            }, transitionDuration: Duration(milliseconds: 300),
-                                transitionsBuilder: (context, animation, anotherAnimation, child) {
-                                  animation = CurvedAnimation(curve: Curves.easeOut, parent: animation);
-                                  return Align(
-                                    child: ScaleTransition(
-                                      scale: animation,
-                                      child: child,
-                                    ),
-                                  );
-                                })
-                            );
-                          },
-                          child: ClipOval(
-                            child: Material(
-                              elevation: 25,
-                              child: Container(
-                                decoration: BoxDecoration(),
-                                child: CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: Colors.white,
-                                  child:  Container(
-                                    child: ClipOval(
-                                      child: Material(
-                                        elevation: 10,
-                                       child: Icon(Icons.message_outlined, color: Colors.black,),
-                                       // child: Image.asset("assets/message_icon.png" , height: 32, width: 32,),
+                      color: appBarColor,
+                      // decoration: BoxDecoration(
+                      //     gradient: LinearGradient(
+                      //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                      //     )
+                      // ),
+                      height: 55,
+                      width: MediaQuery.of(context).size.width,
+                      child: InkWell(
+                        onTap: (){
+                          Firestore.instance.collection('Ravan').document(currentId).updateData({
+                            'isNewMessages' : false
+                          });
+                          setState(() {
+                            isNewMessages = false;
+                            msgFlag = false;
+                          });
+                          Navigator.of(context).push(PageRouteBuilder(pageBuilder: (context, animation, anotherAnimation) {
+                            return MsgBox();
+                          }, transitionDuration: Duration(milliseconds: 300),
+                              transitionsBuilder: (context, animation, anotherAnimation, child) {
+                                animation = CurvedAnimation(curve: Curves.easeOut, parent: animation);
+                                return Align(
+                                  child: ScaleTransition(
+                                    scale: animation,
+                                    child: child,
+                                  ),
+                                );
+                              })
+                          );
+                        },
+
+                        child: Container(
+                          width: 45,
+                          child: Stack(
+                            children: [
+                              Align(
+                                alignment: Alignment.center,
+                                child: Text("Ecstasy" ,style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Stack(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: Container(
+                                        child : CircleAvatar(
+                                          radius: 20,
+                                          backgroundColor: Colors.white,
+                                          child:  Icon(Icons.message_outlined, color: Colors.black,),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                   msgFlag ? Align(
+                                     child: Container(
+                                       child : CircleAvatar(
+                                         radius: 5,
+                                         backgroundColor: Colors.red,
+                                         // child: Text(requests.toString() , style: TextStyle(
+                                         //   color: Colors.redAccent,
+                                         //   fontWeight: FontWeight.bold
+                                         // ),),
+                                       ),
+                                     ),
+                                     alignment: Alignment.topRight,
+                                   ) : Container(height: 0,width: 0,)
+                                  ],
                                 ),
-                              ),
-                            ),
+                              )
+                            ],
                           ),
                         ),
-                      ),
-                    )
+                      )
                     //color: Colors.redAccent
                   ),
                 ),
-               // borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
             ),
+            // ClipRRect(
+            //     child: Material(
+            //       elevation: 20,
+            //       child: Container(
+            //         decoration: BoxDecoration(
+            //             gradient: LinearGradient(
+            //                 colors: [Colors.deepOrangeAccent , Colors.orange]
+            //             )
+            //         ),
+            //         height: 55,
+            //         width: MediaQuery.of(context).size.width,
+            //         child: ListTile(
+            //           title: Text(" Ecstasy", style:  TextStyle(
+            //             color: Colors.white,
+            //             fontSize: 20,
+            //            // fontWeight: FontWeight.bold
+            //            // fontFamily: "Lobster"
+            //           ),),
+            //           trailing: Padding(
+            //             padding: const EdgeInsets.symmetric(vertical: 5),
+            //             child: InkWell(
+            //               onTap: (){
+            //                 Firestore.instance.collection('Ravan').document(currentId).updateData({
+            //                   'isNewMessages' : false
+            //                 });
+            //                 Navigator.of(context).push(PageRouteBuilder(pageBuilder: (context, animation, anotherAnimation) {
+            //                   return MsgBox();
+            //                 }, transitionDuration: Duration(milliseconds: 300),
+            //                     transitionsBuilder: (context, animation, anotherAnimation, child) {
+            //                       animation = CurvedAnimation(curve: Curves.easeOut, parent: animation);
+            //                       return Align(
+            //                         child: ScaleTransition(
+            //                           scale: animation,
+            //                           child: child,
+            //                         ),
+            //                       );
+            //                     })
+            //                 );
+            //               },
+            //               child: Stack(
+            //                 children: [
+            //                   ClipOval(
+            //                     child: Material(
+            //                       elevation: 25,
+            //                       child: Container(
+            //                         decoration: BoxDecoration(),
+            //                         child: CircleAvatar(
+            //                           radius: 20,
+            //                           backgroundColor: Colors.white,
+            //                           child:  Container(
+            //                             child: ClipOval(
+            //                               child: Material(
+            //                                 elevation: 10,
+            //                                child: Icon(Icons.message_outlined, color: Colors.black,),
+            //                                // child: Image.asset("assets/message_icon.png" , height: 32, width: 32,),
+            //                               ),
+            //                             ),
+            //                           ),
+            //                         ),
+            //                       ),
+            //                     ),
+            //                   ),
+            //                   isNewMessages ?  CircleAvatar(
+            //                     radius: 5,
+            //                     backgroundColor: Colors.deepPurple,
+            //                   ) : Container()
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //         )
+            //         //color: Colors.redAccent
+            //       ),
+            //     ),
+            //    // borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10) , bottomRight: Radius.circular(10))
+            // ),
             Expanded(
               child: Container(
                 child: StreamBuilder(
@@ -1002,7 +1148,7 @@ class _NewPostsState extends State<NewPosts> {
                                 return Center(
                                   child: Text("Hello, $currentUser go and make friends !" , style: TextStyle(
                                     //  color: Colors.blue,
-                                      fontSize: 18,
+                                      fontSize: 16,
                                       //fontFamily: 'Pacifico'
                                   ),),
                                 );
@@ -1019,7 +1165,7 @@ class _NewPostsState extends State<NewPosts> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.deepPurple,
             child: InkWell(
               onTap: () => {
                 Navigator.pushNamed(context , '/uploadMyImage' )},

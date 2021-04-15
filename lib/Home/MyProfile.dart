@@ -11,10 +11,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:obvio/Services/auth.dart';
 import 'dart:io';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:obvio/Utils/TimeConversion.dart';
 import 'package:obvio/Utils/common_image_display_widget.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Followers.dart';
@@ -85,17 +87,6 @@ class _MyProfilePageState extends State<MyProfilePage>  {
         i++;
       });
     });
-    // Firestore.instance.collection("Ravan").document(uid).collection("Events").getDocuments().then((value){
-    //   print(" get My ");
-    //    value.documents.forEach((element) {
-    //      setState(() {
-    //        print(element['about']);
-    //        myEvents.add(element);
-    //      });
-    //    });
-    // }).then((value) {
-    //   print(' Events are $myEvents');
-    // });
   }
 
   ScrollController scrollController;
@@ -142,182 +133,215 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                           //height: double.infinity,
                           color: Colors.white,
                           child: SingleChildScrollView(
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(height: 10),
-                                CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  radius: 100,
-                                  child: ClipOval(
-                                    child: SizedBox(
-                                      height: 200,
-                                      width: 200,
+                            child: Stack(
+                              children: [
+                                Column(
+                                  children: <Widget>[
+                                    SizedBox(height: 10),
+                                    ClipOval(
                                       child: Container(
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: BoxDecoration(),
-                                        child: InkWell(
-                                          onLongPress: () =>
-                                              showDialog(context: context,
-                                                  barrierDismissible: true,
-                                                  builder: (context) {
-                                                    return AlertDialog(
-                                                      content: RaisedButton(
-                                                        focusColor: Colors
-                                                            .redAccent,
-                                                        color: Colors.redAccent,
-                                                        child: Text(
-                                                          "Upload Profile Picture",
-                                                          style: TextStyle(
-                                                            fontSize: 17,
-                                                            color: Colors.white,
-
-                                                          ),),
-                                                        onPressed: () =>
-                                                            Navigator
-                                                                .pushReplacementNamed(
-                                                                context,
-                                                                '/imagePick'),
-                                                      ),
-                                                    );
-                                                  }
+                                        height: 202,
+                                        width: 202,
+                                        child: Stack(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Colors.white,
+                                              radius: 100,
+                                              child: ClipOval(
+                                                child: SizedBox(
+                                                  height: 200,
+                                                  width: 200,
+                                                  child: Container(
+                                                    clipBehavior: Clip.antiAlias,
+                                                    decoration: BoxDecoration(),
+                                                    child: InkWell(
+                                                      child: snapshot.data != null ? Image(
+                                                          image: CachedNetworkImageProvider(
+                                                              snapshot.data["image"]),
+                                                          //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                                                          fit: BoxFit.cover
+                                                      ):Container(),
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                          child: snapshot.data != null ? Image(
-                                              image: CachedNetworkImageProvider(
-                                                  snapshot.data["image"]),
-                                              //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                              fit: BoxFit.cover
-                                          ):Container(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5,),
+                                    snapshot.data['bio'] != null ?
+                                    Center(child: Container(color: Colors.black12,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child:snapshot.data['bio'] != null ? Text(snapshot.data['bio'],
+                                            style: TextStyle(fontSize: 16),) : SizedBox(height: 0,width: 0,)
+                                        )),) : SizedBox(height: 0,width: 0,),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Center(
+                                          child: Text(snapshot.data['name']
+                                            , style: TextStyle(
+                                                fontSize: 18,
+                                              //  fontFamily: "Pacifico",
+                                                color: Colors.black,
+                                            ),),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 2),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .spaceBetween,
+                                      children: <Widget>[
+                                        Column(
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: const EdgeInsets.all(4.0),
+                                              child: RaisedButton(
+                                                color: Colors.blueAccent,
+                                                child: Text(
+                                                  "Followers", style: TextStyle(
+                                                    fontSize: 20,
+                                                    // fontFamily: 'Pacifico',
+                                                    color: Colors.white
+
+                                                ),),
+                                                onPressed: () =>
+                                                {
+                                                  Navigator.push(context , MaterialPageRoute(builder: (context){
+                                                    return Followers(followersId: uid,);
+                                                  }))
+                                                  // Navigator.pushNamed(
+                                                  //     context, '/followers',
+                                                  //     arguments: {
+                                                  //       'id': uid,
+                                                  //     })
+                                                },
+                                              ),
+                                            ),
+                                            Text(followers, style: TextStyle(
+                                                fontSize: 20,
+                                                // fontFamily: 'Pacifico',
+                                                color: Colors.red
+                                            ),),
+                                            SizedBox(height: 3,)
+                                          ],
+                                        ),
+                                        Column(
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: const EdgeInsets.all(4.0),
+                                              child: RaisedButton(
+                                                color: Colors.blueAccent,
+                                                child: Text(
+                                                  "Following", style: TextStyle(
+                                                    fontSize: 20,
+                                                    // fontFamily: 'Pacifico',
+                                                    color: Colors.white
+
+                                                ),),
+                                                onPressed: () =>
+                                                {
+                                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+                                                return Following(followingId: uid,);
+                                                }))
+                                                  // Navigator.pushNamed(
+                                                  //     context, '/following',
+                                                  //     arguments: {
+                                                  //       'id': uid,
+                                                  //     })
+                                                },
+
+                                              ),
+                                            ),
+                                            Text(following, style: TextStyle(
+                                                fontSize: 20,
+                                                // fontFamily: 'Pacifico',
+                                                color: Colors.red
+                                            ),),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+
+                                    SizedBox(
+                                      height: 3,
+                                    ),
+
+                                    RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+
+                                      elevation: 10,
+                                      color: Color(0xff6495ed),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        child: Text(
+                                          "Edit Profile", style: TextStyle(
+                                            fontSize: 18,
+                                            //fontFamily: 'Pacifico',
+                                            color: Colors.white
+
+                                        ),),
+                                      ),
+                                      onPressed: () =>
+                                      {
+                                        Navigator.pushNamed(
+                                            context, '/editProfile'),
+                                      },
+                                    ),
+                                    SizedBox(height: 3),
+                                  ],
+                                ),
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: InkWell(
+                                    onTap: () =>
+                                        showDialog(context: context,
+                                            barrierDismissible: true,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                content: RaisedButton(
+                                                  focusColor: Colors
+                                                      .redAccent,
+                                                  color: Colors.redAccent,
+                                                  child: Text(
+                                                    "Upload Profile Picture",
+                                                    style: TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.white,
+
+                                                    ),),
+                                                  onPressed: () =>
+                                                      Navigator
+                                                          .pushReplacementNamed(
+                                                          context,
+                                                          '/imagePick'),
+                                                ),
+                                              );
+                                            }
+                                        ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        child: CircleAvatar(
+                                          radius: 21,
+                                          backgroundColor: Colors.black,
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.white,
+                                            radius: 20,
+                                            child: Icon(Icons.edit_outlined , color: Colors.redAccent,),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(height: 5,),
-                                snapshot.data['bio'] != null ?
-                                Center(child: Container(color: Colors.black12,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child:snapshot.data['bio'] != null ? Text(snapshot.data['bio'],
-                                        style: TextStyle(fontSize: 16),) : SizedBox(height: 0,width: 0,)
-                                    )),) : SizedBox(height: 0,width: 0,),
-                                SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Center(
-                                      child: Text(snapshot.data['name']
-                                        , style: TextStyle(
-                                            fontSize: 18,
-                                          //  fontFamily: "Pacifico",
-                                            color: Colors.black,
-                                        ),),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 2),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment
-                                      .spaceBetween,
-                                  children: <Widget>[
-                                    Column(
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: RaisedButton(
-                                            color: Colors.blueAccent,
-                                            child: Text(
-                                              "Followers", style: TextStyle(
-                                                fontSize: 20,
-                                                // fontFamily: 'Pacifico',
-                                                color: Colors.white
-
-                                            ),),
-                                            onPressed: () =>
-                                            {
-                                              Navigator.push(context , MaterialPageRoute(builder: (context){
-                                                return Followers(followersId: uid,);
-                                              }))
-                                              // Navigator.pushNamed(
-                                              //     context, '/followers',
-                                              //     arguments: {
-                                              //       'id': uid,
-                                              //     })
-                                            },
-                                          ),
-                                        ),
-                                        Text(followers, style: TextStyle(
-                                            fontSize: 20,
-                                            // fontFamily: 'Pacifico',
-                                            color: Colors.red
-                                        ),),
-                                        SizedBox(height: 3,)
-                                      ],
-                                    ),
-                                    Column(
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: RaisedButton(
-                                            color: Colors.blueAccent,
-                                            child: Text(
-                                              "Following", style: TextStyle(
-                                                fontSize: 20,
-                                                // fontFamily: 'Pacifico',
-                                                color: Colors.white
-
-                                            ),),
-                                            onPressed: () =>
-                                            {
-                                            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
-                                            return Following(followingId: uid,);
-                                            }))
-                                              // Navigator.pushNamed(
-                                              //     context, '/following',
-                                              //     arguments: {
-                                              //       'id': uid,
-                                              //     })
-                                            },
-
-                                          ),
-                                        ),
-                                        Text(following, style: TextStyle(
-                                            fontSize: 20,
-                                            // fontFamily: 'Pacifico',
-                                            color: Colors.red
-                                        ),),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-
-                                SizedBox(
-                                  height: 3,
-                                ),
-
-                                RaisedButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-
-                                  elevation: 10,
-                                  color: Color(0xff6495ed),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5),
-                                    child: Text(
-                                      "Edit Profile", style: TextStyle(
-                                        fontSize: 18,
-                                        //fontFamily: 'Pacifico',
-                                        color: Colors.white
-
-                                    ),),
-                                  ),
-                                  onPressed: () =>
-                                  {
-                                    Navigator.pushNamed(
-                                        context, '/editProfile'),
-                                  },
-                                ),
-                                SizedBox(height: 3),
+                                )
                               ],
                             ),
                           ),
@@ -366,11 +390,8 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                 child: Material(
                                   elevation: 20,
                                   child: Container(
-                                      decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                              colors: [Colors.deepOrangeAccent , Colors.orange]
-                                          )
-                                      ),
+
+                                     color: appBarColor,
                                       height: 55,
                                       width: MediaQuery.of(context).size.width,
                                       child: ListTile(
@@ -505,7 +526,8 @@ class _MyProfilePageState extends State<MyProfilePage>  {
                                     onTap: (){
                                       Navigator.pushNamed(context, '/eventDescription', arguments: {
                                         'event_id' : registeredEventsDocIds[index],
-                                        'isRegistered' : true
+                                        'isRegistered' : true,
+                                        'isAdmin' : false,
                                       }
                                       );
                                     },

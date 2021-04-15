@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:obvio/Home/SearchedUser.dart';
 import 'package:obvio/Loading/Loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 
 class Followers extends StatefulWidget {
    String followersId;
@@ -86,46 +87,49 @@ class _FollowersState extends State<Followers> {
             'name' : snapshot['name'],
           }
           ),*/
-            child: Row(
-              children: <Widget>[
-                SizedBox(width: 5,),
-                CircleAvatar(
-                    radius: 20,
-                    child : FutureBuilder(
-                        future: getProfile(),
-                        builder:(context ,AsyncSnapshot<String> snapshot) {
-                          if(snapshot.hasData)
-                          {
-                            return ClipOval(
-                              child: SizedBox(
-                                height: 40,
-                                width: 40,
-                                child: Image(
-                                    image: CachedNetworkImageProvider(snapshot.data),
-                                    //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
-                                    fit: BoxFit.cover
+            child: Container(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  SizedBox(width: 5,),
+                  CircleAvatar(
+                      radius: 20,
+                      child : FutureBuilder(
+                          future: getProfile(),
+                          builder:(context ,AsyncSnapshot<String> snapshot) {
+                            if(snapshot.hasData)
+                            {
+                              return ClipOval(
+                                child: SizedBox(
+                                  height: 40,
+                                  width: 40,
+                                  child: Image(
+                                      image: CachedNetworkImageProvider(snapshot.data),
+                                      //NetworkImage(snapshot.data["image"]),//snapshot.data.documents[0]['image']),
+                                      fit: BoxFit.cover
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
+                            else
+                            {
+                              return Icon(
+                                Icons.person,
+                              );
+                            }
                           }
-                          else
-                          {
-                            return Icon(
-                              Icons.person,
-                            );
-                          }
-                        }
-                    )
-                ),
-                SizedBox(width: 7,),
-                Center(
-                  child: Text(snapshot['name'],
-                      style: TextStyle(
-                        fontSize: 18,
-                        //  fontFamily: 'Pacifico',
-                      )),
-                ),
-              ],
+                      )
+                  ),
+                  SizedBox(width: 7,),
+                  Center(
+                    child: Text(snapshot['name'],
+                        style: TextStyle(
+                          fontSize: 18,
+                          //  fontFamily: 'Pacifico',
+                        )),
+                  ),
+                ],
+              ),
             )
         ),
       ),
@@ -154,11 +158,12 @@ class _FollowersState extends State<Followers> {
                   child: Material(
                     elevation: 20,
                     child: Container(
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [Colors.deepOrangeAccent , Colors.orange]
-                            )
-                        ),
+                        // decoration: BoxDecoration(
+                        //     gradient: LinearGradient(
+                        //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                        //     )
+                        // ),
+                        color: appBarColor,
                         height: 55,
                         width: MediaQuery.of(context).size.width,
                         child: ListTile(
@@ -166,7 +171,7 @@ class _FollowersState extends State<Followers> {
                             onTap: (){
                               Navigator.pop(context);
                             },
-                            child: Icon(Icons.arrow_back),
+                            child: Icon(Icons.arrow_back , color: Colors.white,),
                           ),
                           title: Text(" Followers ", style:  TextStyle(
                             color: Colors.white,

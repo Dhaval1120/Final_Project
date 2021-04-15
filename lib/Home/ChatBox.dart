@@ -296,6 +296,10 @@ class _ChatBoxState extends State<ChatBox> {
     url = downUrl.toString();
     print(url);
 
+    Firestore.instance.collection("Ravan").document(friendId).updateData({
+      'isNewMessages' : true,
+    });
+
     Firestore.instance.collection('Ravan').document(currentId).collection(msgId.toString()).add({
       'type' : 'image',
       'msg' : url,
@@ -318,6 +322,7 @@ class _ChatBoxState extends State<ChatBox> {
       'type' : 'image',
       'msg' : url ,
       'name' : currentName,
+      'isNewMessage' : true,
       'timestamp' : DateTime.now().millisecondsSinceEpoch
     });
 
@@ -341,12 +346,11 @@ class _ChatBoxState extends State<ChatBox> {
   Future getImage() async {
 
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
     setState((){
       _image = File(pickedFile.path);
       uploadImage();
     });
-  }
+}
 
   ScrollController scrollController;
 
@@ -397,10 +401,8 @@ class _ChatBoxState extends State<ChatBox> {
   Widget build(BuildContext context) {
     Map data = ModalRoute.of(context).settings.arguments;
     currentId = data['uid'];
-
     //print(currentId);
     friendId = data['friendId'];
-
 
     Future<String> getProfile()
     async {
@@ -504,14 +506,22 @@ class _ChatBoxState extends State<ChatBox> {
                        stream: Firestore.instance.collection('Ravan').document(currentId.toString()).
                        collection(msgId.toString()).orderBy('timestamp'.toString() , descending : false).snapshots(),
                        builder: (context, snapshot) {
-                             return ListView.builder(
-                               itemBuilder: (context, index) =>
-                                   _buildMsg(
-                                       context, snapshot.data.documents[index]),
-                               controller: scrollController,
-                               itemCount: snapshot.data.documents.length,
-                               //              itemExtent: 80.0,
-                             );
+                             if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+                             if(snapshot != null)
+                               {
+                                 return ListView.builder(
+                                   itemBuilder: (context, index) =>
+                                       _buildMsg(
+                                           context, snapshot.data.documents[index]),
+                                   controller: scrollController,
+                                   itemCount: snapshot.data.documents.length,
+                                   //              itemExtent: 80.0,
+                                 );
+                               }
+                             else
+                               {
+                                 return Container();
+                               }
                        }
                    ),
                    height: MediaQuery.of(context).size.height,
@@ -579,13 +589,15 @@ class _ChatBoxState extends State<ChatBox> {
                              print(msg);
                              print("Msg Id is $msgId");
                              print("Current and Friend ID is $currentId $friendId");
+                             Firestore.instance.collection("Ravan").document(friendId).updateData({
+                               'isNewMessages' : true,
+                             });
                              Firestore.instance.collection('Ravan').document(currentId).collection(msgId.toString()).add({
                                'msg' : msg,
                                'sent' : true,
                                'received' : false,
                                'timestamp' : DateTime.now().millisecondsSinceEpoch
                              });
-
                              Firestore.instance.collection('Ravan').document(currentId).collection('MsgBox').document(friendId).setData({
                                'Id' : friendId,
                                'Pic' : friendPic,
@@ -599,6 +611,7 @@ class _ChatBoxState extends State<ChatBox> {
                                'Pic' : currentPic,
                                'msg' : msg ,
                                'name' : currentName,
+                               'isNewMessage' : true,
                                'timestamp' : DateTime.now().millisecondsSinceEpoch
                              });
 

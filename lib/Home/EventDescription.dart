@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:obvio/Design/background.dart';
 import 'package:obvio/Home/registerForEvent.dart';
-import 'package:intl/intl.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 class EventDesc extends StatefulWidget {
   @override
   _EventDescState createState() => _EventDescState();
@@ -18,7 +17,6 @@ class _EventDescState extends State<EventDesc> {
   Future<void> getEventData(Map data)
   {
         eventId = data['event_id'];
-
         Firestore.instance.collection('EventDetails').document(eventId).get().then((value)  {
           setState(() {
             about = value['about'];
@@ -61,8 +59,7 @@ class _EventDescState extends State<EventDesc> {
             children: <Widget>[
               Container(
                 width: MediaQuery.of(context).size.width,
-                child : Background(),
-              ),
+               ),
 
               Column(
                 children: [
@@ -70,11 +67,12 @@ class _EventDescState extends State<EventDesc> {
                       child: Material(
                         elevation: 20,
                         child: Container(
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                    colors: [Colors.deepOrangeAccent , Colors.orange]
-                                )
-                            ),
+                            // decoration: BoxDecoration(
+                            //     gradient: LinearGradient(
+                            //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                            //     )
+                            // ),
+                            color: appBarColor,
                             height: 55,
                             width: MediaQuery.of(context).size.width,
                             child: ListTile(
@@ -82,11 +80,11 @@ class _EventDescState extends State<EventDesc> {
                                 onTap: (){
                                   Navigator.pop(context);
                                 },
-                                child: Icon(Icons.arrow_back),
+                                child: Icon(Icons.arrow_back , color: Colors.white,),
                               ),
                               title: Text(" About ", style:  TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 16,
                                 //fontFamily: "Lobster"
                               ),),
                             )
@@ -97,17 +95,6 @@ class _EventDescState extends State<EventDesc> {
                   ),
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        color : Colors.white,
-                        border : Border.all(
-                            color: Colors.purple,
-                            width : 4
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-
-                      ),
-                      //   width : 350.0,
-                      //     height: (MediaQuery.of(context).size.height - 50),
                       child: ListView(
                         //mainAxisAlignment: MainAxisAlignment.start,
                         // crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +135,7 @@ class _EventDescState extends State<EventDesc> {
                                         style  : TextStyle(
                                           //  fontFamily: 'Pacifico',
 //                                  fontWeight: FontWeight.bold,
-                                          fontSize: 22.0,
+                                          fontSize: 16.0,
                                           color : Colors.black,
                                         )
                                     ),
@@ -159,7 +146,7 @@ class _EventDescState extends State<EventDesc> {
                                             style : TextStyle(
                                               //    fontFamily: 'Lobster',
                                               //                                    fontWeight: FontWeight.bold,
-                                                fontSize: 20.0,
+                                                fontSize: 16.0,
                                                 color: Colors.blueAccent
                                             )
                                         ) : Container()
@@ -186,7 +173,7 @@ class _EventDescState extends State<EventDesc> {
                                         style  : TextStyle(
                                           //  fontFamily: 'Pacifico',
 //                                  fontWeight: FontWeight.bold,
-                                          fontSize: 22.0,
+                                          fontSize: 16.0,
                                           color : Colors.black,
                                         )
                                     ),
@@ -197,7 +184,7 @@ class _EventDescState extends State<EventDesc> {
                                           style : TextStyle(
                                             //    fontFamily: 'Lobster',
                                             //                                    fontWeight: FontWeight.bold,
-                                              fontSize: 20.0,
+                                              fontSize: 16.0,
                                               color: Colors.blueAccent
                                           )
                                       ) : Container()
@@ -227,7 +214,7 @@ class _EventDescState extends State<EventDesc> {
                                         style  : TextStyle(
                                           //                            fontWeight: FontWeight.bold,
                                           //fontFamily: 'Lobster',
-                                          fontSize: 22.0,
+                                          fontSize: 16.0,
                                           color : Colors.black,
                                         )
                                     ),
@@ -240,7 +227,7 @@ class _EventDescState extends State<EventDesc> {
                                           style : TextStyle(
                                             //                              fontWeight: FontWeight.bold,
                                             //    fontFamily: 'Lobster',
-                                              fontSize: 20.0,
+                                              fontSize: 16.0,
                                               color : Colors.blueAccent
                                           )
                                       ) : Container()
@@ -271,7 +258,7 @@ class _EventDescState extends State<EventDesc> {
                                             style  : TextStyle(
                                               //                            fontWeight: FontWeight.bold,
                                               //fontFamily: 'Lobster',
-                                              fontSize: 22.0,
+                                              fontSize: 16.0,
                                               color : Colors.black,
                                             )
                                         ),
@@ -281,7 +268,7 @@ class _EventDescState extends State<EventDesc> {
                                                 style : TextStyle(
                                                   //                              fontWeight: FontWeight.bold,
                                                   //    fontFamily: 'Lobster',
-                                                    fontSize: 20.0,
+                                                    fontSize: 16.0,
                                                     color : Colors.blueAccent
                                                 )
                                             ) : Container()
@@ -312,7 +299,7 @@ class _EventDescState extends State<EventDesc> {
                                             style  : TextStyle(
                                               //                            fontWeight: FontWeight.bold,
                                               //fontFamily: 'Lobster',
-                                              fontSize: 22.0,
+                                              fontSize: 16.0,
                                               color : Colors.black,
                                             )
                                         ),
@@ -322,7 +309,7 @@ class _EventDescState extends State<EventDesc> {
                                                 style : TextStyle(
                                                   //                              fontWeight: FontWeight.bold,
                                                   //    fontFamily: 'Lobster',
-                                                    fontSize: 20.0,
+                                                    fontSize: 16.0,
                                                     color : Colors.blueAccent
                                                 )
                                             ) : Container()
@@ -351,7 +338,7 @@ class _EventDescState extends State<EventDesc> {
                                         style  : TextStyle(
                                           //fontFamily: 'Lobster',
                                           //                        fontWeight: FontWeight.bold,
-                                          fontSize: 22.0,
+                                          fontSize: 16.0,
                                           color : Colors.black,
                                         )
                                     ),
@@ -361,7 +348,7 @@ class _EventDescState extends State<EventDesc> {
                                       child: location != null ? Text(location,
                                           style : TextStyle(
                                             //            fontFamily: 'Lobster',
-                                              fontSize: 20.0,
+                                              fontSize: 16.0,
                                               //                          fontWeight: FontWeight.bold,
                                               color: Colors.blueAccent
                                           )
@@ -391,7 +378,7 @@ class _EventDescState extends State<EventDesc> {
                                     Text('Start Date : ',
                                         style  : TextStyle(
                                           //  fontFamily: 'Lobster',
-                                          fontSize: 22.0,
+                                          fontSize: 16.0,
                                           //                    fontWeight: FontWeight.bold,
                                           color : Colors.black,
                                         )
@@ -402,7 +389,7 @@ class _EventDescState extends State<EventDesc> {
                                       child: startdate != null  ? Text(startdate.split(' ').first,
                                           style : TextStyle(
                                             //    fontFamily: 'Lobster',
-                                              fontSize: 20.0,
+                                              fontSize: 16.0,
                                               //                      fontWeight: FontWeight.bold,
                                               color: Colors.blueAccent
                                           )
@@ -433,7 +420,7 @@ class _EventDescState extends State<EventDesc> {
                                     Text('End Date : ',
                                         style  : TextStyle(
                                           //  fontFamily: 'Lobster',
-                                          fontSize: 22.0,
+                                          fontSize: 16.0,
                                           //                fontWeight: FontWeight.bold,
                                           color : Colors.black,
                                         )
@@ -444,7 +431,7 @@ class _EventDescState extends State<EventDesc> {
                                       child: enddate != null ? Text(enddate.split(" ").first,
                                           style : TextStyle(
                                             //    fontFamily: 'Lobster',
-                                              fontSize: 20.0,
+                                              fontSize: 16.0,
                                               //                  fontWeight: FontWeight.bold,
                                               color: Colors.blueAccent
                                           )
@@ -474,7 +461,7 @@ class _EventDescState extends State<EventDesc> {
                                     Text('Time : ',
                                         style  : TextStyle(
                                           //  fontFamily: 'Lobster',
-                                          fontSize: 22.0,
+                                          fontSize: 16.0,
                                           //            fontWeight: FontWeight.bold,
                                           color : Colors.black,
                                         )
@@ -485,7 +472,7 @@ class _EventDescState extends State<EventDesc> {
                                       child: time != null ? Text(time,
                                           style : TextStyle(
                                             //    fontFamily: 'Lobster',
-                                              fontSize: 20.0,
+                                              fontSize: 16.0,
                                               //              fontWeight: FontWeight.bold,
                                               color: Colors.blueAccent
                                           )
@@ -506,6 +493,7 @@ class _EventDescState extends State<EventDesc> {
                             )*/
 
                           SizedBox(height : 10 ),
+                          !data['isAdmin'] ?
                           !data['isRegistered'] ?  Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Align(
@@ -520,7 +508,7 @@ class _EventDescState extends State<EventDesc> {
                                     style : TextStyle(
                                         color : Colors.white,
                                         fontSize: 20,
-                                        fontFamily: 'Lobster'
+                                     //   fontFamily: 'Lobster'
                                     )
 
                                 ),
@@ -532,7 +520,53 @@ class _EventDescState extends State<EventDesc> {
                                 },
                               ),
                             ),
-                          ) : Container()
+                          ) : Container() :  Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Align(
+                              alignment : Alignment.bottomCenter,
+                              child: RaisedButton(
+                                padding: EdgeInsets.symmetric(horizontal : 50 , vertical:  5),
+                                color : Color(0xff000080),
+                                hoverColor: Colors.cyan,
+                                elevation: 3.0,
+                                splashColor: Colors.purple,
+                                child: Text("Accept",
+                                    style : TextStyle(
+                                        color : Colors.white,
+                                        fontSize: 20,
+                                        //fontFamily: 'Lobster'
+                                    )
+
+                                ),
+                                autofocus: true,
+                                onPressed: (){
+                                  showDialog(context: context, builder: (context){
+                                    return AlertDialog(
+                                      content: Text(" Are You sure you want to accept the event Request ?"
+                                      ),
+                                      actions: [
+                                        MaterialButton(color: Colors.deepPurple,onPressed: (){
+                                          Firestore.instance.collection("EventDetails").document(eventId).updateData({
+                                            'isPending' : false
+                                          }).then((value) {
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          });
+                                        },
+                                          child: Text('Yes'),
+                                        ),
+                                        MaterialButton(color: Colors.red,onPressed: (){
+                                          Navigator.pop(context);
+                                        },child: Text('No' ,style: TextStyle(
+                                            color: Colors.white
+                                        ),),),
+                                      ],
+                                    );
+                                  });
+                                },
+                              ),
+                            ),
+                          )
                         ],
                       ),
                     ),

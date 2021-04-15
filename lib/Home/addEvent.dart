@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 
+import 'package:obvio/Utils/theme_colors.dart';
+
 class AddEvent extends StatefulWidget {
   @override
   _AddEventState createState() => _AddEventState();
@@ -26,7 +28,7 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
   AnimationController _animationController;
   List<String> department = ['Computer' , "IT" , "Electrical" , "EC" , "Chemical"];
   String selectedDepartment;
-  List<String> level = ["National" , "State" , " College"];
+  List<String> level = ["National" , "State" , "College"];
   String selectedLevel;
   TextEditingController startdateController = new TextEditingController();
   TextEditingController enddateController = new TextEditingController();
@@ -90,11 +92,12 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
                   child: Material(
                     elevation: 20,
                     child: Container(
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [Colors.deepOrangeAccent , Colors.orange]
-                            )
-                        ),
+                        // decoration: BoxDecoration(
+                        //     gradient: LinearGradient(
+                        //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                        //     )
+                        // ),
+                        color : appBarColor,
                         height: 55,
                         width: MediaQuery.of(context).size.width,
                         child: ListTile(
@@ -130,6 +133,9 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
                                   fillColor: Colors.white,
                                   border : OutlineInputBorder(),
                                   labelText : " Event Name",
+                                  labelStyle: TextStyle(
+                                    color: Colors.black
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(color: Colors.white,width: 2)
                                   ),
@@ -156,7 +162,9 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
 
                                 border : OutlineInputBorder(),
                                 labelText : "Host Name",
-
+                                labelStyle: TextStyle(
+                                    color: Colors.black
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white,width: 2)
                                 ),
@@ -220,6 +228,7 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text("Select Level" , ),
                                     ),
+
                                     items: level.map((e) {
                                       return DropdownMenuItem(child: Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -243,7 +252,9 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
 
                                 border : OutlineInputBorder(),
                                 labelText : "Location",
-
+                                labelStyle: TextStyle(
+                                    color: Colors.black
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white,width: 2)
                                 ),
@@ -272,7 +283,9 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
                                 hoverColor: Colors.red,
                                 fillColor: Colors.white,
 
-
+                                labelStyle: TextStyle(
+                                    color: Colors.black
+                                ),
                                 border : OutlineInputBorder(),
                                 labelText : "About",
 
@@ -304,7 +317,9 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
 
                                      border : OutlineInputBorder(),
                                      labelText : "Start Date ",
-
+                                     labelStyle: TextStyle(
+                                         color: Colors.black
+                                     ),
                                      enabledBorder: OutlineInputBorder(
                                          borderSide: BorderSide(color: Colors.white,width: 2)
                                      ),
@@ -355,7 +370,9 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
 
                                 border : OutlineInputBorder(),
                                 labelText : " End Date ",
-
+                                labelStyle: TextStyle(
+                                    color: Colors.black
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white,width: 2)
                                 ),
@@ -421,7 +438,9 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
 
                                   border : OutlineInputBorder(),
                                   labelText : " Time ",
-
+                                  labelStyle: TextStyle(
+                                      color: Colors.black
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(color: Colors.white,width: 2)
                                   ),

@@ -6,6 +6,7 @@ import 'package:obvio/Loading/Loading.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:obvio/Services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 
 class ListedUsers extends StatefulWidget {
   @override
@@ -131,11 +132,12 @@ class _ListedUsersState extends State<ListedUsers> {
                   child: Material(
                     elevation: 20,
                     child: Container(
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [Colors.deepOrangeAccent , Colors.orange]
-                            )
-                        ),
+                        // decoration: BoxDecoration(
+                        //     gradient: LinearGradient(
+                        //         colors: [Colors.deepOrangeAccent , Colors.orange]
+                        //     )
+                        // ),
+                        color: appBarColor,
                         height: 55,
                         width: MediaQuery.of(context).size.width,
                         child: ListTile(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:obvio/Home/imagepicker.dart';
 import 'package:obvio/Notification/notifications.dart';
+import 'package:obvio/Utils/theme_colors.dart';
 
 class AddComment extends StatefulWidget {
   String commentId= '' , imageId = '' , imageUserId = '';
@@ -128,11 +129,12 @@ class _AddCommentState extends State<AddComment> {
                   child: Material(
                     elevation: 20,
                     child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.deepOrangeAccent , Colors.orange]
-                        )
-                      ),
+                      // decoration: BoxDecoration(
+                      //   gradient: LinearGradient(
+                      //     colors: [Colors.deepOrangeAccent , Colors.orange]
+                      //   )
+                      // ),
+                      color: appBarColor,
                       height: 50,
                       child: Center(child: Text("Comment" ,style: TextStyle(color: Colors.white,
                         fontSize: 17
